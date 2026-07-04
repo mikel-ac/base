@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Base</title>
+  <script>
+    /* Aplicar el tema guardado ANTES de pintar nada, para que no parpadee.
+       "sistema" (o nada guardado) = sin atributo: manda prefers-color-scheme. */
+    (function () {
+      try {
+        var t = localStorage.getItem("base-tema");
+        if (t === "claro") document.documentElement.setAttribute("data-theme", "light");
+        if (t === "oscuro") document.documentElement.setAttribute("data-theme", "dark");
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <meta name="description" content="Base — entrenamiento en casa, sencillo y a tu ritmo." />
+  <meta name="theme-color" content="#12A06A" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#12181A" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Base" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <link rel="icon" href="./icons/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="./icons/favicon-64.png" sizes="64x64" type="image/png" />
+</head>
+<body>
+  <main id="app" aria-busy="true">
+    <p class="cargando">Cargando…</p>
+  </main>
+  <script type="module" src="./dist/ui/main.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      });
+    }
+  </script>
+  <script>
+    /* Gestos tipo app: deslizar para cerrar paneles y para volver. */
+    (function () {
+      var x0 = null, y0 = null, t0 = 0;
+      document.addEventListener("touchstart", function (e) {
+        if (e.touches.length !== 1) return;
+        x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
+      }, { passive: true });
+      document.addEventListener("touchend", function (e) {
+        if (x0 === null) return;
+        var t = e.changedTouches[0];
+        var dx = t.clientX - x0, dy = t.clientY - y0, dt = Date.now() - t0;
+        var sx = x0; x0 = null;
+        if (dt > 600) return;
+        var ax = Math.abs(dx), ay = Math.abs(dy);
+        var anchoV = window.innerWidth;
+        var velo = document.querySelector(".velo");
+        if (velo) {
+          // cerrar panel: deslizar hacia abajo, o desde el borde derecho hacia el centro
+          if ((dy > 70 && ay > ax) || (dx < -70 && ax > ay)) {
+            velo.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+          }
+          return;
+        }
+        // volver: arrastrar DESDE el borde derecho hacia el centro (derecha→izquierda)
+        if (dx < -70 && ax > ay * 1.6 && sx > anchoV - 60) {
+          var back = document.querySelector("#app .back, #app [data-accion=\"volver\"]");
+          if (back) back.click();
+        }
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
