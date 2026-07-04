@@ -89,7 +89,9 @@ function siguienteFase(s: RunnerState): PasoRunnerResultado {
       return aTrabajo(s, 0);
     case "trabajo":
       if (esUltimo) return aFin(s);
-      if (s.restSec <= 0) return aTrabajo(s, s.indice + 1);
+      // Calentamiento seguido: sin descanso entre sus ejercicios.
+      if (s.restSec <= 0 || s.pasos[s.indice]?.bloque === "calentamiento")
+        return aTrabajo(s, s.indice + 1);
       return {
         estado: { ...s, fase: "descanso", restanteSec: s.restSec, indice: s.indice + 1 },
         efectos: ["AVISO_DESCANSO"],
@@ -135,8 +137,8 @@ export function reducirRunner(s: RunnerState, ev: EventoRunner): PasoRunnerResul
 
 /** Contrato de estado de la pantalla Sesión (§11.4), envuelto en un Store. */
 export class RunnerStore extends Store<RunnerState> {
-  constructor(plan: PlanSesion, prepSec = 10) {
-    super(crearRunner(plan, prepSec));
+  constructor(plan: PlanSesion, prepSec = 10, estadoInicial?: RunnerState) {
+    super(estadoInicial ?? crearRunner(plan, prepSec));
   }
 
   /**

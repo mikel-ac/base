@@ -75,3 +75,15 @@ export const TODOS_PATRONES: readonly Patron[] = ["empuje", "tiron", "pierna", "
 export const TODOS_MATERIALES: readonly Material[] = ["banda", "goma_mangos", "tabla", "esterilla", "eliptica", "bici"];
 export const TODAS_ZONAS: readonly Zona[] = ["hombro", "muneca", "codo", "rodilla", "tobillo", "gemelo", "lumbar", "cuello"];
 export const TODOS_IMPACTOS: readonly Impacto[] = ["bajo", "medio", "alto"];
+
+/** Zona de trabajo del ejercicio (para filtrar y para sustituir por zona).
+ *  Es editable por el usuario en el Gestor; si no la fija, se deriva del patrón. */
+export type ZonaTrabajo = "tren_superior" | "core" | "pierna_gluteo" | "global" | "movilidad";
+export const ZONAS_TRABAJO: readonly ZonaTrabajo[] = ["tren_superior", "core", "pierna_gluteo", "movilidad", "global"];
+export const ZONA_TRABAJO_ETIQUETA: Record<ZonaTrabajo, string> = {
+  tren_superior: "Tren superior",
+  core: "Core",
+  pierna_gluteo: "Pierna y glúteo",
+  movilidad: "Movilidad",
+  global: "Global",
+};

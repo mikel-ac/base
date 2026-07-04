@@ -93,6 +93,12 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
         <div class="seg">${segTema}</div>
         <p class="hint">"Sistema" sigue el modo claro/oscuro de tu dispositivo automáticamente.</p>
       </div>
+
+      <div>
+        <p class="lbl">Ejercicios</p>
+        <button class="btn wide" data-accion="gestor">Gestor de ejercicios</button>
+        <p class="hint">Editar ejercicios: notas, explicación, zona de trabajo y parejas.</p>
+      </div>
     `;
 
     if (!animado) {
@@ -114,6 +120,7 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
     const d = boton.dataset;
 
     if (d["accion"] === "volver") return nav.aInicio();
+    if (d["accion"] === "gestor") return nav.aGestor();
     if (d["objetivo"]) {
       return void guardar({ objetivoSemanal: clamp(u.objetivoSemanal + (d["objetivo"] === "+1" ? 1 : -1), 1, 7) });
     }

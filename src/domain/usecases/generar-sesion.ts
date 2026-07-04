@@ -167,7 +167,19 @@ export function generarSesion(
 
   const calentamiento = elegirCalentamiento(catalogo, cfgLimpia, rng).map((e) => asignar(e, cfgLimpia));
   const n = numEjerciciosPara(cfgLimpia.durMin, cfgLimpia.workSec, cfgLimpia.restSec);
-  const principal = seleccionBalanceada(pool, n, rng, cfgLimpia.enfasis).map((e) => asignar(e, cfgLimpia));
+  const seleccion = seleccionBalanceada(pool, n, rng, cfgLimpia.enfasis);
+  // Ejercicios unilaterales (porLados): aparecen dos veces seguidas, un lado y
+  // el otro. Se meten AMBOS lados o ninguno, nunca uno suelto, respetando el
+  // número de huecos de la sesión.
+  const expandidos: Ejercicio[] = [];
+  for (const e of seleccion) {
+    const necesita = e.porLados ? 2 : 1;
+    if (expandidos.length + necesita > n && expandidos.length > 0) continue;
+    if (e.porLados) expandidos.push(e, e);
+    else expandidos.push(e);
+    if (expandidos.length >= n) break;
+  }
+  const principal = expandidos.map((e) => asignar(e, cfgLimpia));
 
   return ok({ calentamiento, principal, cfg: cfgLimpia });
 }

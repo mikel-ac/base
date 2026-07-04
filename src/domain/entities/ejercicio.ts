@@ -1,4 +1,4 @@
-import type { Impacto, Material, Media, Patron, Tipo, Zona } from "./tipos.js";
+import type { Impacto, Material, Media, Patron, Tipo, Zona, ZonaTrabajo } from "./tipos.js";
 
 /** Una variante de dificultad de un ejercicio (1 suave · 2 media · 3 fuerte). */
 export interface Variante {
@@ -37,4 +37,9 @@ export interface Ejercicio {
   joints: Zona[];
   /** Galería ordenada de posiciones/vistas. */
   images: Media[];
+  /** Campos gestionables por el usuario (Gestor). Opcionales. */
+  notas?: string;
+  zonaTrabajo?: ZonaTrabajo;
+  parejaId?: string;
+  porLados?: boolean;
 }

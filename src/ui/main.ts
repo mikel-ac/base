@@ -1,5 +1,6 @@
 import { crearApp, type App } from "../app.js";
 import type { PlanSesion } from "../domain/entities/configuracion.js";
+import type { RunnerState } from "../state/runner.js";
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
 import { esc } from "./comunes.js";
 import { aplicarTema, temaActual } from "./tema.js";
@@ -11,6 +12,7 @@ import { montarAjustes } from "./vista-ajustes.js";
 import { montarProgreso } from "./vista-progreso.js";
 import { montarRegistrar } from "./vista-registrar.js";
 import { montarSesion } from "./vista-sesion.js";
+import { montarGestor } from "./vista-gestor.js";
 
 /**
  * GESTOR DE PANTALLAS. La app es una sola página que cambia de "vista":
@@ -33,7 +35,8 @@ export interface Nav {
   aPlanes(): void;
   aProgreso(): void;
   aAjustes(): void;
-  aSesion(plan: PlanSesion): void;
+  aGestor(): void;
+  aSesion(plan: PlanSesion, estado?: RunnerState): void;
   aRegistrar(plan: PlanSesion): void;
 }
 
@@ -60,7 +63,8 @@ async function arrancar(): Promise<void> {
       aPlanes: () => cambiar(() => montarPlanes(ctx, nav)),
       aProgreso: () => cambiar(() => montarProgreso(ctx, nav)),
       aAjustes: () => cambiar(() => montarAjustes(ctx, nav)),
-      aSesion: (plan) => cambiar(() => montarSesion(ctx, nav, plan)),
+      aGestor: () => cambiar(() => montarGestor(ctx, nav)),
+      aSesion: (plan, estado) => cambiar(() => montarSesion(ctx, nav, plan, estado)),
       aRegistrar: (plan) => cambiar(() => montarRegistrar(ctx, nav, plan)),
     };
 

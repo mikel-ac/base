@@ -9,6 +9,7 @@ import { montarAjustes } from "./vista-ajustes.js";
 import { montarProgreso } from "./vista-progreso.js";
 import { montarRegistrar } from "./vista-registrar.js";
 import { montarSesion } from "./vista-sesion.js";
+import { montarGestor } from "./vista-gestor.js";
 const raiz = document.getElementById("app");
 let limpiar = null;
 function cambiar(montar) {
@@ -29,7 +30,8 @@ async function arrancar() {
             aPlanes: () => cambiar(() => montarPlanes(ctx, nav)),
             aProgreso: () => cambiar(() => montarProgreso(ctx, nav)),
             aAjustes: () => cambiar(() => montarAjustes(ctx, nav)),
-            aSesion: (plan) => cambiar(() => montarSesion(ctx, nav, plan)),
+            aGestor: () => cambiar(() => montarGestor(ctx, nav)),
+            aSesion: (plan, estado) => cambiar(() => montarSesion(ctx, nav, plan, estado)),
             aRegistrar: (plan) => cambiar(() => montarRegistrar(ctx, nav, plan)),
         };
         nav.aInicio();

@@ -301,6 +301,10 @@ body {
   border-radius: 10px; padding: 11px 13px; margin-top: 6px;
 }
 .consejo { font-size: 13px; color: var(--soft); margin: 10px 0 0; }
+.zona-tag { display: inline-block; margin-top: 8px; font-family: var(--fd); font-size: 12px; color: var(--accent-ink); background: var(--accent-soft); padding: 4px 12px; border-radius: 999px; }
+.vol { display: inline-flex; align-items: center; gap: 8px; }
+.vol input[type="range"] { width: 130px; accent-color: var(--accent); }
+.card.resume { background: var(--accent-soft); }
 /* Previsualización del siguiente ejercicio en el descanso */
 .prev-media { margin: 12px 0 6px; }
 .prev-galeria { display: flex; gap: 8px; justify-content: center; }
@@ -391,3 +395,4 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 14px; color: var(--ink); background: var(--card); resize: vertical; }

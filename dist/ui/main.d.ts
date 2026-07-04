@@ -1,5 +1,6 @@
 import { type App } from "../app.js";
 import type { PlanSesion } from "../domain/entities/configuracion.js";
+import type { RunnerState } from "../state/runner.js";
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
 /**
  * GESTOR DE PANTALLAS. La app es una sola página que cambia de "vista":
@@ -20,6 +21,7 @@ export interface Nav {
     aPlanes(): void;
     aProgreso(): void;
     aAjustes(): void;
-    aSesion(plan: PlanSesion): void;
+    aGestor(): void;
+    aSesion(plan: PlanSesion, estado?: RunnerState): void;
     aRegistrar(plan: PlanSesion): void;
 }

@@ -36,3 +36,8 @@ export declare const TODOS_PATRONES: readonly Patron[];
 export declare const TODOS_MATERIALES: readonly Material[];
 export declare const TODAS_ZONAS: readonly Zona[];
 export declare const TODOS_IMPACTOS: readonly Impacto[];
+/** Zona de trabajo del ejercicio (para filtrar y para sustituir por zona).
+ *  Es editable por el usuario en el Gestor; si no la fija, se deriva del patrón. */
+export type ZonaTrabajo = "tren_superior" | "core" | "pierna_gluteo" | "global" | "movilidad";
+export declare const ZONAS_TRABAJO: readonly ZonaTrabajo[];
+export declare const ZONA_TRABAJO_ETIQUETA: Record<ZonaTrabajo, string>;

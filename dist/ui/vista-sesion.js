@@ -41,16 +41,21 @@ async function pintarPreview(e, zona) {
  */
 // ---------------------------------------------------------------- pitidos
 let audio = null;
-let silencio = false;
+const CLAVE_VOL = "base.volumen";
+function leerVolumen() {
+    const v = Number(localStorage.getItem(CLAVE_VOL));
+    return Number.isFinite(v) && v >= 0 && v <= 1 ? v : 0.6;
+}
+let volumen = leerVolumen();
 function pitido(frecuencia, duracion = 0.15, cuando = 0) {
-    if (silencio)
+    if (volumen <= 0)
         return;
     try {
         audio ??= new AudioContext();
         const osc = audio.createOscillator();
         const gan = audio.createGain();
         osc.frequency.value = frecuencia;
-        gan.gain.value = 0.08;
+        gan.gain.value = 0.2 * volumen;
         osc.connect(gan);
         gan.connect(audio.destination);
         osc.start(audio.currentTime + cuando);
@@ -97,21 +102,80 @@ const FASE_TEXTO = {
     descanso: "Descanso",
     fin: "Fin",
 };
+// -------------------------------------------------------- zona y pantalla
+const ZONA_TEXTO = {
+    empuje: "Tren superior", tiron: "Tren superior", pierna: "Pierna y glúteo",
+    core: "Core", cardio: "Cardio · global", movilidad: "Movilidad", calentamiento: "Calentamiento",
+};
+// Mantener la pantalla encendida (y sonando) durante la sesión.
+let wakeLock = null;
+let sesionViva = false;
+async function pedirWake() {
+    try {
+        const n = navigator;
+        if (n.wakeLock && !wakeLock)
+            wakeLock = await n.wakeLock.request("screen");
+    }
+    catch {
+        /* el dispositivo no lo soporta: seguimos igual */
+    }
+}
+function soltarWake() {
+    try {
+        wakeLock?.release();
+    }
+    catch { /* nada */ }
+    wakeLock = null;
+}
+document.addEventListener("visibilitychange", () => {
+    if (sesionViva && document.visibilityState === "visible")
+        void pedirWake();
+});
 // ------------------------------------------------------------------- vista
-export function montarSesion(ctx, nav, plan) {
+const CLAVE_SESION = "base.sesion_activa";
+export function leerSesionActiva() {
+    try {
+        const raw = localStorage.getItem(CLAVE_SESION);
+        if (!raw)
+            return null;
+        const d = JSON.parse(raw);
+        if (!d || !d.estado || d.estado.fase === "fin")
+            return null;
+        return d;
+    }
+    catch {
+        return null;
+    }
+}
+export function borrarSesionActiva() {
+    try {
+        localStorage.removeItem(CLAVE_SESION);
+    }
+    catch { /* nada */ }
+}
+function guardarSesionActiva(plan, estado) {
+    try {
+        localStorage.setItem(CLAVE_SESION, JSON.stringify({ plan, estado }));
+    }
+    catch { /* nada */ }
+}
+export function montarSesion(ctx, nav, plan, estadoInicial) {
     const { raiz } = ctx;
-    const runner = new RunnerStore(plan);
+    const runner = new RunnerStore(plan, 10, estadoInicial);
     let reloj;
     let claveUltimoPintado = "";
     let animado = false;
     raiz.classList.add("sin-nav");
     function pintar(s) {
-        if (s.fase === "fin")
+        if (s.fase === "fin") {
+            borrarSesionActiva();
             return;
+        }
+        guardarSesionActiva(plan, s);
         const paso = s.pasos[s.indice];
         if (!paso)
             return;
-        const clave = `${s.fase}|${s.indice}|${s.pausado}|${silencio}`;
+        const clave = `${s.fase}|${s.indice}|${s.pausado}`;
         if (clave === claveUltimoPintado) {
             // Solo ha pasado un segundo: número y anillo, sin tocar nada más.
             const num = raiz.querySelector(".num");
@@ -145,6 +209,7 @@ export function montarSesion(ctx, nav, plan) {
         <div class="ex">
           <div class="ex-n">${esDescansoOPrep ? "Siguiente: " : ""}${esc(paso.asignado.ejercicio.nombre)}</div>
           <div class="ex-v">${esc(paso.asignado.variante.nombre)}</div>
+          <div class="zona-tag">Trabaja: ${ZONA_TEXTO[paso.asignado.ejercicio.patron] ?? "Global"}</div>
           ${esDescansoOPrep ? '<div class="prev-media" id="prev-media"></div>' : ""}
           <p class="ex-c">${esc(paso.asignado.variante.cue)}</p>
           <button class="link" data-accion="detalle-ejercicio">Ver detalle del ejercicio</button>
@@ -156,7 +221,7 @@ export function montarSesion(ctx, nav, plan) {
         </div>
         <div class="runner-extra row">
           <button class="link" data-accion="ver-sesion">Ver toda la sesión</button>
-          <button class="link" data-accion="sonido">${silencio ? "Sonido: no" : "Sonido: sí"}</button>
+          <label class="vol"><span aria-hidden="true">🔊</span><input type="range" min="0" max="100" value="${Math.round(volumen * 100)}" data-accion="volumen" aria-label="Volumen del aviso" /></label>
         </div>
       </div>
     `;
@@ -224,21 +289,29 @@ export function montarSesion(ctx, nav, plan) {
                 if (window.confirm("¿Terminar la sesión aquí?"))
                     despachar({ tipo: "TERMINAR" });
                 break;
-            case "sonido":
-                silencio = !silencio;
-                claveUltimoPintado = ""; // forzar repintado para refrescar la etiqueta
-                pintar(runner.obtener());
-                break;
+        }
+    }
+    function alDeslizar(ev) {
+        const t = ev.target;
+        if (t instanceof HTMLInputElement && t.dataset["accion"] === "volumen") {
+            volumen = Math.max(0, Math.min(1, Number(t.value) / 100));
+            localStorage.setItem(CLAVE_VOL, String(volumen));
         }
     }
     raiz.addEventListener("click", alPulsar);
+    raiz.addEventListener("input", alDeslizar);
     const desuscribir = runner.suscribir(pintar);
     reloj = window.setInterval(() => despachar({ tipo: "TICK" }), 1000);
+    sesionViva = true;
+    void pedirWake();
     return () => {
         window.clearInterval(reloj);
         desuscribir();
         raiz.removeEventListener("click", alPulsar);
+        raiz.removeEventListener("input", alDeslizar);
         raiz.classList.remove("sin-nav");
+        sesionViva = false;
+        soltarWake();
         for (const velo of document.querySelectorAll(".velo"))
             velo.remove();
     };

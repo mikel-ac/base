@@ -34,7 +34,8 @@ function siguienteFase(s) {
         case "trabajo":
             if (esUltimo)
                 return aFin(s);
-            if (s.restSec <= 0)
+            // Calentamiento seguido: sin descanso entre sus ejercicios.
+            if (s.restSec <= 0 || s.pasos[s.indice]?.bloque === "calentamiento")
                 return aTrabajo(s, s.indice + 1);
             return {
                 estado: { ...s, fase: "descanso", restanteSec: s.restSec, indice: s.indice + 1 },
@@ -83,8 +84,8 @@ export function reducirRunner(s, ev) {
 }
 /** Contrato de estado de la pantalla Sesión (§11.4), envuelto en un Store. */
 export class RunnerStore extends Store {
-    constructor(plan, prepSec = 10) {
-        super(crearRunner(plan, prepSec));
+    constructor(plan, prepSec = 10, estadoInicial) {
+        super(estadoInicial ?? crearRunner(plan, prepSec));
     }
     /**
      * Despacha un evento y devuelve los efectos para que la UI los ejecute

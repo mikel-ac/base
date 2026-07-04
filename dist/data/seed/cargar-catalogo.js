@@ -1,5 +1,6 @@
 import { TODAS_ZONAS, TODOS_IMPACTOS, TODOS_MATERIALES, TODOS_PATRONES, TODOS_TIPOS, } from "../../domain/entities/tipos.js";
 import { CATALOGO_RAW } from "./catalogo.js";
+import { aplicarOverrides } from "../overrides.js";
 function validarEnum(valor, permitidos, contexto) {
     if (!permitidos.includes(valor)) {
         throw new Error(`Catálogo inválido: "${valor}" no es válido en ${contexto}. Permitidos: ${permitidos.join(", ")}`);
@@ -50,5 +51,5 @@ export function cargarCatalogo() {
             throw new Error(`Catálogo inválido: id duplicado "${e.id}".`);
         ids.add(e.id);
     }
-    return ejercicios;
+    return aplicarOverrides(ejercicios);
 }

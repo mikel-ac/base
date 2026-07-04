@@ -6,6 +6,7 @@ import type { InicioState } from "../state/inicio-store.js";
 import { animarEntrada, aviso, esc, VALORACION_TEXTO } from "./comunes.js";
 import type { Ctx, Nav } from "./main.js";
 import { activarIndicador, htmlNav, manejarNav } from "./nav.js";
+import { leerSesionActiva, borrarSesionActiva } from "./vista-sesion.js";
 import { mostrarDetallePlan } from "./panel-detalle.js";
 
 /**
@@ -63,6 +64,19 @@ export function montarInicio(ctx: Ctx, nav: Nav): () => void {
         }`
       : "Aún sin sesiones: la primera marca el comienzo.";
 
+    const sesionGuardada = leerSesionActiva();
+    const cardResume = sesionGuardada
+      ? `
+      <section class="card resume" aria-label="Sesión sin terminar">
+        <p class="lbl">Sesión sin terminar</p>
+        <div class="sug-t">Retoma donde lo dejaste</div>
+        <div class="row">
+          <button class="btn primary" data-accion="continuar-sesion">Continuar</button>
+          <button class="btn" data-accion="descartar-sesion">Descartar</button>
+        </div>
+      </section>`
+      : "";
+
     raiz.innerHTML = `
       <header class="hd">
         <div>
@@ -74,6 +88,8 @@ export function montarInicio(ctx: Ctx, nav: Nav): () => void {
           <button class="link" data-accion="ajustes" aria-label="Ajustes">Ajustes</button>
         </div>
       </header>
+
+      ${cardResume}
 
       <section class="card" aria-label="Objetivo de la semana">
         <p class="lbl">Objetivo de la semana</p>
@@ -141,6 +157,17 @@ export function montarInicio(ctx: Ctx, nav: Nav): () => void {
     if (boton.dataset["min"]) {
       minutosRapido = Number(boton.dataset["min"]);
       raiz.querySelectorAll(".seg [data-min]").forEach((b) => b.classList.toggle("on", b === boton));
+      return;
+    }
+
+    if (boton.dataset["accion"] === "continuar-sesion") {
+      const g = leerSesionActiva();
+      if (g) nav.aSesion(g.plan, g.estado);
+      return;
+    }
+    if (boton.dataset["accion"] === "descartar-sesion") {
+      borrarSesionActiva();
+      pintar(app.stores.inicio.obtener());
       return;
     }
 

@@ -2,6 +2,7 @@ import { generarSesion } from "../domain/usecases/generar-sesion.js";
 import { ConfiguradorStore } from "../state/configurador-store.js";
 import { animarEntrada, aviso, esc, VALORACION_TEXTO } from "./comunes.js";
 import { activarIndicador, htmlNav, manejarNav } from "./nav.js";
+import { leerSesionActiva, borrarSesionActiva } from "./vista-sesion.js";
 import { mostrarDetallePlan } from "./panel-detalle.js";
 /**
  * PANTALLA DE INICIO, con la capa visual "Bloques":
@@ -50,6 +51,18 @@ export function montarInicio(ctx, nav) {
         const lineaUltima = ultima
             ? `Última · ${esc(diaCorto(ultima.ts))} · ${esc(ultima.focus.join(" + "))} · ${ultima.durMin} min${ultima.valoracion ? ` · ${VALORACION_TEXTO[ultima.valoracion]}` : ""}`
             : "Aún sin sesiones: la primera marca el comienzo.";
+        const sesionGuardada = leerSesionActiva();
+        const cardResume = sesionGuardada
+            ? `
+      <section class="card resume" aria-label="Sesión sin terminar">
+        <p class="lbl">Sesión sin terminar</p>
+        <div class="sug-t">Retoma donde lo dejaste</div>
+        <div class="row">
+          <button class="btn primary" data-accion="continuar-sesion">Continuar</button>
+          <button class="btn" data-accion="descartar-sesion">Descartar</button>
+        </div>
+      </section>`
+            : "";
         raiz.innerHTML = `
       <header class="hd">
         <div>
@@ -61,6 +74,8 @@ export function montarInicio(ctx, nav) {
           <button class="link" data-accion="ajustes" aria-label="Ajustes">Ajustes</button>
         </div>
       </header>
+
+      ${cardResume}
 
       <section class="card" aria-label="Objetivo de la semana">
         <p class="lbl">Objetivo de la semana</p>
@@ -126,6 +141,17 @@ export function montarInicio(ctx, nav) {
         if (boton.dataset["min"]) {
             minutosRapido = Number(boton.dataset["min"]);
             raiz.querySelectorAll(".seg [data-min]").forEach((b) => b.classList.toggle("on", b === boton));
+            return;
+        }
+        if (boton.dataset["accion"] === "continuar-sesion") {
+            const g = leerSesionActiva();
+            if (g)
+                nav.aSesion(g.plan, g.estado);
+            return;
+        }
+        if (boton.dataset["accion"] === "descartar-sesion") {
+            borrarSesionActiva();
+            pintar(app.stores.inicio.obtener());
             return;
         }
         const estado = app.stores.inicio.obtener();

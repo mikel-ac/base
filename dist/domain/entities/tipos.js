@@ -27,3 +27,11 @@ export const TODOS_PATRONES = ["empuje", "tiron", "pierna", "core", "cardio", "m
 export const TODOS_MATERIALES = ["banda", "goma_mangos", "tabla", "esterilla", "eliptica", "bici"];
 export const TODAS_ZONAS = ["hombro", "muneca", "codo", "rodilla", "tobillo", "gemelo", "lumbar", "cuello"];
 export const TODOS_IMPACTOS = ["bajo", "medio", "alto"];
+export const ZONAS_TRABAJO = ["tren_superior", "core", "pierna_gluteo", "movilidad", "global"];
+export const ZONA_TRABAJO_ETIQUETA = {
+    tren_superior: "Tren superior",
+    core: "Core",
+    pierna_gluteo: "Pierna y glúteo",
+    movilidad: "Movilidad",
+    global: "Global",
+};

@@ -51,7 +51,7 @@ export declare function crearRunner(plan: PlanSesion, prepSec?: number): RunnerS
 export declare function reducirRunner(s: RunnerState, ev: EventoRunner): PasoRunnerResultado;
 /** Contrato de estado de la pantalla Sesión (§11.4), envuelto en un Store. */
 export declare class RunnerStore extends Store<RunnerState> {
-    constructor(plan: PlanSesion, prepSec?: number);
+    constructor(plan: PlanSesion, prepSec?: number, estadoInicial?: RunnerState);
     /**
      * Despacha un evento y devuelve los efectos para que la UI los ejecute
      * (sonar el beep con SU volumen, vibrar, etc.).

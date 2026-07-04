@@ -8,6 +8,7 @@ import {
   TODOS_TIPOS,
 } from "../../domain/entities/tipos.js";
 import { CATALOGO_RAW } from "./catalogo.js";
+import { aplicarOverrides } from "../overrides.js";
 
 /**
  * CARGA Y VALIDACIÓN DEL SEED.
@@ -104,5 +105,5 @@ export function cargarCatalogo(): Ejercicio[] {
     if (ids.has(e.id)) throw new Error(`Catálogo inválido: id duplicado "${e.id}".`);
     ids.add(e.id);
   }
-  return ejercicios;
+  return aplicarOverrides(ejercicios);
 }
