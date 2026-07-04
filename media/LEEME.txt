@@ -1,0 +1,9 @@
+Carpeta de clips propios (§10 del PRD).
+
+Si grabas un clip de un ejercicio, guárdalo aquí con el id del ejercicio
+como nombre: media/flexiones.mp4 o media/flexiones.gif
+
+La app los detecta sola, sin tocar código, con este orden de preferencia:
+1) {id}.mp4   2) {id}.gif   3) dibujos/fotos del catálogo   4) nombre en texto
+
+Los ids están en src/data/seed/catalogo_ejercicios_v2.json

@@ -1,0 +1,2606 @@
+{
+  "schemaVersion": 1,
+  "descripcion": "Catalogo nucleo de ejercicios para entrenamiento en casa. Cada ejercicio es una familia con variantes de dificultad (level 1 = mas facil/regresion, level mayor = mas dificil/progresion). El perfil de cada persona elige la variante de partida; el plan global la sube o baja con el tiempo.",
+  "enums": {
+    "type": [
+      "fuerza",
+      "cardio",
+      "movilidad",
+      "calentamiento"
+    ],
+    "pattern": [
+      "empuje",
+      "tiron",
+      "pierna",
+      "core",
+      "cardio",
+      "movilidad",
+      "calentamiento"
+    ],
+    "materials": [
+      "banda",
+      "goma_mangos",
+      "tabla",
+      "esterilla",
+      "eliptica",
+      "bici"
+    ],
+    "impact": [
+      "bajo",
+      "medio",
+      "alto"
+    ],
+    "joints": [
+      "hombro",
+      "muneca",
+      "codo",
+      "rodilla",
+      "tobillo",
+      "gemelo",
+      "lumbar",
+      "cuello"
+    ]
+  },
+  "notas": {
+    "materials_vacio": "materials: [] significa solo peso corporal (siempre disponible).",
+    "dumbbellReady": "true = el dia que se añadan mancuernas, este ejercicio las admite sin rehacer nada.",
+    "variant_impact": "una variante puede sobreescribir el impact del ejercicio (ej. version lenta = bajo). El filtro 'bajo impacto' usa esto para elegir la variante silenciosa o esconder el ejercicio.",
+    "image": "se rellena despues, en la capa de imagenes estaticas.",
+    "keys": "keys: claves de técnica para hacerlo bien. avoid: error principal a evitar para no lesionarse.",
+    "images": "images: lista ordenada de posiciones/vistas para la galería emergente. svg embebido cuando ya existe el grafico; si no, marcador con label.",
+    "joints": "joints: zonas que carga el ejercicio. Si el usuario marca una dolencia en esa zona, el ejercicio se excluye."
+  },
+  "exercises": [
+    {
+      "id": "flexiones",
+      "name": "Flexiones",
+      "type": "fuerza",
+      "pattern": "empuje",
+      "muscles": [
+        "pecho",
+        "triceps",
+        "hombro"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Flexiones en pared",
+          "cue": "Manos a la altura del pecho, cuerpo recto, acerca el pecho a la pared."
+        },
+        {
+          "level": 2,
+          "name": "Flexiones de rodillas",
+          "cue": "Apoya las rodillas, mantén la cadera en línea con la espalda."
+        },
+        {
+          "level": 3,
+          "name": "Flexiones completas",
+          "cue": "Cuerpo en línea recta, codos a unos 45°, baja controlado hasta casi tocar."
+        }
+      ],
+      "tip": "No dejes caer la cadera ni subas el culo: el cuerpo viaja como una tabla.",
+      "image": null,
+      "keys": [
+        "Cuerpo en línea recta de cabeza a talones, abdomen y glúteo apretados",
+        "Codos a unos 45° del cuerpo, no abiertos del todo",
+        "Baja controlado hasta que el pecho casi toque y empuja"
+      ],
+      "avoid": "Que la cadera se hunda o el cuello se adelante.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Pushups/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Pushups/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "muneca",
+        "hombro",
+        "codo"
+      ]
+    },
+    {
+      "id": "press_hombro_goma",
+      "name": "Press de hombro con goma",
+      "type": "fuerza",
+      "pattern": "empuje",
+      "muscles": [
+        "hombro",
+        "triceps"
+      ],
+      "materials": [
+        "banda",
+        "goma_mangos"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Sentado, dos brazos",
+          "cue": "Pisa la goma, empuja hacia arriba sin arquear la espalda."
+        },
+        {
+          "level": 2,
+          "name": "De pie, dos brazos",
+          "cue": "Core firme, no saques las costillas al empujar."
+        },
+        {
+          "level": 3,
+          "name": "De pie, tempo lento",
+          "cue": "Sube en 1 s y baja en 3 s para más tensión."
+        }
+      ],
+      "tip": "Si notas pinzamiento en el hombro, baja solo hasta donde sea cómodo.",
+      "image": null,
+      "keys": [
+        "Costillas hacia dentro, sin arquear la zona lumbar",
+        "Empuja en vertical y baja controlando la goma",
+        "Muñecas firmes, alineadas con el antebrazo"
+      ],
+      "avoid": "Empujar arqueando la espalda para llegar más arriba.",
+      "images": [],
+      "joints": [
+        "hombro",
+        "codo"
+      ]
+    },
+    {
+      "id": "fondos_triceps_silla",
+      "name": "Fondos de tríceps en silla",
+      "type": "fuerza",
+      "pattern": "empuje",
+      "muscles": [
+        "triceps",
+        "hombro"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Pies cerca, rodillas flexionadas",
+          "cue": "Manos en el borde, baja doblando solo los codos."
+        },
+        {
+          "level": 2,
+          "name": "Pies lejos, piernas estiradas",
+          "cue": "Cuanto más lejos los pies, más carga."
+        },
+        {
+          "level": 3,
+          "name": "Una pierna elevada",
+          "cue": "Sube una pierna para añadir dificultad y core."
+        }
+      ],
+      "tip": "Usa una silla estable contra la pared. Codos hacia atrás, no hacia fuera.",
+      "image": null,
+      "keys": [
+        "Codos hacia atrás, no hacia los lados",
+        "Hombros lejos de las orejas",
+        "Baja solo hasta que el codo haga 90°"
+      ],
+      "avoid": "Bajar demasiado y forzar el hombro.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bench_Dips/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bench_Dips/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro",
+        "codo",
+        "muneca"
+      ]
+    },
+    {
+      "id": "press_pecho_goma",
+      "name": "Press de pecho con goma",
+      "type": "fuerza",
+      "pattern": "empuje",
+      "muscles": [
+        "pecho",
+        "triceps",
+        "hombro"
+      ],
+      "materials": [
+        "banda",
+        "goma_mangos"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "De pie, dos brazos",
+          "cue": "Goma anclada a la espalda, empuja al frente a la altura del pecho."
+        },
+        {
+          "level": 2,
+          "name": "Tempo lento",
+          "cue": "Controla la vuelta en 3 s."
+        },
+        {
+          "level": 3,
+          "name": "Una mano (anti-rotación)",
+          "cue": "Empuja con un brazo resistiendo girar el tronco."
+        }
+      ],
+      "tip": "Mantén los hombros bajos y el pecho abierto.",
+      "image": null,
+      "keys": [
+        "Hombros bajos y pecho abierto",
+        "Empuja al frente a la altura del esternón",
+        "Controla la vuelta sin que la goma tire de ti"
+      ],
+      "avoid": "Encoger los hombros al empujar.",
+      "images": [],
+      "joints": [
+        "hombro",
+        "codo"
+      ]
+    },
+    {
+      "id": "pike_pushup",
+      "name": "Flexión pike",
+      "type": "fuerza",
+      "pattern": "empuje",
+      "muscles": [
+        "hombro",
+        "triceps"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Manos elevadas en silla",
+          "cue": "Cadera alta en V invertida, baja la cabeza entre las manos."
+        },
+        {
+          "level": 2,
+          "name": "Pike en suelo",
+          "cue": "Forma de V, peso sobre los hombros."
+        },
+        {
+          "level": 3,
+          "name": "Pies elevados",
+          "cue": "Sube los pies a un escalón para cargar más el hombro."
+        }
+      ],
+      "tip": "Cuanto más vertical el tronco, más trabaja el hombro.",
+      "image": null,
+      "keys": [
+        "Cadera alta, cuerpo en V invertida",
+        "Baja la coronilla entre las manos",
+        "Cuanto más vertical el tronco, más trabaja el hombro"
+      ],
+      "avoid": "Dejar caer la zona lumbar al bajar.",
+      "images": [],
+      "joints": [
+        "muneca",
+        "hombro",
+        "cuello"
+      ]
+    },
+    {
+      "id": "remo_goma",
+      "name": "Remo con goma",
+      "type": "fuerza",
+      "pattern": "tiron",
+      "muscles": [
+        "espalda",
+        "biceps"
+      ],
+      "materials": [
+        "goma_mangos",
+        "banda"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Sentado, dos manos",
+          "cue": "Goma en los pies, tira llevando los codos atrás y junta omóplatos."
+        },
+        {
+          "level": 2,
+          "name": "De pie inclinado",
+          "cue": "Bisagra de cadera, espalda recta, rema hacia el abdomen."
+        },
+        {
+          "level": 3,
+          "name": "Una mano con pausa",
+          "cue": "Aprieta 1 s arriba en cada repetición."
+        }
+      ],
+      "tip": "Tira con la espalda, no solo con los brazos: piensa en 'guardar' los omóplatos.",
+      "image": null,
+      "keys": [
+        "Tira llevando los codos atrás y junta los omóplatos",
+        "Pecho arriba y espalda recta",
+        "Aprieta un instante al final del tirón"
+      ],
+      "avoid": "Tirar solo con los brazos encogiendo los hombros.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bodyweight_Mid_Row/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bodyweight_Mid_Row/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro",
+        "codo"
+      ]
+    },
+    {
+      "id": "pull_apart_banda",
+      "name": "Aperturas con banda",
+      "type": "fuerza",
+      "pattern": "tiron",
+      "muscles": [
+        "espalda alta",
+        "hombro posterior"
+      ],
+      "materials": [
+        "banda"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Brazos a la altura del pecho",
+          "cue": "Banda tensa, ábrela separando las manos."
+        },
+        {
+          "level": 2,
+          "name": "Brazos rectos al frente",
+          "cue": "Mantén los codos casi estirados."
+        },
+        {
+          "level": 3,
+          "name": "Tempo lento",
+          "cue": "Vuelve en 3 s sin que la banda tire de ti."
+        }
+      ],
+      "tip": "Ideal para contrarrestar tantas horas frente a pantalla.",
+      "image": null,
+      "keys": [
+        "Brazos casi rectos, abre desde los omóplatos",
+        "Hombros bajos, cuello relajado",
+        "Vuelve despacio sin soltar la tensión"
+      ],
+      "avoid": "Encoger los hombros hacia las orejas.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Band_Pull_Apart/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Band_Pull_Apart/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro"
+      ]
+    },
+    {
+      "id": "curl_biceps_goma",
+      "name": "Curl de bíceps con goma",
+      "type": "fuerza",
+      "pattern": "tiron",
+      "muscles": [
+        "biceps"
+      ],
+      "materials": [
+        "goma_mangos",
+        "banda"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Dos brazos",
+          "cue": "Pisa la goma, sube sin mover los codos del costado."
+        },
+        {
+          "level": 2,
+          "name": "Alterno",
+          "cue": "Un brazo cada vez, controla la bajada."
+        },
+        {
+          "level": 3,
+          "name": "Tempo lento",
+          "cue": "Baja en 3 s manteniendo tensión."
+        }
+      ],
+      "tip": "Codos pegados al cuerpo; no balancees el tronco para subir.",
+      "image": null,
+      "keys": [
+        "Codos pegados al costado y fijos",
+        "Sube sin balancear el tronco",
+        "Baja en control manteniendo tensión"
+      ],
+      "avoid": "Usar impulso de la espalda para subir.",
+      "images": [],
+      "joints": [
+        "codo"
+      ]
+    },
+    {
+      "id": "face_pull_goma",
+      "name": "Face pull con goma",
+      "type": "fuerza",
+      "pattern": "tiron",
+      "muscles": [
+        "hombro posterior",
+        "espalda alta"
+      ],
+      "materials": [
+        "goma_mangos",
+        "banda"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Sentado",
+          "cue": "Tira la goma hacia la cara separando las manos al final."
+        },
+        {
+          "level": 2,
+          "name": "De pie",
+          "cue": "Codos altos, junta los omóplatos."
+        }
+      ],
+      "tip": "Salud de hombro pura: poco peso y buena ejecución.",
+      "image": null,
+      "keys": [
+        "Codos altos, tira hacia la frente",
+        "Separa las manos al final del recorrido",
+        "Movimiento lento y poco peso"
+      ],
+      "avoid": "Bajar los codos y convertirlo en un remo.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Back_Flyes_-_With_Bands/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Back_Flyes_-_With_Bands/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro"
+      ]
+    },
+    {
+      "id": "sentadilla",
+      "name": "Sentadilla",
+      "type": "fuerza",
+      "pattern": "pierna",
+      "muscles": [
+        "cuadriceps",
+        "gluteo"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "A la silla",
+          "cue": "Baja a sentarte en una silla y levántate sin impulso."
+        },
+        {
+          "level": 2,
+          "name": "Libre",
+          "cue": "Baja hasta que los muslos queden paralelos, rodillas hacia los pies."
+        },
+        {
+          "level": 3,
+          "name": "Búlgara (pie atrás elevado)",
+          "cue": "Un pie atrás sobre la silla, baja con la pierna de delante."
+        }
+      ],
+      "tip": "El peso en el medio del pie, pecho arriba. Las rodillas pueden pasar la punta sin problema.",
+      "image": null,
+      "keys": [
+        "Peso en el medio del pie, talones clavados",
+        "Rodillas en línea con las puntas, sin caer adentro",
+        "Pecho arriba; baja hasta muslos paralelos si puedes"
+      ],
+      "avoid": "Que las rodillas se metan hacia dentro o se levanten los talones.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bodyweight_Squat/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bodyweight_Squat/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "rodilla"
+      ]
+    },
+    {
+      "id": "sentadilla_talon_tabla",
+      "name": "Sentadilla con talón elevado",
+      "type": "fuerza",
+      "pattern": "pierna",
+      "muscles": [
+        "cuadriceps"
+      ],
+      "materials": [
+        "tabla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Recorrido parcial",
+          "cue": "Talones en la tabla inclinada, baja hasta donde controles."
+        },
+        {
+          "level": 2,
+          "name": "Recorrido completo",
+          "cue": "El talón elevado te deja bajar más recto y profundo."
+        },
+        {
+          "level": 3,
+          "name": "Tempo lento",
+          "cue": "Baja en 3 s para castigar el cuádriceps."
+        }
+      ],
+      "tip": "La tabla inclinada brilla aquí: aísla muy bien el cuádriceps.",
+      "image": null,
+      "keys": [
+        "Talones en la tabla, tronco más vertical",
+        "Baja recto y profundo con control",
+        "Rodillas siguiendo la dirección de los pies"
+      ],
+      "avoid": "Acelerar la bajada perdiendo el control.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bodyweight_Squat/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bodyweight_Squat/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "rodilla",
+        "tobillo"
+      ]
+    },
+    {
+      "id": "zancadas",
+      "name": "Zancadas",
+      "type": "fuerza",
+      "pattern": "pierna",
+      "muscles": [
+        "cuadriceps",
+        "gluteo"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Estáticas con apoyo",
+          "cue": "Apóyate en una pared, baja la rodilla de atrás hacia el suelo."
+        },
+        {
+          "level": 2,
+          "name": "Alternas en el sitio",
+          "cue": "Sin apoyo, alterna piernas manteniendo el tronco recto."
+        },
+        {
+          "level": 3,
+          "name": "Caminando o hacia atrás",
+          "cue": "Da el paso atrás para más control de rodilla."
+        }
+      ],
+      "tip": "La rodilla de delante alineada con el pie, no cae hacia dentro.",
+      "image": null,
+      "keys": [
+        "Tronco erguido, paso amplio",
+        "Baja la rodilla de atrás hacia el suelo",
+        "Rodilla de delante alineada con el pie"
+      ],
+      "avoid": "Que la rodilla de delante caiga hacia dentro.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bodyweight_Walking_Lunge/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bodyweight_Walking_Lunge/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "rodilla"
+      ]
+    },
+    {
+      "id": "puente_gluteo",
+      "name": "Puente de glúteo",
+      "type": "fuerza",
+      "pattern": "pierna",
+      "muscles": [
+        "gluteo",
+        "isquios"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Dos pies",
+          "cue": "Tumbado, empuja con los talones y aprieta el glúteo arriba."
+        },
+        {
+          "level": 2,
+          "name": "Con banda en las rodillas",
+          "cue": "Abre las rodillas contra la banda al subir."
+        },
+        {
+          "level": 3,
+          "name": "A una pierna",
+          "cue": "Extiende una pierna y sube solo con la otra."
+        }
+      ],
+      "tip": "Aprieta arriba 1 s; no arquees la zona lumbar.",
+      "image": null,
+      "keys": [
+        "Empuja con los talones, no con la punta",
+        "Aprieta el glúteo arriba 1 segundo",
+        "Sube hasta alinear rodilla, cadera y hombro"
+      ],
+      "avoid": "Arquear la lumbar en vez de usar el glúteo.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Barbell_Glute_Bridge/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Barbell_Glute_Bridge/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "lumbar"
+      ]
+    },
+    {
+      "id": "gemelos_tabla",
+      "name": "Elevación de gemelos en tabla",
+      "type": "fuerza",
+      "pattern": "pierna",
+      "muscles": [
+        "gemelos"
+      ],
+      "materials": [
+        "tabla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Dos pies",
+          "cue": "Punteras en la tabla, sube y baja el talón con recorrido completo."
+        },
+        {
+          "level": 2,
+          "name": "Tempo lento",
+          "cue": "Baja el talón en 3 s para estirar bien."
+        },
+        {
+          "level": 3,
+          "name": "A una pierna",
+          "cue": "Todo el peso en una pierna."
+        }
+      ],
+      "tip": "La tabla da más recorrido que el suelo: aprovéchalo bajando el talón.",
+      "image": null,
+      "keys": [
+        "Sube todo lo posible sobre la punta",
+        "Baja el talón lento para estirar bien",
+        "Sujétate con un dedo a la pared si lo necesitas"
+      ],
+      "avoid": "Rebotar abajo sin control.",
+      "images": [],
+      "joints": [
+        "gemelo",
+        "tobillo"
+      ]
+    },
+    {
+      "id": "peso_muerto_goma",
+      "name": "Peso muerto con goma",
+      "type": "fuerza",
+      "pattern": "pierna",
+      "muscles": [
+        "isquios",
+        "gluteo",
+        "espalda baja"
+      ],
+      "materials": [
+        "goma_mangos",
+        "banda"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Dos piernas",
+          "cue": "Pisa la goma, bisagra de cadera con espalda recta."
+        },
+        {
+          "level": 2,
+          "name": "Tempo lento",
+          "cue": "Baja en 3 s sintiendo el estiramiento del isquio."
+        },
+        {
+          "level": 3,
+          "name": "A una pierna",
+          "cue": "Equilibrio sobre una pierna, la otra atrás como contrapeso."
+        }
+      ],
+      "tip": "El movimiento nace de la cadera hacia atrás, no de doblar la espalda.",
+      "image": null,
+      "keys": [
+        "Lleva la cadera atrás, espalda recta",
+        "Nota el estiramiento en el isquio, no en la lumbar",
+        "Sube apretando el glúteo"
+      ],
+      "avoid": "Redondear la espalda baja al bajar.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Band_Good_Morning/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Band_Good_Morning/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "lumbar"
+      ]
+    },
+    {
+      "id": "monster_walk_banda",
+      "name": "Paso lateral con banda",
+      "type": "fuerza",
+      "pattern": "pierna",
+      "muscles": [
+        "gluteo",
+        "abductores"
+      ],
+      "materials": [
+        "banda"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Pasos laterales",
+          "cue": "Banda en los tobillos, semisentadilla, da pasos al lado."
+        },
+        {
+          "level": 2,
+          "name": "Sentadilla + paso",
+          "cue": "Añade una sentadilla entre cada paso."
+        }
+      ],
+      "tip": "Mantén tensión en la banda todo el rato; no juntes del todo los pies.",
+      "image": null,
+      "keys": [
+        "Mantén la semisentadilla todo el ejercicio",
+        "Pasos controlados sin juntar del todo los pies",
+        "Tensión constante en la banda"
+      ],
+      "avoid": "Ponerte de pie entre paso y paso.",
+      "images": [],
+      "joints": [
+        "rodilla"
+      ]
+    },
+    {
+      "id": "sentadilla_isometrica",
+      "name": "Sentadilla isométrica en pared",
+      "type": "fuerza",
+      "pattern": "pierna",
+      "muscles": [
+        "cuadriceps"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Media sentadilla",
+          "cue": "Espalda en la pared, baja a medio camino y aguanta."
+        },
+        {
+          "level": 2,
+          "name": "90 grados",
+          "cue": "Muslos paralelos al suelo, aguanta el tiempo marcado."
+        },
+        {
+          "level": 3,
+          "name": "Una pierna parcial",
+          "cue": "Adelanta más peso a una pierna."
+        }
+      ],
+      "tip": "Ejercicio por tiempo: el cronómetro manda. Respira con normalidad.",
+      "image": null,
+      "keys": [
+        "Espalda plana contra la pared",
+        "Rodillas sobre los tobillos, en 90° si puedes",
+        "Respira con normalidad mientras aguantas"
+      ],
+      "avoid": "Aguantar la respiración o dejar caer las rodillas adentro.",
+      "images": [],
+      "joints": [
+        "rodilla"
+      ]
+    },
+    {
+      "id": "plancha",
+      "name": "Plancha",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "core"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "De rodillas",
+          "cue": "Antebrazos y rodillas, cuerpo recto desde la cabeza."
+        },
+        {
+          "level": 2,
+          "name": "Completa",
+          "cue": "Apoya las puntas de los pies, cadera ni alta ni baja."
+        },
+        {
+          "level": 3,
+          "name": "Con elevación de pierna",
+          "cue": "Levanta una pierna unos centímetros sin mover la cadera."
+        }
+      ],
+      "tip": "Por tiempo. Aprieta abdomen y glúteo; no aguantes la respiración.",
+      "image": null,
+      "keys": [
+        "Cuerpo recto: ni cadera alta ni hundida",
+        "Aprieta abdomen y glúteo",
+        "Hombros sobre los codos, cuello largo"
+      ],
+      "avoid": "Dejar caer la cadera o subir el culo.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Plank/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Plank/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro",
+        "lumbar"
+      ]
+    },
+    {
+      "id": "plancha_lateral",
+      "name": "Plancha lateral",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "core",
+        "oblicuos"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "De rodillas",
+          "cue": "Apoyo en antebrazo y rodillas, sube la cadera."
+        },
+        {
+          "level": 2,
+          "name": "Completa",
+          "cue": "Piernas estiradas, cuerpo en línea, cadera arriba."
+        },
+        {
+          "level": 3,
+          "name": "Con elevación de cadera",
+          "cue": "Baja y sube la cadera de forma controlada."
+        }
+      ],
+      "tip": "Por tiempo cada lado. No dejes caer la cadera.",
+      "image": null,
+      "keys": [
+        "Cuerpo en línea, cadera arriba",
+        "Apoya bien el antebrazo, hombro estable",
+        "Mira al frente, cuello relajado"
+      ],
+      "avoid": "Dejar caer la cadera hacia el suelo.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Side_Bridge/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Side_Bridge/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro",
+        "lumbar"
+      ]
+    },
+    {
+      "id": "dead_bug",
+      "name": "Dead bug",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "core"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Solo piernas",
+          "cue": "Boca arriba, baja una pierna y vuelve sin arquear la lumbar."
+        },
+        {
+          "level": 2,
+          "name": "Brazo y pierna opuestos",
+          "cue": "Estira brazo y pierna contrarios a la vez."
+        },
+        {
+          "level": 3,
+          "name": "Tempo lento",
+          "cue": "Cada movimiento en 3-4 s."
+        }
+      ],
+      "tip": "La zona lumbar pegada al suelo todo el rato: esa es la clave.",
+      "image": null,
+      "keys": [
+        "Lumbar pegada al suelo todo el rato",
+        "Mueve brazo y pierna opuestos despacio",
+        "Respira, no aguantes el aire"
+      ],
+      "avoid": "Que la espalda baja se despegue del suelo.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "bird_dog",
+      "name": "Bird dog",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "core",
+        "espalda"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Solo brazo o solo pierna",
+          "cue": "En cuadrupedia, estira un brazo o una pierna manteniendo el equilibrio."
+        },
+        {
+          "level": 2,
+          "name": "Brazo y pierna opuestos",
+          "cue": "Extiende a la vez sin rotar la cadera."
+        },
+        {
+          "level": 3,
+          "name": "Con pausa",
+          "cue": "Aguanta 2 s arriba y junta codo-rodilla al volver."
+        }
+      ],
+      "tip": "Imagina un vaso de agua en la espalda baja que no se debe derramar.",
+      "image": null,
+      "keys": [
+        "Extiende brazo y pierna opuestos sin rotar",
+        "Cadera y hombros estables, como una mesa",
+        "Pausa breve arriba"
+      ],
+      "avoid": "Arquear la lumbar o girar la cadera.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "elevacion_piernas",
+      "name": "Elevación de piernas",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "abdomen bajo"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Rodillas flexionadas",
+          "cue": "Sube las rodillas hacia el pecho y baja controlando."
+        },
+        {
+          "level": 2,
+          "name": "Piernas rectas",
+          "cue": "Baja las piernas estiradas sin tocar el suelo."
+        },
+        {
+          "level": 3,
+          "name": "Con pausa abajo",
+          "cue": "Aguanta 1 s con las piernas a pocos centímetros del suelo."
+        }
+      ],
+      "tip": "Si la lumbar se arquea, sube las piernas menos.",
+      "image": null,
+      "keys": [
+        "Lumbar pegada al suelo",
+        "Baja las piernas solo hasta donde controles",
+        "Movimiento lento, sin balanceo"
+      ],
+      "avoid": "Que la espalda se arquee al bajar las piernas.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bent-Knee_Hip_Raise/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bent-Knee_Hip_Raise/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "lumbar",
+        "cuello"
+      ]
+    },
+    {
+      "id": "mountain_climbers",
+      "name": "Escaladores",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "core",
+        "hombro"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "medio",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Lento y controlado",
+          "cue": "En plancha, lleva una rodilla al pecho cada vez sin prisa.",
+          "impact": "bajo"
+        },
+        {
+          "level": 2,
+          "name": "Ritmo normal",
+          "cue": "Alterna piernas a ritmo medio manteniendo la cadera baja."
+        },
+        {
+          "level": 3,
+          "name": "Rápido",
+          "cue": "Sube el ritmo sin levantar la cadera."
+        }
+      ],
+      "tip": "La versión lenta es silenciosa y vale para suelos ruidosos.",
+      "image": null,
+      "keys": [
+        "Cadera baja, plancha estable",
+        "Lleva la rodilla al pecho con control",
+        "Hombros sobre las manos"
+      ],
+      "avoid": "Subir la cadera o rebotar sin control.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Mountain_Climbers/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Mountain_Climbers/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "muneca",
+        "hombro"
+      ]
+    },
+    {
+      "id": "superman",
+      "name": "Superman (extensión lumbar)",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "lumbares",
+        "gluteo"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Brazos al costado",
+          "cue": "Boca abajo, eleva pecho y piernas unos centímetros con los brazos pegados al cuerpo."
+        },
+        {
+          "level": 2,
+          "name": "Brazos al frente",
+          "cue": "Estira los brazos hacia delante al elevar."
+        },
+        {
+          "level": 3,
+          "name": "Con pausa arriba",
+          "cue": "Aguanta 2 s arriba apretando glúteo y espalda."
+        }
+      ],
+      "tip": "Movimiento corto y controlado; mira al suelo para no forzar el cuello.",
+      "image": null,
+      "keys": [
+        "Eleva pecho y piernas solo unos centímetros",
+        "Mira al suelo, cuello neutro",
+        "Aprieta glúteo y espalda arriba"
+      ],
+      "avoid": "Hiperextender el cuello o forzar la lumbar.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Superman/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Superman/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "lumbar",
+        "cuello"
+      ]
+    },
+    {
+      "id": "crunch",
+      "name": "Encogimiento abdominal",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "abdomen superior"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Manos en los muslos",
+          "cue": "Sube los hombros deslizando las manos por los muslos."
+        },
+        {
+          "level": 2,
+          "name": "Manos cruzadas en el pecho",
+          "cue": "Despega los omóplatos sin tirar del cuello."
+        },
+        {
+          "level": 3,
+          "name": "Manos en la nuca",
+          "cue": "Manos apoyadas, no entrelazadas; sube con el abdomen."
+        }
+      ],
+      "tip": "No tires de la cabeza: mantén distancia entre barbilla y pecho.",
+      "image": null,
+      "keys": [
+        "Despega solo los omóplatos",
+        "Barbilla separada del pecho",
+        "Sube con el abdomen, no con el cuello"
+      ],
+      "avoid": "Tirar de la cabeza con las manos.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Crunches/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Crunches/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "cuello"
+      ]
+    },
+    {
+      "id": "crunch_bicicleta",
+      "name": "Crunch bicicleta",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "oblicuos",
+        "abdomen"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Lento",
+          "cue": "Lleva el codo a la rodilla contraria alternando despacio."
+        },
+        {
+          "level": 2,
+          "name": "Ritmo continuo",
+          "cue": "Pedalea alternando con control."
+        },
+        {
+          "level": 3,
+          "name": "Con piernas extendidas",
+          "cue": "Estira más la pierna que se aleja."
+        }
+      ],
+      "tip": "Gira desde el tronco, no solo el codo; lumbar pegada al suelo.",
+      "image": null,
+      "keys": [
+        "Gira desde el tronco, no solo el codo",
+        "Lumbar pegada al suelo",
+        "Movimiento controlado, sin prisa"
+      ],
+      "avoid": "Tirar del cuello al girar.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Air_Bike/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Air_Bike/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "cuello"
+      ]
+    },
+    {
+      "id": "giro_ruso",
+      "name": "Giro ruso",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "oblicuos"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": true,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Pies en el suelo",
+          "cue": "Sentado con el tronco atrás, gira las manos de un lado a otro."
+        },
+        {
+          "level": 2,
+          "name": "Pies elevados",
+          "cue": "Levanta los pies para más reto de equilibrio."
+        },
+        {
+          "level": 3,
+          "name": "Con pausa en cada lado",
+          "cue": "Aguanta 1 s en cada giro."
+        }
+      ],
+      "tip": "Mantén el pecho arriba; el día de mañana puedes sujetar una mancuerna.",
+      "image": null,
+      "keys": [
+        "Pecho arriba, espalda recta inclinada atrás",
+        "Gira desde la cintura llevando las manos al lado",
+        "Controla, no lances los brazos"
+      ],
+      "avoid": "Encorvar la espalda al girar.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Alternate_Heel_Touchers/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Alternate_Heel_Touchers/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "lumbar"
+      ]
+    },
+    {
+      "id": "hollow_hold",
+      "name": "Hollow hold",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "core anterior"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Rodillas flexionadas",
+          "cue": "Boca arriba, despega hombros y pies con las rodillas dobladas."
+        },
+        {
+          "level": 2,
+          "name": "Piernas semiextendidas",
+          "cue": "Estira las piernas a media altura."
+        },
+        {
+          "level": 3,
+          "name": "Hollow completo",
+          "cue": "Brazos y piernas extendidos, lumbar pegada al suelo."
+        }
+      ],
+      "tip": "Por tiempo. Si la lumbar se despega, sube o flexiona las piernas.",
+      "image": null,
+      "keys": [
+        "Lumbar pegada al suelo siempre",
+        "Hombros y pies despegados",
+        "Si cuesta, flexiona las rodillas"
+      ],
+      "avoid": "Que la espalda baja se arquee (sube las piernas si pasa).",
+      "images": [],
+      "joints": [
+        "lumbar"
+      ]
+    },
+    {
+      "id": "plancha_toque_hombros",
+      "name": "Plancha con toque de hombros",
+      "type": "fuerza",
+      "pattern": "core",
+      "muscles": [
+        "core",
+        "oblicuos"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "De rodillas",
+          "cue": "En plancha de rodillas, toca el hombro contrario alternando."
+        },
+        {
+          "level": 2,
+          "name": "Completa, pies juntos",
+          "cue": "Cuanto más juntos los pies, más reto de estabilidad."
+        },
+        {
+          "level": 3,
+          "name": "Lenta y controlada",
+          "cue": "Toca despacio evitando que la cadera gire."
+        }
+      ],
+      "tip": "El trabajo está en que la cadera NO se balancee con cada toque.",
+      "image": null,
+      "keys": [
+        "Plancha estable, abdomen y glúteo firmes",
+        "Toca el hombro contrario sin girar la cadera",
+        "Pies algo separados dan más estabilidad"
+      ],
+      "avoid": "Que la cadera se balancee en cada toque.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Plank/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Plank/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "muneca",
+        "hombro"
+      ]
+    },
+    {
+      "id": "jumping_jacks",
+      "name": "Jumping jacks",
+      "type": "cardio",
+      "pattern": "cardio",
+      "muscles": [
+        "cuerpo completo"
+      ],
+      "materials": [],
+      "impact": "alto",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Step jacks (sin salto)",
+          "cue": "Sal lateral con un pie cada vez, sube los brazos. Sin impacto.",
+          "impact": "bajo"
+        },
+        {
+          "level": 2,
+          "name": "Normal",
+          "cue": "Abre y cierra piernas y brazos saltando."
+        },
+        {
+          "level": 3,
+          "name": "Rápido",
+          "cue": "Sube el ritmo manteniendo la técnica."
+        }
+      ],
+      "tip": "Para suelos ruidosos usa la versión step jacks: mismo trabajo, sin saltar.",
+      "image": null,
+      "keys": [
+        "Cae amortiguando con rodillas blandas",
+        "Ritmo constante y respiración fluida",
+        "Brazos y piernas coordinados"
+      ],
+      "avoid": "Caer rígido con las rodillas bloqueadas.",
+      "images": [],
+      "joints": [
+        "tobillo",
+        "rodilla",
+        "gemelo"
+      ]
+    },
+    {
+      "id": "high_knees",
+      "name": "Rodillas arriba",
+      "type": "cardio",
+      "pattern": "cardio",
+      "muscles": [
+        "piernas",
+        "core"
+      ],
+      "materials": [],
+      "impact": "alto",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Marcha de rodillas altas",
+          "cue": "Sube las rodillas caminando en el sitio, sin saltar.",
+          "impact": "bajo"
+        },
+        {
+          "level": 2,
+          "name": "Trote en el sitio",
+          "cue": "Trota llevando las rodillas a la altura de la cadera."
+        },
+        {
+          "level": 3,
+          "name": "Rápido",
+          "cue": "Máxima frecuencia con buena postura."
+        }
+      ],
+      "tip": "La marcha es la opción silenciosa para no molestar abajo.",
+      "image": null,
+      "keys": [
+        "Sube las rodillas a la altura de la cadera",
+        "Apoya con la parte delantera del pie",
+        "Tronco erguido, abdomen activo"
+      ],
+      "avoid": "Encorvarte o caer de talón con fuerza.",
+      "images": [],
+      "joints": [
+        "tobillo",
+        "rodilla"
+      ]
+    },
+    {
+      "id": "burpees",
+      "name": "Burpees",
+      "type": "cardio",
+      "pattern": "cardio",
+      "muscles": [
+        "cuerpo completo"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "alto",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Paso a paso, sin salto",
+          "cue": "Baja a plancha poniendo los pies uno a uno, sube igual. Sin salto.",
+          "impact": "bajo"
+        },
+        {
+          "level": 2,
+          "name": "Con flexión, sin salto",
+          "cue": "Añade una flexión abajo, sube sin saltar."
+        },
+        {
+          "level": 3,
+          "name": "Completo con salto",
+          "cue": "Flexión abajo y salto arriba con palmada."
+        }
+      ],
+      "tip": "El burpee 'caminado' es exigente de cardio y totalmente silencioso.",
+      "image": null,
+      "keys": [
+        "Lleva los pies a plancha con control",
+        "Cuerpo recto en la posición de plancha",
+        "Sube con la espalda neutra"
+      ],
+      "avoid": "Dejar caer la cadera al llegar a plancha.",
+      "images": [],
+      "joints": [
+        "muneca",
+        "hombro",
+        "rodilla",
+        "tobillo"
+      ]
+    },
+    {
+      "id": "saltos_sitio",
+      "name": "Saltos en el sitio",
+      "type": "cardio",
+      "pattern": "cardio",
+      "muscles": [
+        "piernas"
+      ],
+      "materials": [],
+      "impact": "alto",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Talones al glúteo (marcha)",
+          "cue": "Lleva los talones atrás caminando en el sitio, sin saltar.",
+          "impact": "bajo"
+        },
+        {
+          "level": 2,
+          "name": "Saltos pequeños",
+          "cue": "Saltos suaves cayendo con rodillas blandas."
+        },
+        {
+          "level": 3,
+          "name": "Saltos amplios",
+          "cue": "Más altura y ritmo."
+        }
+      ],
+      "tip": "Cae siempre amortiguando con las rodillas, nunca rígido.",
+      "image": null,
+      "keys": [
+        "Salta y cae suave, rodillas blandas",
+        "Mira al frente, tronco erguido",
+        "Ritmo que puedas mantener"
+      ],
+      "avoid": "Caer con las piernas rígidas.",
+      "images": [],
+      "joints": [
+        "tobillo",
+        "gemelo",
+        "rodilla"
+      ]
+    },
+    {
+      "id": "boxeo_sombra",
+      "name": "Boxeo en sombra",
+      "type": "cardio",
+      "pattern": "cardio",
+      "muscles": [
+        "hombro",
+        "core"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Jab-cross",
+          "cue": "Golpes rectos alternos, gira ligeramente el tronco."
+        },
+        {
+          "level": 2,
+          "name": "Combinaciones",
+          "cue": "Añade ganchos y crochés con ritmo."
+        },
+        {
+          "level": 3,
+          "name": "Con desplazamiento",
+          "cue": "Muévete y esquiva entre combinaciones."
+        }
+      ],
+      "tip": "Cardio silencioso perfecto para pisos con vecinos sensibles.",
+      "image": null,
+      "keys": [
+        "Guardia arriba, codos cerca del cuerpo",
+        "Gira cadera y tronco al golpear",
+        "No bloquees el codo del todo al extender"
+      ],
+      "avoid": "Lanzar los brazos bloqueando los codos.",
+      "images": [],
+      "joints": [
+        "hombro"
+      ]
+    },
+    {
+      "id": "step_touch",
+      "name": "Toques laterales",
+      "type": "cardio",
+      "pattern": "cardio",
+      "muscles": [
+        "piernas"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Toques laterales",
+          "cue": "Paso a un lado y toca con el otro pie, ida y vuelta."
+        },
+        {
+          "level": 2,
+          "name": "Con brazos",
+          "cue": "Acompaña con los brazos para subir pulsaciones."
+        },
+        {
+          "level": 3,
+          "name": "Con rodilla arriba",
+          "cue": "Sube la rodilla en cada cambio de lado."
+        }
+      ],
+      "tip": "Bajo impacto y buen calentamiento o recuperación activa.",
+      "image": null,
+      "keys": [
+        "Paso lateral suave tocando con el otro pie",
+        "Acompaña con los brazos",
+        "Ritmo cómodo y constante"
+      ],
+      "avoid": "Tensar los hombros.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "gato_vaca",
+      "name": "Gato-vaca",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "columna"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Suave",
+          "cue": "En cuadrupedia, redondea y arquea la espalda lentamente."
+        },
+        {
+          "level": 2,
+          "name": "Con respiración",
+          "cue": "Inspira al arquear, espira al redondear."
+        }
+      ],
+      "tip": "Ideal para empezar o para soltar la espalda al final.",
+      "image": null,
+      "keys": [
+        "Mueve vértebra a vértebra, lento",
+        "Coordina con la respiración",
+        "Recorrido cómodo, sin forzar"
+      ],
+      "avoid": "Hacerlo brusco o forzar el final del rango.",
+      "images": [],
+      "joints": [
+        "muneca"
+      ]
+    },
+    {
+      "id": "movilidad_cadera",
+      "name": "Movilidad de cadera",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "cadera"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Círculos de cadera",
+          "cue": "En cuadrupedia, dibuja círculos amplios con una rodilla."
+        },
+        {
+          "level": 2,
+          "name": "Posición 90/90",
+          "cue": "Sentado, gira las piernas de un lado a otro controlando."
+        }
+      ],
+      "tip": "Caderas sanas = sentadillas y zancadas mejores.",
+      "image": null,
+      "keys": [
+        "Círculos amplios y controlados",
+        "Tronco estable",
+        "Solo movilidad, sin dolor"
+      ],
+      "avoid": "Forzar rangos que provoquen dolor.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "estiramiento_isquios_banda",
+      "name": "Estiramiento de isquios con banda",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "isquios"
+      ],
+      "materials": [
+        "banda",
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Tumbado con banda",
+          "cue": "Pasa la banda por el pie y lleva la pierna recta hacia ti."
+        },
+        {
+          "level": 2,
+          "name": "Con rodilla flexionada",
+          "cue": "Si tiras mucho, flexiona un poco la rodilla."
+        }
+      ],
+      "tip": "Estira hasta tensión cómoda, nunca hasta dolor. Respira.",
+      "image": null,
+      "keys": [
+        "Pierna lo más recta posible sin bloquear",
+        "Tira suave con la banda",
+        "Respira y suelta poco a poco"
+      ],
+      "avoid": "Estirar hasta el dolor o con tirones.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/90_90_Hamstring/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/90_90_Hamstring/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": []
+    },
+    {
+      "id": "rotacion_toracica",
+      "name": "Rotación torácica",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "columna torácica"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Sentado",
+          "cue": "Manos en la nuca, gira el tronco a cada lado."
+        },
+        {
+          "level": 2,
+          "name": "En cuadrupedia",
+          "cue": "Lleva una mano a la nuca y abre el codo hacia el techo."
+        }
+      ],
+      "tip": "Antídoto directo contra estar encorvado editando vídeo.",
+      "image": null,
+      "keys": [
+        "Gira desde la parte alta de la espalda",
+        "Sigue la mano con la mirada",
+        "Cadera estable"
+      ],
+      "avoid": "Forzar la rotación desde la lumbar.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "movilidad_tobillo_tabla",
+      "name": "Movilidad de tobillo en tabla",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "tobillo"
+      ],
+      "materials": [
+        "tabla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Balanceo",
+          "cue": "De pie en la tabla inclinada, balancea adelante y atrás."
+        },
+        {
+          "level": 2,
+          "name": "Con apoyo y avance de rodilla",
+          "cue": "Lleva la rodilla por delante de la punta sin levantar el talón."
+        }
+      ],
+      "tip": "Tobillos móviles = sentadillas más profundas y seguras.",
+      "image": null,
+      "keys": [
+        "Talón en el suelo, rodilla al frente",
+        "Movimiento lento y controlado",
+        "Sin dolor en el tobillo"
+      ],
+      "avoid": "Levantar el talón al avanzar la rodilla.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Ankle_Circles/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Ankle_Circles/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "tobillo"
+      ]
+    },
+    {
+      "id": "movilidad_hombros",
+      "name": "Movilidad de hombros",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "hombro"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Círculos de brazos",
+          "cue": "Círculos amplios adelante y atrás, lentos y controlados."
+        },
+        {
+          "level": 2,
+          "name": "Aperturas amplias",
+          "cue": "Abre y cierra los brazos en cruz buscando el rango completo."
+        }
+      ],
+      "tip": "Opcional: con una banda ancha cogida a lo ancho, pasa los brazos por encima de la cabeza.",
+      "image": null,
+      "keys": [
+        "Círculos amplios y lentos",
+        "Hombros lejos de las orejas",
+        "Recorrido completo sin dolor"
+      ],
+      "avoid": "Forzar si notas pinzamiento.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Arm_Circles/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Arm_Circles/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro"
+      ]
+    },
+    {
+      "id": "estiramiento_cuadriceps",
+      "name": "Estiramiento de cuádriceps",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "cuadriceps"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "De pie con apoyo",
+          "cue": "Sujétate a la pared y lleva el talón al glúteo con la mano."
+        },
+        {
+          "level": 2,
+          "name": "Sin apoyo",
+          "cue": "Mantén el equilibrio mientras estiras."
+        }
+      ],
+      "tip": "Rodillas juntas y cadera al frente para sentirlo bien.",
+      "image": null,
+      "keys": [
+        "Rodillas juntas, cadera al frente",
+        "Lleva el talón al glúteo sin tirar fuerte",
+        "Equilibrio relajado"
+      ],
+      "avoid": "Arquear la lumbar para llegar más.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/All_Fours_Quad_Stretch/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/All_Fours_Quad_Stretch/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "rodilla"
+      ]
+    },
+    {
+      "id": "figura_4",
+      "name": "Figura 4 (glúteo)",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "gluteo",
+        "cadera"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Tumbado",
+          "cue": "Cruza el tobillo sobre la rodilla contraria y acerca las piernas al pecho."
+        },
+        {
+          "level": 2,
+          "name": "Sentado",
+          "cue": "Sentado, cruza el tobillo e inclínate al frente con la espalda recta."
+        }
+      ],
+      "tip": "Estira hasta tensión cómoda; respira y suelta poco a poco.",
+      "image": null,
+      "keys": [
+        "Cruza el tobillo sobre la rodilla",
+        "Acerca suave hasta notar el glúteo",
+        "Espalda recta si lo haces sentado"
+      ],
+      "avoid": "Tirar con dolor del exterior de la rodilla.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Ankle_On_The_Knee/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Ankle_On_The_Knee/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": []
+    },
+    {
+      "id": "sentadilla_profunda_asistida",
+      "name": "Sentadilla profunda asistida",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "cadera",
+        "tobillo"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Con apoyo",
+          "cue": "Agárrate a algo fijo y baja a sentadilla profunda, relajándote abajo."
+        },
+        {
+          "level": 2,
+          "name": "Con balanceo",
+          "cue": "Abajo, balancea el peso y abre las rodillas con los codos."
+        }
+      ],
+      "tip": "Abre el pecho y mantén los talones en el suelo.",
+      "image": null,
+      "keys": [
+        "Talones en el suelo, pecho abierto",
+        "Relájate abajo respirando",
+        "Usa el apoyo lo que necesites"
+      ],
+      "avoid": "Despegar los talones o forzar la rodilla.",
+      "images": [],
+      "joints": [
+        "rodilla",
+        "tobillo"
+      ]
+    },
+    {
+      "id": "apertura_pecho_pared",
+      "name": "Apertura de pecho en pared",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "pecho",
+        "hombro"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Antebrazo en pared",
+          "cue": "Apoya el antebrazo en el marco y gira el cuerpo al lado contrario."
+        },
+        {
+          "level": 2,
+          "name": "Brazo extendido",
+          "cue": "Con el brazo más estirado notarás más estiramiento."
+        }
+      ],
+      "tip": "Perfecto para abrir el pecho tras horas encorvado editando.",
+      "image": null,
+      "keys": [
+        "Antebrazo apoyado, gira el cuerpo despacio",
+        "Hombro relajado",
+        "Estiramiento cómodo en el pecho"
+      ],
+      "avoid": "Forzar el hombro hacia atrás con dolor.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Behind_Head_Chest_Stretch/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Behind_Head_Chest_Stretch/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro"
+      ]
+    },
+    {
+      "id": "cobra_esfinge",
+      "name": "Cobra / esfinge",
+      "type": "movilidad",
+      "pattern": "movilidad",
+      "muscles": [
+        "columna",
+        "abdomen"
+      ],
+      "materials": [
+        "esterilla"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Esfinge",
+          "cue": "Boca abajo sobre los antebrazos, abre el pecho con suavidad."
+        },
+        {
+          "level": 2,
+          "name": "Cobra",
+          "cue": "Empuja con las manos extendiendo más los codos, sin forzar la lumbar."
+        }
+      ],
+      "tip": "Extensión suave; si molesta la zona baja, quédate en esfinge.",
+      "image": null,
+      "keys": [
+        "Abre el pecho con suavidad",
+        "Hombros lejos de las orejas",
+        "Si molesta la lumbar, quédate en esfinge"
+      ],
+      "avoid": "Empujar fuerte y comprimir la zona baja.",
+      "images": [],
+      "joints": [
+        "muneca",
+        "lumbar"
+      ]
+    },
+    {
+      "id": "cal_marcha_brazos",
+      "name": "Marcha en el sitio con brazos",
+      "type": "calentamiento",
+      "pattern": "calentamiento",
+      "muscles": [
+        "cuerpo completo"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Suave",
+          "cue": "Camina en el sitio subiendo las rodillas y moviendo los brazos."
+        },
+        {
+          "level": 2,
+          "name": "Más activo",
+          "cue": "Sube un poco el ritmo y la altura de rodilla."
+        }
+      ],
+      "tip": "Eleva pulsaciones y entra en calor sin impacto.",
+      "image": null,
+      "keys": [
+        "Sube las rodillas y acompaña con los brazos",
+        "Ritmo suave que va subiendo",
+        "Respira con fluidez"
+      ],
+      "avoid": "Empezar demasiado fuerte en frío.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "cal_circulos_brazos",
+      "name": "Círculos de brazos",
+      "type": "calentamiento",
+      "pattern": "calentamiento",
+      "muscles": [
+        "hombro"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "De pequeños a grandes",
+          "cue": "Empieza con círculos pequeños y agrándalos progresivamente."
+        }
+      ],
+      "tip": "Hazlos adelante y atrás por igual.",
+      "image": null,
+      "keys": [
+        "Círculos de pequeños a grandes",
+        "Adelante y atrás por igual",
+        "Hombros sueltos"
+      ],
+      "avoid": "Forzar el rango en frío.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Arm_Circles/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Arm_Circles/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "hombro"
+      ]
+    },
+    {
+      "id": "cal_balanceos_pierna",
+      "name": "Balanceos de pierna",
+      "type": "calentamiento",
+      "pattern": "calentamiento",
+      "muscles": [
+        "cadera",
+        "isquios"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Adelante y atrás",
+          "cue": "Sujétate a la pared y balancea una pierna controlando el rango."
+        },
+        {
+          "level": 2,
+          "name": "Laterales",
+          "cue": "Balancea la pierna de lado a lado."
+        }
+      ],
+      "tip": "Movilidad activa de cadera antes del trabajo de pierna.",
+      "image": null,
+      "keys": [
+        "Balanceo controlado, sin tirones",
+        "Tronco estable, sujétate si hace falta",
+        "Aumenta el rango poco a poco"
+      ],
+      "avoid": "Lanzar la pierna sin control.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "cal_rotaciones_cadera",
+      "name": "Rotaciones de cadera de pie",
+      "type": "calentamiento",
+      "pattern": "calentamiento",
+      "muscles": [
+        "cadera"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Círculos",
+          "cue": "Manos en la cintura, dibuja círculos amplios con la cadera."
+        }
+      ],
+      "tip": "En ambos sentidos.",
+      "image": null,
+      "keys": [
+        "Círculos amplios con la cadera",
+        "Manos en la cintura",
+        "En ambos sentidos"
+      ],
+      "avoid": "Forzar la zona lumbar.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "cal_rotaciones_tronco",
+      "name": "Rotaciones de tronco",
+      "type": "calentamiento",
+      "pattern": "calentamiento",
+      "muscles": [
+        "columna",
+        "core"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Suaves",
+          "cue": "Pies fijos, gira el tronco a un lado y a otro dejando ir los brazos."
+        }
+      ],
+      "tip": "Sin forzar; deja que los brazos acompañen el giro.",
+      "image": null,
+      "keys": [
+        "Gira dejando ir los brazos",
+        "Pies fijos",
+        "Movimiento suelto y suave"
+      ],
+      "avoid": "Girar de golpe y bloquear.",
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "cal_tobillos",
+      "name": "Movilidad de tobillos dinámica",
+      "type": "calentamiento",
+      "pattern": "calentamiento",
+      "muscles": [
+        "tobillo"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Punta-talón y círculos",
+          "cue": "Alterna apoyar punta y talón, y haz círculos con el tobillo."
+        }
+      ],
+      "tip": "Prepara los tobillos para sentadillas y cardio.",
+      "image": null,
+      "keys": [
+        "Punta-talón y círculos",
+        "Movimiento completo y suave",
+        "Prepara bien antes de saltar"
+      ],
+      "avoid": "Saltarte esto antes de cardio o pierna.",
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Ankle_Circles/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Ankle_Circles/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": [
+        "tobillo"
+      ]
+    },
+    {
+      "id": "cal_zancada_rotacion",
+      "name": "Zancada con rotación",
+      "type": "calentamiento",
+      "pattern": "calentamiento",
+      "muscles": [
+        "cadera",
+        "columna"
+      ],
+      "materials": [],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Sin rotación",
+          "cue": "Da un paso a zancada amplia y vuelve, alternando piernas."
+        },
+        {
+          "level": 2,
+          "name": "Con rotación de tronco",
+          "cue": "Abajo en la zancada, gira el tronco hacia la pierna de delante."
+        }
+      ],
+      "tip": "El mejor estiramiento dinámico general antes de entrenar.",
+      "image": null,
+      "keys": [
+        "Paso amplio y baja con control",
+        "Gira el tronco hacia la pierna de delante",
+        "Espalda recta"
+      ],
+      "avoid": "Que la rodilla de delante caiga hacia dentro.",
+      "images": [],
+      "joints": [
+        "rodilla"
+      ]
+    },
+    {
+      "id": "eliptica",
+      "name": "Elíptica",
+      "type": "cardio",
+      "pattern": "cardio",
+      "muscles": [
+        "cuerpo completo"
+      ],
+      "materials": [
+        "eliptica"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Ritmo constante",
+          "cue": "Ritmo cómodo y sostenido, postura erguida."
+        },
+        {
+          "level": 2,
+          "name": "Intervalos suaves",
+          "cue": "Alterna 1 min más fuerte y 1 min suave."
+        },
+        {
+          "level": 3,
+          "name": "Intervalos fuertes",
+          "cue": "Alterna 30 s muy fuerte y 30 s de recuperación."
+        }
+      ],
+      "keys": [
+        "Postura erguida, no te cuelgues del manillar",
+        "Pisada completa y fluida",
+        "Respiración constante"
+      ],
+      "avoid": "Encorvarte o agarrarte con tensión a las asas.",
+      "tip": "Cardio de bajo impacto: ideal cuando te molesta el gemelo o las articulaciones.",
+      "image": null,
+      "images": [],
+      "joints": []
+    },
+    {
+      "id": "bici_estatica",
+      "name": "Bicicleta estática",
+      "type": "cardio",
+      "pattern": "cardio",
+      "muscles": [
+        "piernas"
+      ],
+      "materials": [
+        "bici"
+      ],
+      "impact": "bajo",
+      "dumbbellReady": false,
+      "variants": [
+        {
+          "level": 1,
+          "name": "Ritmo constante",
+          "cue": "Cadencia fluida y cómoda, espalda neutra."
+        },
+        {
+          "level": 2,
+          "name": "Intervalos suaves",
+          "cue": "Alterna 1 min con más resistencia y 1 min suave."
+        },
+        {
+          "level": 3,
+          "name": "Intervalos fuertes",
+          "cue": "Sprints de 30 s y 30 s de recuperación."
+        }
+      ],
+      "keys": [
+        "Ajusta el sillín: rodilla casi extendida abajo",
+        "Espalda neutra, sin encorvarte",
+        "Cadencia fluida, no a tirones"
+      ],
+      "avoid": "Sillín mal ajustado que fuerce la rodilla.",
+      "tip": "Otra opción de cardio de bajo impacto para días de molestias.",
+      "image": null,
+      "images": [
+        {
+          "label": "Inicio",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bicycling_Stationary/0.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        },
+        {
+          "label": "Fin",
+          "src": "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/Bicycling_Stationary/1.jpg",
+          "credit": "free-exercise-db · Dominio público"
+        }
+      ],
+      "joints": []
+    }
+  ]
+}
