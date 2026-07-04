@@ -1,5 +1,5 @@
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
-import type { ZonaTrabajo } from "../domain/entities/tipos.js";
+import type { Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
 /**
  * MODIFICACIONES DEL USUARIO ("overrides").
  * El catálogo base es semilla de solo lectura. Lo que el usuario edita en el
@@ -8,6 +8,7 @@ import type { ZonaTrabajo } from "../domain/entities/tipos.js";
  */
 export interface OverrideEjercicio {
     nombre?: string;
+    tipo?: Tipo;
     consejo?: string;
     notas?: string;
     zonaTrabajo?: ZonaTrabajo;

@@ -1,4 +1,5 @@
 import { resolverMedia } from "../domain/usecases/resolver-media.js";
+import { urlMediaUsuario } from "../data/media-usuario.js";
 import { esc } from "./comunes.js";
 /**
  * DETALLE DE EJERCICIO (§4 del PRD): la variante que toca, la demostración
@@ -32,6 +33,14 @@ function medioHtml(m) {
     return `<figure class="medio">${contenido}<figcaption>${esc(m.label)}${credito}</figcaption></figure>`;
 }
 async function cargarMedia(e, zona) {
+    const propio = await urlMediaUsuario(e.id);
+    if (propio) {
+        zona.innerHTML =
+            propio.tipo === "video"
+                ? `<div class="mediabox"><video src="${propio.url}" autoplay loop muted playsinline></video></div>`
+                : `<div class="mediabox"><img src="${propio.url}" alt="Demostración de ${esc(e.nombre)}" /></div>`;
+        return;
+    }
     const resuelto = await resolverMedia(e, sondaFetch);
     if (!zona.isConnected)
         return; // el panel ya se cerró

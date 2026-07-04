@@ -1,5 +1,5 @@
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
-import type { Patron, ZonaTrabajo } from "../domain/entities/tipos.js";
+import type { Patron, Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
 
 /**
  * MODIFICACIONES DEL USUARIO ("overrides").
@@ -9,6 +9,7 @@ import type { Patron, ZonaTrabajo } from "../domain/entities/tipos.js";
  */
 export interface OverrideEjercicio {
   nombre?: string;
+  tipo?: Tipo;
   consejo?: string;
   notas?: string;
   zonaTrabajo?: ZonaTrabajo;
@@ -58,6 +59,7 @@ export function aplicarOverrides(ejercicios: Ejercicio[]): Ejercicio[] {
       ...(o.parejaId ? { parejaId: o.parejaId } : {}),
       ...(o.porLados !== undefined ? { porLados: o.porLados } : {}),
       ...(o.claves ? { claves: o.claves } : {}),
+      ...(o.tipo ? { tipo: o.tipo } : {}),
     };
   });
 }

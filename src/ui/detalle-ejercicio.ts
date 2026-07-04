@@ -2,6 +2,7 @@ import type { EjercicioAsignado } from "../domain/entities/configuracion.js";
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
 import type { Media } from "../domain/entities/tipos.js";
 import { resolverMedia, type SondaMedia } from "../domain/usecases/resolver-media.js";
+import { urlMediaUsuario } from "../data/media-usuario.js";
 import { esc } from "./comunes.js";
 
 /**
@@ -38,6 +39,14 @@ function medioHtml(m: Media): string {
 }
 
 async function cargarMedia(e: Ejercicio, zona: HTMLElement): Promise<void> {
+  const propio = await urlMediaUsuario(e.id);
+  if (propio) {
+    zona.innerHTML =
+      propio.tipo === "video"
+        ? `<div class="mediabox"><video src="${propio.url}" autoplay loop muted playsinline></video></div>`
+        : `<div class="mediabox"><img src="${propio.url}" alt="Demostración de ${esc(e.nombre)}" /></div>`;
+    return;
+  }
   const resuelto = await resolverMedia(e, sondaFetch);
   if (!zona.isConnected) return; // el panel ya se cerró
   if (resuelto.tipo === "clip") {

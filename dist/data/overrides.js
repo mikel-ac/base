@@ -42,6 +42,7 @@ export function aplicarOverrides(ejercicios) {
             ...(o.parejaId ? { parejaId: o.parejaId } : {}),
             ...(o.porLados !== undefined ? { porLados: o.porLados } : {}),
             ...(o.claves ? { claves: o.claves } : {}),
+            ...(o.tipo ? { tipo: o.tipo } : {}),
         };
     });
 }

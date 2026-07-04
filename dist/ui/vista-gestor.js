@@ -1,12 +1,12 @@
 import { ZONAS_TRABAJO, ZONA_TRABAJO_ETIQUETA } from "../domain/entities/tipos.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
 import { guardarOverride, zonaTrabajoDe } from "../data/overrides.js";
+import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario } from "../data/media-usuario.js";
 /**
- * GESTOR DE EJERCICIOS (v1). Lista todos los ejercicios y permite editar
- * nombre, explicación, claves, notas, zona de trabajo y si es unilateral.
- * Los cambios se guardan como "overrides" en el dispositivo y se aplican
- * sobre el catálogo base al cargar, sin tocar la semilla.
- * Próximos incrementos: imágenes/loops, añadir/eliminar, diseñador de sesiones.
+ * GESTOR DE EJERCICIOS (v1). Editar nombre, tipo, explicación, claves, notas,
+ * zona de trabajo, unilateral e imagen/vídeo de ayuda. Los textos se guardan
+ * como "overrides" (localStorage); las imágenes/vídeos, como Blob en IndexedDB
+ * (ver data/media-usuario.ts). Todo encima del catálogo base, sin tocarlo.
  */
 const TIPO_ETIQUETA = {
     fuerza: "Fuerza",
@@ -14,17 +14,19 @@ const TIPO_ETIQUETA = {
     movilidad: "Movilidad",
     calentamiento: "Calentamiento",
 };
+const TIPOS = ["fuerza", "cardio", "movilidad", "calentamiento"];
 export function montarGestor(ctx, nav) {
     const { raiz } = ctx;
     const items = ctx.catalogo.map((e) => ({ ...e }));
     let editandoId = null;
     let ztSel = "global";
+    let tipoSel = "fuerza";
     let unilatSel = false;
     let animado = false;
     raiz.classList.add("sin-nav");
     function pintarLista() {
         let cuerpo = "";
-        for (const g of ["fuerza", "cardio", "movilidad", "calentamiento"]) {
+        for (const g of TIPOS) {
             const delGrupo = items.filter((e) => e.tipo === g);
             if (delGrupo.length === 0)
                 continue;
@@ -42,7 +44,7 @@ export function montarGestor(ctx, nav) {
         raiz.innerHTML = `
       <button class="back" data-accion="volver">← Ajustes</button>
       <h1 class="scr-title">Gestor de ejercicios</h1>
-      <p class="hint">Edita nombre, explicación, claves, notas, zona de trabajo y si es unilateral. Tus cambios se guardan en este dispositivo, encima del catálogo base.</p>
+      <p class="hint">Edita nombre, tipo, explicación, claves, notas, zona, unilateral e imagen/vídeo. Los cambios se guardan en este dispositivo, encima del catálogo base.</p>
       <div style="margin-top: 10px;">${cuerpo}</div>
     `;
         if (!animado) {
@@ -50,16 +52,56 @@ export function montarGestor(ctx, nav) {
             animarEntrada(raiz);
         }
     }
+    async function pintarMediaPrev() {
+        const cont = raiz.querySelector("#g-media-prev");
+        if (!cont || !editandoId)
+            return;
+        const e = items.find((x) => x.id === editandoId);
+        const propio = await urlMediaUsuario(editandoId);
+        if (propio) {
+            cont.innerHTML =
+                propio.tipo === "video"
+                    ? `<video src="${propio.url}" autoplay loop muted playsinline></video>`
+                    : `<img src="${propio.url}" alt="" />`;
+            const q = raiz.querySelector("#g-quitar-media");
+            if (q)
+                q.hidden = false;
+            return;
+        }
+        const base = e?.images.find((m) => m.src || m.svg);
+        if (base?.src)
+            cont.innerHTML = `<img src="${esc(base.src)}" alt="" />`;
+        else if (base?.svg)
+            cont.innerHTML = base.svg;
+        else
+            cont.innerHTML = `<span class="prev-vacio">Sin imagen · sube una para este ejercicio</span>`;
+        const q = raiz.querySelector("#g-quitar-media");
+        if (q)
+            q.hidden = true;
+    }
     function pintarEdicion(e) {
         ztSel = zonaTrabajoDe(e);
+        tipoSel = e.tipo;
         unilatSel = !!e.porLados;
+        const segTipo = TIPOS.map((t) => `<button data-tipo="${t}" class="chip ${t === tipoSel ? "on" : ""}">${TIPO_ETIQUETA[t]}</button>`).join("");
         const segZT = ZONAS_TRABAJO.map((z) => `<button data-zt="${z}" class="chip ${z === ztSel ? "on" : ""}">${ZONA_TRABAJO_ETIQUETA[z]}</button>`).join("");
         raiz.innerHTML = `
       <button class="back" data-accion="volver-lista">← Todos los ejercicios</button>
       <h1 class="scr-title">${esc(e.nombre)}</h1>
 
-      <p class="lbl">Nombre</p>
+      <p class="lbl">Imagen / vídeo de ayuda</p>
+      <div id="g-media-prev" class="mediabox"></div>
+      <div class="row" style="margin-top:8px">
+        <label class="btn" style="flex:1;text-align:center;cursor:pointer">Subir imagen<input id="g-file-img" type="file" accept="image/*" hidden /></label>
+        <label class="btn" style="flex:1;text-align:center;cursor:pointer">Subir vídeo<input id="g-file-vid" type="file" accept="video/*" hidden /></label>
+      </div>
+      <button id="g-quitar-media" class="btn wide" data-accion="quitar-media" style="margin-top:8px" hidden>Quitar medio propio</button>
+
+      <p class="lbl" style="margin-top:16px">Nombre</p>
       <input id="g-nombre" class="field" type="text" value="${esc(e.nombre)}" autocomplete="off" />
+
+      <p class="lbl" style="margin-top:14px">Tipo</p>
+      <div class="chips" id="g-tipo">${segTipo}</div>
 
       <p class="lbl" style="margin-top:14px">Explicación</p>
       <textarea id="g-consejo" class="field" rows="2">${esc(e.consejo)}</textarea>
@@ -81,6 +123,7 @@ export function montarGestor(ctx, nav) {
       <button class="btn primary wide" data-accion="guardar" style="margin-top:18px">Guardar</button>
     `;
         animarEntrada(raiz);
+        void pintarMediaPrev();
     }
     function render() {
         if (editandoId) {
@@ -104,12 +147,10 @@ export function montarGestor(ctx, nav) {
         const consejo = (raiz.querySelector("#g-consejo")?.value ?? "").trim();
         const notas = (raiz.querySelector("#g-notas")?.value ?? "").trim();
         const clavesTxt = raiz.querySelector("#g-claves")?.value ?? "";
-        const claves = clavesTxt
-            .split("\n")
-            .map((l) => l.trim())
-            .filter((l) => l.length > 0);
+        const claves = clavesTxt.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
         guardarOverride(e.id, {
             nombre: nombre || undefined,
+            tipo: tipoSel,
             consejo,
             notas,
             claves,
@@ -117,6 +158,7 @@ export function montarGestor(ctx, nav) {
             porLados: unilatSel,
         });
         e.nombre = nombre || e.nombre;
+        e.tipo = tipoSel;
         e.consejo = consejo;
         e.notas = notas || undefined;
         e.claves = claves;
@@ -125,6 +167,23 @@ export function montarGestor(ctx, nav) {
         aviso("Guardado");
         editandoId = null;
         render();
+    }
+    async function alCambiar(ev) {
+        const t = ev.target;
+        if (!editandoId || !t.files || t.files.length === 0)
+            return;
+        const archivo = t.files[0];
+        if (t.id === "g-file-img") {
+            await guardarMediaUsuario(editandoId, "imagen", archivo);
+            await pintarMediaPrev();
+            aviso("Imagen guardada");
+        }
+        else if (t.id === "g-file-vid") {
+            await guardarMediaUsuario(editandoId, "video", archivo);
+            await pintarMediaPrev();
+            aviso("Vídeo guardado");
+        }
+        t.value = "";
     }
     function alPulsar(ev) {
         const boton = ev.target.closest("button");
@@ -141,6 +200,11 @@ export function montarGestor(ctx, nav) {
             editandoId = d["editar"];
             return render();
         }
+        if (d["tipo"]) {
+            tipoSel = d["tipo"];
+            raiz.querySelectorAll("#g-tipo [data-tipo]").forEach((b) => b.classList.toggle("on", b === boton));
+            return;
+        }
         if (d["zt"]) {
             ztSel = d["zt"];
             raiz.querySelectorAll("#g-zt [data-zt]").forEach((b) => b.classList.toggle("on", b === boton));
@@ -152,10 +216,19 @@ export function montarGestor(ctx, nav) {
             boton.setAttribute("aria-pressed", String(unilatSel));
             return;
         }
+        if (d["accion"] === "quitar-media") {
+            if (editandoId) {
+                const id = editandoId;
+                void borrarMediaUsuario(id).then(() => pintarMediaPrev());
+                aviso("Medio propio quitado");
+            }
+            return;
+        }
         if (d["accion"] === "guardar")
             return guardar();
     }
     raiz.addEventListener("click", alPulsar);
+    raiz.addEventListener("change", (ev) => void alCambiar(ev));
     render();
     return () => {
         raiz.removeEventListener("click", alPulsar);

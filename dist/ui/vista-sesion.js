@@ -2,10 +2,20 @@ import { RunnerStore } from "../state/runner.js";
 import { animarEntrada, esc } from "./comunes.js";
 import { mostrarDetalleEjercicio, sondaFetch } from "./detalle-ejercicio.js";
 import { resolverMedia } from "../domain/usecases/resolver-media.js";
+import { urlMediaUsuario } from "../data/media-usuario.js";
 import { mostrarListaSesion } from "./lista-sesion.js";
 /** Previsualización del siguiente ejercicio durante el descanso/prepárate:
  *  usa la misma resolución de medios (clip propio → fotos → nada). */
 async function pintarPreview(e, zona) {
+    const propio = await urlMediaUsuario(e.id);
+    if (propio) {
+        if (!zona.isConnected)
+            return;
+        zona.innerHTML = `<div class="prev-galeria"><div class="prev-img">${propio.tipo === "video"
+            ? `<video src="${propio.url}" autoplay loop muted playsinline></video>`
+            : `<img src="${propio.url}" alt="" />`}</div></div>`;
+        return;
+    }
     const r = await resolverMedia(e, sondaFetch);
     if (!zona.isConnected)
         return;

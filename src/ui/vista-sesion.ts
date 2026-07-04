@@ -3,6 +3,7 @@ import { RunnerStore, type EfectoRunner, type RunnerState } from "../state/runne
 import { animarEntrada, esc } from "./comunes.js";
 import { mostrarDetalleEjercicio, sondaFetch } from "./detalle-ejercicio.js";
 import { resolverMedia } from "../domain/usecases/resolver-media.js";
+import { urlMediaUsuario } from "../data/media-usuario.js";
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
 import { mostrarListaSesion } from "./lista-sesion.js";
 import type { Ctx, Nav } from "./main.js";
@@ -10,6 +11,16 @@ import type { Ctx, Nav } from "./main.js";
 /** Previsualización del siguiente ejercicio durante el descanso/prepárate:
  *  usa la misma resolución de medios (clip propio → fotos → nada). */
 async function pintarPreview(e: Ejercicio, zona: HTMLElement): Promise<void> {
+  const propio = await urlMediaUsuario(e.id);
+  if (propio) {
+    if (!zona.isConnected) return;
+    zona.innerHTML = `<div class="prev-galeria"><div class="prev-img">${
+      propio.tipo === "video"
+        ? `<video src="${propio.url}" autoplay loop muted playsinline></video>`
+        : `<img src="${propio.url}" alt="" />`
+    }</div></div>`;
+    return;
+  }
   const r = await resolverMedia(e, sondaFetch);
   if (!zona.isConnected) return;
   if (r.tipo === "clip") {

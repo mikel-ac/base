@@ -396,3 +396,5 @@ body {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 14px; color: var(--ink); background: var(--card); resize: vertical; }
+.mediabox img, .mediabox video { width: 100%; height: 100%; object-fit: contain; }
+.prev-vacio { color: var(--soft); font-size: 13px; text-align: center; padding: 0 12px; }
