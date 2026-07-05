@@ -19,6 +19,8 @@ export interface OverrideEjercicio {
 }
 
 const CLAVE = "base.ejercicios_override";
+const CLAVE_ANADIDOS = "base.ejercicios_anadidos";
+const CLAVE_BORRADOS = "base.ejercicios_borrados";
 
 export function leerOverrides(): Record<string, OverrideEjercicio> {
   try {
@@ -45,9 +47,75 @@ export function guardarOverride(id: string, ov: OverrideEjercicio): void {
 }
 
 /** Aplica las modificaciones del usuario sobre el catálogo base. */
+export function leerAnadidos(): Ejercicio[] {
+  try { return JSON.parse(localStorage.getItem(CLAVE_ANADIDOS) ?? "[]") as Ejercicio[]; } catch { return []; }
+}
+function guardarAnadidos(lista: Ejercicio[]): void {
+  try { localStorage.setItem(CLAVE_ANADIDOS, JSON.stringify(lista)); } catch { /* nada */ }
+}
+export function leerBorrados(): string[] {
+  try { return JSON.parse(localStorage.getItem(CLAVE_BORRADOS) ?? "[]") as string[]; } catch { return []; }
+}
+export function esAnadido(id: string): boolean {
+  return leerAnadidos().some((e) => e.id === id);
+}
+export function patronDesde(tipo: Tipo, zona: ZonaTrabajo): Patron {
+  if (tipo === "calentamiento") return "calentamiento";
+  if (tipo === "cardio") return "cardio";
+  if (tipo === "movilidad") return "movilidad";
+  if (zona === "core") return "core";
+  if (zona === "pierna_gluteo") return "pierna";
+  if (zona === "tren_superior") return "empuje";
+  return "core";
+}
+export function crearEjercicioUsuario(datos: {
+  nombre: string; tipo: Tipo; zonaTrabajo: ZonaTrabajo; consejo?: string; claves?: string[]; porLados?: boolean;
+}): Ejercicio {
+  const id = "user_" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  const ej: Ejercicio = {
+    id,
+    nombre: datos.nombre,
+    tipo: datos.tipo,
+    patron: patronDesde(datos.tipo, datos.zonaTrabajo),
+    musculos: [],
+    materiales: [],
+    impacto: "bajo",
+    dumbbellReady: false,
+    variantes: [{ nivel: 2, nombre: "Estándar", cue: datos.consejo ?? "" }],
+    claves: datos.claves ?? [],
+    evita: "",
+    consejo: datos.consejo ?? "",
+    joints: [],
+    images: [],
+    zonaTrabajo: datos.zonaTrabajo,
+    porLados: datos.porLados ?? false,
+  };
+  const lista = leerAnadidos();
+  lista.push(ej);
+  guardarAnadidos(lista);
+  return ej;
+}
+export function actualizarAnadido(ej: Ejercicio): void {
+  guardarAnadidos(leerAnadidos().map((x) => (x.id === ej.id ? ej : x)));
+}
+export function eliminarEjercicio(id: string): void {
+  if (esAnadido(id)) {
+    guardarAnadidos(leerAnadidos().filter((e) => e.id !== id));
+  } else {
+    const b = new Set(leerBorrados());
+    b.add(id);
+    try { localStorage.setItem(CLAVE_BORRADOS, JSON.stringify([...b])); } catch { /* nada */ }
+  }
+  const ov = leerOverrides();
+  if (ov[id]) { delete ov[id]; try { localStorage.setItem(CLAVE, JSON.stringify(ov)); } catch { /* nada */ } }
+}
+
 export function aplicarOverrides(ejercicios: Ejercicio[]): Ejercicio[] {
   const ov = leerOverrides();
-  return ejercicios.map((e) => {
+  const borrados = new Set(leerBorrados());
+  const anadidos = leerAnadidos();
+  const todos = [...ejercicios, ...anadidos].filter((e) => !borrados.has(e.id));
+  return todos.map((e) => {
     const o = ov[e.id];
     if (!o) return e;
     return {

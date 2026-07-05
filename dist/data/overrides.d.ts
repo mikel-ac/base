@@ -1,5 +1,5 @@
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
-import type { Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
+import type { Patron, Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
 /**
  * MODIFICACIONES DEL USUARIO ("overrides").
  * El catálogo base es semilla de solo lectura. Lo que el usuario edita en el
@@ -19,6 +19,20 @@ export interface OverrideEjercicio {
 export declare function leerOverrides(): Record<string, OverrideEjercicio>;
 export declare function guardarOverride(id: string, ov: OverrideEjercicio): void;
 /** Aplica las modificaciones del usuario sobre el catálogo base. */
+export declare function leerAnadidos(): Ejercicio[];
+export declare function leerBorrados(): string[];
+export declare function esAnadido(id: string): boolean;
+export declare function patronDesde(tipo: Tipo, zona: ZonaTrabajo): Patron;
+export declare function crearEjercicioUsuario(datos: {
+    nombre: string;
+    tipo: Tipo;
+    zonaTrabajo: ZonaTrabajo;
+    consejo?: string;
+    claves?: string[];
+    porLados?: boolean;
+}): Ejercicio;
+export declare function actualizarAnadido(ej: Ejercicio): void;
+export declare function eliminarEjercicio(id: string): void;
 export declare function aplicarOverrides(ejercicios: Ejercicio[]): Ejercicio[];
 /** Zona de trabajo efectiva: la que fijó el usuario, o la derivada del patrón. */
 export declare function zonaTrabajoDe(e: Ejercicio): ZonaTrabajo;

@@ -2,15 +2,23 @@ import type { Ejercicio } from "../domain/entities/ejercicio.js";
 import type { Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
 import { ZONAS_TRABAJO, ZONA_TRABAJO_ETIQUETA } from "../domain/entities/tipos.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
-import { guardarOverride, zonaTrabajoDe } from "../data/overrides.js";
+import {
+  guardarOverride,
+  zonaTrabajoDe,
+  esAnadido,
+  crearEjercicioUsuario,
+  actualizarAnadido,
+  eliminarEjercicio,
+  patronDesde,
+} from "../data/overrides.js";
 import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario } from "../data/media-usuario.js";
 import type { Ctx, Nav } from "./main.js";
 
 /**
- * GESTOR DE EJERCICIOS (v1). Editar nombre, tipo, explicación, claves, notas,
- * zona de trabajo, unilateral e imagen/vídeo de ayuda. Los textos se guardan
- * como "overrides" (localStorage); las imágenes/vídeos, como Blob en IndexedDB
- * (ver data/media-usuario.ts). Todo encima del catálogo base, sin tocarlo.
+ * GESTOR DE EJERCICIOS (v2). Buscar/filtrar, editar (nombre, tipo, explicación,
+ * claves, notas, zona, unilateral, imagen/vídeo) y crear/eliminar ejercicios.
+ * Todo se guarda en el dispositivo (overrides + añadidos/borrados + medios en
+ * IndexedDB), encima del catálogo base sin tocarlo.
  */
 const TIPO_ETIQUETA: Record<Tipo, string> = {
   fuerza: "Fuerza",
@@ -29,19 +37,41 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
   let unilatSel = false;
   let animado = false;
 
+  // buscador + filtros de la lista
+  let busca = "";
+  const filtroTipos = new Set<Tipo>();
+  const filtroZonas = new Set<ZonaTrabajo>();
+
   raiz.classList.add("sin-nav");
 
-  function pintarLista(): void {
+  function filtrados(): Ejercicio[] {
+    const q = busca.trim().toLowerCase();
+    return items.filter((e) => {
+      if (q && !e.nombre.toLowerCase().includes(q)) return false;
+      if (filtroTipos.size > 0 && !filtroTipos.has(e.tipo)) return false;
+      if (filtroZonas.size > 0 && !filtroZonas.has(zonaTrabajoDe(e))) return false;
+      return true;
+    });
+  }
+
+  function refrescarLista(): void {
+    const cont = raiz.querySelector<HTMLElement>("#g-lista");
+    if (!cont) return;
+    const lista = filtrados();
+    if (lista.length === 0) {
+      cont.innerHTML = `<p class="hint" style="margin-top:14px">Ningún ejercicio con esos criterios.</p>`;
+      return;
+    }
     let cuerpo = "";
     for (const g of TIPOS) {
-      const delGrupo = items.filter((e) => e.tipo === g);
+      const delGrupo = lista.filter((e) => e.tipo === g);
       if (delGrupo.length === 0) continue;
       cuerpo += `<p class="dayh">${TIPO_ETIQUETA[g]}</p>`;
       cuerpo += delGrupo
         .map(
           (e) => `<button class="histrow" data-editar="${e.id}">
             <div class="hr-main">
-              <div class="hr-f">${esc(e.nombre)}</div>
+              <div class="hr-f">${esc(e.nombre)}${esAnadido(e.id) ? ' <span class="etq">propio</span>' : ""}</div>
               <div class="hr-s">${ZONA_TRABAJO_ETIQUETA[zonaTrabajoDe(e)]}${e.porLados ? " · dos lados" : ""}</div>
             </div>
             <span class="chev">›</span>
@@ -49,12 +79,28 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
         )
         .join("");
     }
+    cont.innerHTML = cuerpo;
+  }
+
+  function pintarLista(): void {
+    const chipsTipo = TIPOS.map(
+      (t) => `<button class="chip ${filtroTipos.has(t) ? "on" : ""}" data-ftipo="${t}">${TIPO_ETIQUETA[t]}</button>`
+    ).join("");
+    const chipsZona = ZONAS_TRABAJO.map(
+      (z) => `<button class="chip ${filtroZonas.has(z) ? "on" : ""}" data-fzona="${z}">${ZONA_TRABAJO_ETIQUETA[z]}</button>`
+    ).join("");
     raiz.innerHTML = `
       <button class="back" data-accion="volver">← Ajustes</button>
       <h1 class="scr-title">Gestor de ejercicios</h1>
-      <p class="hint">Edita nombre, tipo, explicación, claves, notas, zona, unilateral e imagen/vídeo. Los cambios se guardan en este dispositivo, encima del catálogo base.</p>
-      <div style="margin-top: 10px;">${cuerpo}</div>
+      <button class="btn primary wide" data-accion="nuevo">+ Nuevo ejercicio</button>
+      <input id="g-buscar" class="field" type="search" placeholder="Buscar por nombre…" value="${esc(busca)}" style="margin-top:12px" autocomplete="off" />
+      <p class="lbl" style="margin-top:12px">Filtrar por tipo</p>
+      <div class="chips" id="g-ftipo">${chipsTipo}</div>
+      <p class="lbl" style="margin-top:10px">Filtrar por zona</p>
+      <div class="chips" id="g-fzona">${chipsZona}</div>
+      <div id="g-lista" style="margin-top:12px"></div>
     `;
+    refrescarLista();
     if (!animado) {
       animado = true;
       animarEntrada(raiz);
@@ -66,12 +112,12 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     if (!cont || !editandoId) return;
     const e = items.find((x) => x.id === editandoId);
     const propio = await urlMediaUsuario(editandoId);
+    const q = raiz.querySelector<HTMLElement>("#g-quitar-media");
     if (propio) {
       cont.innerHTML =
         propio.tipo === "video"
           ? `<video src="${propio.url}" autoplay loop muted playsinline></video>`
           : `<img src="${propio.url}" alt="" />`;
-      const q = raiz.querySelector<HTMLElement>("#g-quitar-media");
       if (q) q.hidden = false;
       return;
     }
@@ -79,7 +125,6 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     if (base?.src) cont.innerHTML = `<img src="${esc(base.src)}" alt="" />`;
     else if (base?.svg) cont.innerHTML = base.svg;
     else cont.innerHTML = `<span class="prev-vacio">Sin imagen · sube una para este ejercicio</span>`;
-    const q = raiz.querySelector<HTMLElement>("#g-quitar-media");
     if (q) q.hidden = true;
   }
 
@@ -111,7 +156,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       <p class="lbl" style="margin-top:14px">Tipo</p>
       <div class="chips" id="g-tipo">${segTipo}</div>
 
-      <p class="lbl" style="margin-top:14px">Explicación</p>
+      <p class="lbl" style="margin-top:14px">Indicaciones / explicación</p>
       <textarea id="g-consejo" class="field" rows="2">${esc(e.consejo)}</textarea>
 
       <p class="lbl" style="margin-top:14px">Claves · una por línea</p>
@@ -129,6 +174,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       </div>
 
       <button class="btn primary wide" data-accion="guardar" style="margin-top:18px">Guardar</button>
+      <button class="btn wide" data-accion="eliminar" style="margin-top:10px;color:var(--danger-ink);border-color:var(--danger-soft)">Eliminar ejercicio</button>
     `;
     animarEntrada(raiz);
     void pintarMediaPrev();
@@ -156,15 +202,6 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     const clavesTxt = raiz.querySelector<HTMLTextAreaElement>("#g-claves")?.value ?? "";
     const claves = clavesTxt.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
 
-    guardarOverride(e.id, {
-      nombre: nombre || undefined,
-      tipo: tipoSel,
-      consejo,
-      notas,
-      claves,
-      zonaTrabajo: ztSel,
-      porLados: unilatSel,
-    });
     e.nombre = nombre || e.nombre;
     e.tipo = tipoSel;
     e.consejo = consejo;
@@ -173,13 +210,54 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     e.zonaTrabajo = ztSel;
     e.porLados = unilatSel;
 
+    if (esAnadido(e.id)) {
+      // ejercicio propio: se actualiza entero (y recalculamos su patrón)
+      e.patron = patronDesde(tipoSel, ztSel);
+      if (e.variantes[0]) e.variantes[0].cue = consejo;
+      actualizarAnadido(e);
+    } else {
+      guardarOverride(e.id, {
+        nombre: nombre || undefined,
+        tipo: tipoSel,
+        consejo,
+        notas,
+        claves,
+        zonaTrabajo: ztSel,
+        porLados: unilatSel,
+      });
+    }
+
     aviso("Guardado");
     editandoId = null;
     render();
   }
 
+  function eliminar(): void {
+    const e = items.find((x) => x.id === editandoId);
+    if (!e) return;
+    eliminarEjercicio(e.id);
+    void borrarMediaUsuario(e.id);
+    const i = items.indexOf(e);
+    if (i >= 0) items.splice(i, 1);
+    aviso("Ejercicio eliminado");
+    editandoId = null;
+    render();
+  }
+
+  function nuevo(): void {
+    const ej = crearEjercicioUsuario({ nombre: "Nuevo ejercicio", tipo: "fuerza", zonaTrabajo: "global" });
+    items.push(ej);
+    editandoId = ej.id;
+    render();
+  }
+
   async function alCambiar(ev: Event): Promise<void> {
     const t = ev.target as HTMLInputElement;
+    if (t.id === "g-buscar") {
+      busca = t.value;
+      refrescarLista();
+      return;
+    }
     if (!editandoId || !t.files || t.files.length === 0) return;
     const archivo = t.files[0]!;
     if (t.id === "g-file-img") {
@@ -203,9 +281,24 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       editandoId = null;
       return render();
     }
+    if (d["accion"] === "nuevo") return nuevo();
     if (d["editar"]) {
       editandoId = d["editar"];
       return render();
+    }
+    if (d["ftipo"]) {
+      const t = d["ftipo"] as Tipo;
+      if (filtroTipos.has(t)) filtroTipos.delete(t);
+      else filtroTipos.add(t);
+      boton.classList.toggle("on");
+      return refrescarLista();
+    }
+    if (d["fzona"]) {
+      const z = d["fzona"] as ZonaTrabajo;
+      if (filtroZonas.has(z)) filtroZonas.delete(z);
+      else filtroZonas.add(z);
+      boton.classList.toggle("on");
+      return refrescarLista();
     }
     if (d["tipo"]) {
       tipoSel = d["tipo"] as Tipo;
@@ -232,10 +325,12 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       return;
     }
     if (d["accion"] === "guardar") return guardar();
+    if (d["accion"] === "eliminar") return eliminar();
   }
 
   raiz.addEventListener("click", alPulsar);
   raiz.addEventListener("change", (ev) => void alCambiar(ev));
+  raiz.addEventListener("input", (ev) => void alCambiar(ev));
   render();
 
   return () => {
