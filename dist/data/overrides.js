@@ -153,3 +153,23 @@ const ZONA_DE_PATRON = {
 export function zonaTrabajoDe(e) {
     return e.zonaTrabajo ?? ZONA_DE_PATRON[e.patron];
 }
+export function exportarTextos() {
+    return { overrides: leerOverrides(), anadidos: leerAnadidos(), borrados: leerBorrados() };
+}
+export function importarTextos(d) {
+    if (d.overrides)
+        try {
+            localStorage.setItem(CLAVE, JSON.stringify(d.overrides));
+        }
+        catch { /* nada */ }
+    if (d.anadidos)
+        try {
+            localStorage.setItem(CLAVE_ANADIDOS, JSON.stringify(d.anadidos));
+        }
+        catch { /* nada */ }
+    if (d.borrados)
+        try {
+            localStorage.setItem(CLAVE_BORRADOS, JSON.stringify(d.borrados));
+        }
+        catch { /* nada */ }
+}

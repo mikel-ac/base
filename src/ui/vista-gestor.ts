@@ -10,8 +10,10 @@ import {
   actualizarAnadido,
   eliminarEjercicio,
   patronDesde,
+  exportarTextos,
+  importarTextos,
 } from "../data/overrides.js";
-import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario } from "../data/media-usuario.js";
+import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario, exportarMedios, importarMedios } from "../data/media-usuario.js";
 import type { Ctx, Nav } from "./main.js";
 
 /**
@@ -93,6 +95,11 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       <button class="back" data-accion="volver">← Ajustes</button>
       <h1 class="scr-title">Gestor de ejercicios</h1>
       <button class="btn primary wide" data-accion="nuevo">+ Nuevo ejercicio</button>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" style="flex:1" data-accion="exportar">Exportar datos</button>
+        <label class="btn" style="flex:1;text-align:center;cursor:pointer">Importar datos<input id="g-importar" type="file" accept="application/json,.json" hidden /></label>
+      </div>
+      <p class="hint" style="margin-top:6px">Para llevar tus ejercicios y medios a otro dispositivo: exporta aquí, pasa el archivo y en el otro móvil pulsa Importar.</p>
       <input id="g-buscar" class="field" type="search" placeholder="Buscar por nombre…" value="${esc(busca)}" style="margin-top:12px" autocomplete="off" />
       <p class="lbl" style="margin-top:12px">Filtrar por tipo</p>
       <div class="chips" id="g-ftipo">${chipsTipo}</div>
@@ -251,11 +258,44 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     render();
   }
 
+  function descargar(nombre: string, texto: string): void {
+    const b = new Blob([texto], { type: "application/json" });
+    const u = URL.createObjectURL(b);
+    const a = document.createElement("a");
+    a.href = u;
+    a.download = nombre;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(u), 1000);
+  }
+  async function exportar(): Promise<void> {
+    aviso("Preparando…");
+    const datos = { version: 1, textos: exportarTextos(), medios: await exportarMedios() };
+    descargar("base-datos.json", JSON.stringify(datos));
+    aviso("Datos exportados");
+  }
+  async function importar(archivo: File): Promise<void> {
+    try {
+      const txt = await archivo.text();
+      const d = JSON.parse(txt) as { textos?: Parameters<typeof importarTextos>[0]; medios?: Record<string, { tipo: string; datos: string }> };
+      if (d.textos) importarTextos(d.textos);
+      if (d.medios) await importarMedios(d.medios);
+      aviso("Importado. Recargando…");
+      setTimeout(() => location.reload(), 800);
+    } catch {
+      aviso("Archivo no válido");
+    }
+  }
+
   async function alCambiar(ev: Event): Promise<void> {
     const t = ev.target as HTMLInputElement;
     if (t.id === "g-buscar") {
       busca = t.value;
       refrescarLista();
+      return;
+    }
+    if (t.id === "g-importar" && t.files && t.files[0]) {
+      await importar(t.files[0]);
+      t.value = "";
       return;
     }
     if (!editandoId || !t.files || t.files.length === 0) return;
@@ -282,6 +322,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       return render();
     }
     if (d["accion"] === "nuevo") return nuevo();
+    if (d["accion"] === "exportar") { void exportar(); return; }
     if (d["editar"]) {
       editandoId = d["editar"];
       return render();

@@ -1,7 +1,7 @@
 import { ZONAS_TRABAJO, ZONA_TRABAJO_ETIQUETA } from "../domain/entities/tipos.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
-import { guardarOverride, zonaTrabajoDe, esAnadido, crearEjercicioUsuario, actualizarAnadido, eliminarEjercicio, patronDesde, } from "../data/overrides.js";
-import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario } from "../data/media-usuario.js";
+import { guardarOverride, zonaTrabajoDe, esAnadido, crearEjercicioUsuario, actualizarAnadido, eliminarEjercicio, patronDesde, exportarTextos, importarTextos, } from "../data/overrides.js";
+import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario, exportarMedios, importarMedios } from "../data/media-usuario.js";
 /**
  * GESTOR DE EJERCICIOS (v2). Buscar/filtrar, editar (nombre, tipo, explicación,
  * claves, notas, zona, unilateral, imagen/vídeo) y crear/eliminar ejercicios.
@@ -74,6 +74,11 @@ export function montarGestor(ctx, nav) {
       <button class="back" data-accion="volver">← Ajustes</button>
       <h1 class="scr-title">Gestor de ejercicios</h1>
       <button class="btn primary wide" data-accion="nuevo">+ Nuevo ejercicio</button>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" style="flex:1" data-accion="exportar">Exportar datos</button>
+        <label class="btn" style="flex:1;text-align:center;cursor:pointer">Importar datos<input id="g-importar" type="file" accept="application/json,.json" hidden /></label>
+      </div>
+      <p class="hint" style="margin-top:6px">Para llevar tus ejercicios y medios a otro dispositivo: exporta aquí, pasa el archivo y en el otro móvil pulsa Importar.</p>
       <input id="g-buscar" class="field" type="search" placeholder="Buscar por nombre…" value="${esc(busca)}" style="margin-top:12px" autocomplete="off" />
       <p class="lbl" style="margin-top:12px">Filtrar por tipo</p>
       <div class="chips" id="g-ftipo">${chipsTipo}</div>
@@ -231,11 +236,46 @@ export function montarGestor(ctx, nav) {
         editandoId = ej.id;
         render();
     }
+    function descargar(nombre, texto) {
+        const b = new Blob([texto], { type: "application/json" });
+        const u = URL.createObjectURL(b);
+        const a = document.createElement("a");
+        a.href = u;
+        a.download = nombre;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(u), 1000);
+    }
+    async function exportar() {
+        aviso("Preparando…");
+        const datos = { version: 1, textos: exportarTextos(), medios: await exportarMedios() };
+        descargar("base-datos.json", JSON.stringify(datos));
+        aviso("Datos exportados");
+    }
+    async function importar(archivo) {
+        try {
+            const txt = await archivo.text();
+            const d = JSON.parse(txt);
+            if (d.textos)
+                importarTextos(d.textos);
+            if (d.medios)
+                await importarMedios(d.medios);
+            aviso("Importado. Recargando…");
+            setTimeout(() => location.reload(), 800);
+        }
+        catch {
+            aviso("Archivo no válido");
+        }
+    }
     async function alCambiar(ev) {
         const t = ev.target;
         if (t.id === "g-buscar") {
             busca = t.value;
             refrescarLista();
+            return;
+        }
+        if (t.id === "g-importar" && t.files && t.files[0]) {
+            await importar(t.files[0]);
+            t.value = "";
             return;
         }
         if (!editandoId || !t.files || t.files.length === 0)
@@ -266,6 +306,10 @@ export function montarGestor(ctx, nav) {
         }
         if (d["accion"] === "nuevo")
             return nuevo();
+        if (d["accion"] === "exportar") {
+            void exportar();
+            return;
+        }
         if (d["editar"]) {
             editandoId = d["editar"];
             return render();

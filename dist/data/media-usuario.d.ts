@@ -11,3 +11,11 @@ export declare function urlMediaUsuario(id: string): Promise<{
     tipo: "imagen" | "video";
     url: string;
 } | null>;
+export declare function exportarMedios(): Promise<Record<string, {
+    tipo: string;
+    datos: string;
+}>>;
+export declare function importarMedios(obj: Record<string, {
+    tipo: string;
+    datos: string;
+}>): Promise<void>;

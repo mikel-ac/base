@@ -36,3 +36,13 @@ export declare function eliminarEjercicio(id: string): void;
 export declare function aplicarOverrides(ejercicios: Ejercicio[]): Ejercicio[];
 /** Zona de trabajo efectiva: la que fijó el usuario, o la derivada del patrón. */
 export declare function zonaTrabajoDe(e: Ejercicio): ZonaTrabajo;
+export declare function exportarTextos(): {
+    overrides: unknown;
+    anadidos: unknown;
+    borrados: unknown;
+};
+export declare function importarTextos(d: {
+    overrides?: unknown;
+    anadidos?: unknown;
+    borrados?: unknown;
+}): void;

@@ -74,3 +74,43 @@ export async function urlMediaUsuario(id: string): Promise<{ tipo: "imagen" | "v
   if (!m) return null;
   return { tipo: m.tipo, url: URL.createObjectURL(m.blob) };
 }
+
+function blobADataUrl(b: Blob): Promise<string> {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result));
+    r.onerror = () => rej(r.error);
+    r.readAsDataURL(b);
+  });
+}
+function dataUrlABlob(d: string): Blob {
+  const coma = d.indexOf(",");
+  const cabecera = d.slice(0, coma);
+  const b64 = d.slice(coma + 1);
+  const mime = /:(.*?);/.exec(cabecera)?.[1] ?? "application/octet-stream";
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+export async function exportarMedios(): Promise<Record<string, { tipo: string; datos: string }>> {
+  const db = await abrir();
+  try {
+    const todos = await new Promise<MediaUsuario[]>((res, rej) => {
+      const tx = db.transaction(STORE, "readonly");
+      const req = tx.objectStore(STORE).getAll();
+      req.onsuccess = () => res((req.result as MediaUsuario[]) ?? []);
+      req.onerror = () => rej(req.error);
+    });
+    const out: Record<string, { tipo: string; datos: string }> = {};
+    for (const m of todos) out[m.id] = { tipo: m.tipo, datos: await blobADataUrl(m.blob) };
+    return out;
+  } finally {
+    db.close();
+  }
+}
+export async function importarMedios(obj: Record<string, { tipo: string; datos: string }>): Promise<void> {
+  for (const [id, v] of Object.entries(obj)) {
+    await guardarMediaUsuario(id, v.tipo === "video" ? "video" : "imagen", dataUrlABlob(v.datos));
+  }
+}

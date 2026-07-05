@@ -1,10 +1,6 @@
 /* Service worker de Base. Sube el número de versión en cada despliegue
    (p. ej. base-v2, base-v3...) para forzar la actualización en el móvil. */
-<<<<<<< HEAD
-const CACHE = "base-v6";
-=======
-const CACHE = "base-v6";
->>>>>>> e0f53d9744dbf136984701f31ec678d14a2475f4
+const CACHE = "base-v7";
 const CORE = [
   "./", "./index.html", "./styles.css", "./manifest.webmanifest",
   "./dist/ui/main.js",

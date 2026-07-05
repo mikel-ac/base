@@ -146,3 +146,12 @@ const ZONA_DE_PATRON: Record<Patron, ZonaTrabajo> = {
 export function zonaTrabajoDe(e: Ejercicio): ZonaTrabajo {
   return e.zonaTrabajo ?? ZONA_DE_PATRON[e.patron];
 }
+
+export function exportarTextos(): { overrides: unknown; anadidos: unknown; borrados: unknown } {
+  return { overrides: leerOverrides(), anadidos: leerAnadidos(), borrados: leerBorrados() };
+}
+export function importarTextos(d: { overrides?: unknown; anadidos?: unknown; borrados?: unknown }): void {
+  if (d.overrides) try { localStorage.setItem(CLAVE, JSON.stringify(d.overrides)); } catch { /* nada */ }
+  if (d.anadidos) try { localStorage.setItem(CLAVE_ANADIDOS, JSON.stringify(d.anadidos)); } catch { /* nada */ }
+  if (d.borrados) try { localStorage.setItem(CLAVE_BORRADOS, JSON.stringify(d.borrados)); } catch { /* nada */ }
+}
