@@ -160,7 +160,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       <textarea id="g-consejo" class="field" rows="2">${esc(e.consejo)}</textarea>
 
       <p class="lbl" style="margin-top:14px">Claves · una por línea</p>
-      <textarea id="g-claves" class="field" rows="4" placeholder="Un punto de técnica por línea…">${esc((e.claves ?? []).join("\\n"))}</textarea>
+      <textarea id="g-claves" class="field" rows="4" placeholder="Un punto de técnica por línea…">${esc((e.claves ?? []).join("\n"))}</textarea>
 
       <p class="lbl" style="margin-top:14px">Notas</p>
       <textarea id="g-notas" class="field" rows="2" placeholder="Tus notas personales…">${esc(e.notas ?? "")}</textarea>
