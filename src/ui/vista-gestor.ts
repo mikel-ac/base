@@ -14,6 +14,7 @@ import {
   importarTextos,
 } from "../data/overrides.js";
 import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario, exportarMedios, importarMedios } from "../data/media-usuario.js";
+import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
 import type { Ctx, Nav } from "./main.js";
 
 /**
@@ -32,7 +33,7 @@ const TIPOS: Tipo[] = ["fuerza", "cardio", "movilidad", "calentamiento"];
 
 export function montarGestor(ctx: Ctx, nav: Nav): () => void {
   const { raiz } = ctx;
-  const items: Ejercicio[] = ctx.catalogo.map((e) => ({ ...e }));
+  const items: Ejercicio[] = cargarCatalogo(); // en vivo: incluye tus ediciones y ejercicios propios
   let editandoId: string | null = null;
   let ztSel: ZonaTrabajo = "global";
   let tipoSel: Tipo = "fuerza";

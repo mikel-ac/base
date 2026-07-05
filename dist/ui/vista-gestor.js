@@ -2,6 +2,7 @@ import { ZONAS_TRABAJO, ZONA_TRABAJO_ETIQUETA } from "../domain/entities/tipos.j
 import { animarEntrada, aviso, esc } from "./comunes.js";
 import { guardarOverride, zonaTrabajoDe, esAnadido, crearEjercicioUsuario, actualizarAnadido, eliminarEjercicio, patronDesde, exportarTextos, importarTextos, } from "../data/overrides.js";
 import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario, exportarMedios, importarMedios } from "../data/media-usuario.js";
+import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
 /**
  * GESTOR DE EJERCICIOS (v2). Buscar/filtrar, editar (nombre, tipo, explicación,
  * claves, notas, zona, unilateral, imagen/vídeo) y crear/eliminar ejercicios.
@@ -17,7 +18,7 @@ const TIPO_ETIQUETA = {
 const TIPOS = ["fuerza", "cardio", "movilidad", "calentamiento"];
 export function montarGestor(ctx, nav) {
     const { raiz } = ctx;
-    const items = ctx.catalogo.map((e) => ({ ...e }));
+    const items = cargarCatalogo(); // en vivo: incluye tus ediciones y ejercicios propios
     let editandoId = null;
     let ztSel = "global";
     let tipoSel = "fuerza";
