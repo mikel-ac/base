@@ -308,7 +308,7 @@ body {
 /* Previsualización del siguiente ejercicio en el descanso */
 .prev-media { margin: 12px 0 6px; }
 .prev-galeria { display: flex; gap: 8px; justify-content: center; }
-.prev-img { flex: 1; max-width: 148px; background: var(--accent-soft); border-radius: 12px; overflow: hidden; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; }
+.prev-img { flex: 1; max-width: 100%; background: var(--accent-soft); border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; }
 .prev-img img, .prev-img video, .prev-img svg { width: 100%; height: 100%; object-fit: contain; }
 
 /* ---------- Historial ---------- */
@@ -399,3 +399,25 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
 .mediabox img, .mediabox video { width: 100%; height: 100%; object-fit: contain; }
 .prev-vacio { color: var(--soft); font-size: 13px; text-align: center; padding: 0 12px; }
 .etq { font-size: 10px; color: var(--accent-ink); background: var(--accent-soft); padding: 1px 7px; border-radius: 999px; font-family: var(--fd); vertical-align: middle; }
+
+/* ---------- Escritorio / tablet ---------- */
+@media (min-width: 700px) {
+  #app { max-width: 620px; }
+  .tabs { max-width: 620px; }
+  .brand { font-size: 28px; }
+  .scr-title { font-size: 30px; }
+  .timer { width: 300px; height: 300px; }
+  .num { font-size: 82px; }
+  .ex-n { font-size: 30px; }
+  .ex-c { font-size: 15px; max-width: 400px; }
+  .prev-media { max-width: 540px; margin-left: auto; margin-right: auto; }
+}
+@media (min-width: 1024px) {
+  #app { max-width: 720px; }
+  .tabs { max-width: 720px; }
+  .num { font-size: 96px; }
+  .timer { width: 340px; height: 340px; }
+  .ex-n { font-size: 34px; }
+  .scr-title { font-size: 34px; }
+  .prev-media { max-width: 620px; }
+}

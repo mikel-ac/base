@@ -220,7 +220,7 @@ export function montarSesion(ctx, nav, plan, estadoInicial) {
           <div class="ex-n">${esDescansoOPrep ? "Siguiente: " : ""}${esc(paso.asignado.ejercicio.nombre)}</div>
           <div class="ex-v">${esc(paso.asignado.variante.nombre)}</div>
           <div class="zona-tag">Trabaja: ${ZONA_TEXTO[paso.asignado.ejercicio.patron] ?? "Global"}</div>
-          ${esDescansoOPrep ? '<div class="prev-media" id="prev-media"></div>' : ""}
+          <div class="prev-media" id="prev-media"></div>
           <p class="ex-c">${esc(paso.asignado.variante.cue)}</p>
           <button class="link" data-accion="detalle-ejercicio">Ver detalle del ejercicio</button>
         </div>
@@ -242,11 +242,9 @@ export function montarSesion(ctx, nav, plan, estadoInicial) {
             void relleno.getBoundingClientRect();
             relleno.classList.remove("sin-transicion");
         }
-        if (esDescansoOPrep) {
-            const slotPrev = raiz.querySelector("#prev-media");
-            if (slotPrev)
-                void pintarPreview(paso.asignado.ejercicio, slotPrev);
-        }
+        const slotPrev = raiz.querySelector("#prev-media");
+        if (slotPrev)
+            void pintarPreview(paso.asignado.ejercicio, slotPrev);
         if (!animado) {
             animado = true;
             const runnerEl = raiz.querySelector(".runner");
