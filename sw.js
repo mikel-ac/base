@@ -1,6 +1,6 @@
 /* Service worker de Base. Sube el número de versión en cada despliegue
    (p. ej. base-v2, base-v3...) para forzar la actualización en el móvil. */
-const CACHE = "base-v11";
+const CACHE = "base-v12";
 const CORE = [
   "./", "./index.html", "./styles.css", "./manifest.webmanifest",
   "./dist/ui/main.js",
@@ -18,6 +18,11 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
+  // Dejar pasar SIN tocar todo lo que no sea de nuestro propio origen:
+  // el SDK de Firebase (gstatic), Auth (Google) y Firestore deben ir directos
+  // a la red. Interceptarlos rompería el login y la sincronización.
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
   e.respondWith(
     caches.match(req).then((hit) => {
       const net = fetch(req).then((res) => {

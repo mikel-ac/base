@@ -2,6 +2,7 @@ import { TODAS_ZONAS } from "../domain/entities/tipos.js";
 import { clamp } from "../core/util.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
 import { fijarTema, temaActual } from "./tema.js";
+import { iniciarSesionGoogle, cerrarSesion } from "../data/firebase/firebase-auth.js";
 /**
  * PANTALLA DE AJUSTES / PERFIL (guía §7): nombre, objetivo semanal,
  * molestias permanentes y Apariencia (Sistema / Claro / Oscuro).
@@ -23,7 +24,77 @@ export function montarAjustes(ctx, nav) {
     const { raiz, app } = ctx;
     let usuario = null;
     let animado = false;
+    // Estado del bloque "Cuenta y sincronización".
+    let user = app.sync.obtenerUsuario();
+    let estadoSync = app.sync.obtenerEstado();
+    const desuscribirSync = app.sync.suscribirEstado((e) => {
+        estadoSync = e;
+        user = app.sync.obtenerUsuario();
+        actualizarBloqueCuenta();
+    });
     raiz.classList.add("sin-nav");
+    // ---------- Bloque "Cuenta y sincronización" ----------
+    const ESTADO_TEXTO = {
+        desconectado: "",
+        sincronizando: "Sincronizando…",
+        sincronizado: "Sincronizado",
+        sin_conexion: "Sin conexión · se sincroniza al volver",
+        error: "No se pudo sincronizar ahora",
+    };
+    function hace(ts) {
+        if (!ts)
+            return "";
+        const s = Math.round((Date.now() - ts) / 1000);
+        if (s < 60)
+            return " · hace un momento";
+        const m = Math.round(s / 60);
+        if (m < 60)
+            return ` · hace ${m} min`;
+        const h = Math.round(m / 60);
+        return ` · hace ${h} h`;
+    }
+    function htmlBloqueCuenta() {
+        if (!user) {
+            return `
+        <p class="lbl">Cuenta y sincronización</p>
+        <p class="hint" style="margin-top:0">Entra para tener tu historial, ajustes y entrenamientos en todos tus dispositivos.</p>
+        <button class="btn wide g-signin" data-accion="login">
+          <span class="g-logo" aria-hidden="true">G</span> Continuar con Google
+        </button>
+        <p class="hint">Sin cuenta la app funciona igual, solo en este dispositivo.</p>`;
+        }
+        const nombre = esc(user.displayName ?? "Tu cuenta");
+        const email = esc(user.email ?? "");
+        const inicial = (user.displayName ?? user.email ?? "?").charAt(0).toUpperCase();
+        const estadoTxt = ESTADO_TEXTO[estadoSync] || "Conectado";
+        const cuando = estadoSync === "sincronizado" ? hace(app.sync.obtenerUltimaSync()) : "";
+        const uidCorto = user.uid.length > 12 ? `${user.uid.slice(0, 6)}…${user.uid.slice(-4)}` : user.uid;
+        const claseEstado = estadoSync === "sincronizado" ? "ok" : estadoSync === "error" ? "err" : "neutro";
+        return `
+      <p class="lbl">Cuenta y sincronización</p>
+      <div class="cuenta-fila">
+        <div class="avatar">${esc(inicial)}</div>
+        <div style="min-width:0">
+          <div class="nm">${nombre}</div>
+          <div class="hint" style="margin:0">${email}</div>
+        </div>
+      </div>
+      <div class="sync-estado ${claseEstado}">${esc(estadoTxt + cuando)}
+        <button class="link" data-accion="sync-ahora" style="margin-left:auto;padding:0 4px">Sincronizar</button>
+      </div>
+      <div class="uid-fila">
+        <span class="hint" style="margin:0">UID</span>
+        <code class="uid">${esc(uidCorto)}</code>
+        <button class="link" data-accion="copiar-uid" style="margin-left:auto;padding:0 4px">Copiar</button>
+      </div>
+      <p class="hint">El UID es lo que pega en las reglas de Firestore para poder editar el catálogo común.</p>
+      <button class="btn wide" data-accion="logout" style="color:var(--danger-ink);border-color:var(--danger-soft);margin-top:6px">Cerrar sesión</button>`;
+    }
+    function actualizarBloqueCuenta() {
+        const cont = raiz.querySelector("#bloque-cuenta");
+        if (cont)
+            cont.innerHTML = htmlBloqueCuenta();
+    }
     async function guardar(cambios) {
         if (!usuario)
             return;
@@ -67,6 +138,8 @@ export function montarAjustes(ctx, nav) {
         </div>
       </div>
 
+      <div id="bloque-cuenta">${htmlBloqueCuenta()}</div>
+
       <div>
         <p class="lbl">Molestias permanentes</p>
         <div class="chips">${chipsMolestias}</div>
@@ -105,6 +178,31 @@ export function montarAjustes(ctx, nav) {
             return nav.aInicio();
         if (d["accion"] === "gestor")
             return nav.aGestor();
+        if (d["accion"] === "login") {
+            aviso("Abriendo Google…");
+            void iniciarSesionGoogle().catch((e) => {
+                aviso(e instanceof Error && /popup/i.test(e.message) ? "El navegador bloqueó la ventana de Google." : "No se pudo iniciar sesión.");
+            });
+            return;
+        }
+        if (d["accion"] === "logout") {
+            void cerrarSesion()
+                .then(() => aviso("Sesión cerrada."))
+                .catch(() => aviso("No se pudo cerrar sesión."));
+            return;
+        }
+        if (d["accion"] === "sync-ahora") {
+            aviso("Sincronizando…");
+            void app.sync.sincronizar();
+            return;
+        }
+        if (d["accion"] === "copiar-uid") {
+            const uid = user?.uid;
+            if (uid) {
+                void navigator.clipboard?.writeText(uid).then(() => aviso("UID copiado."), () => aviso(uid));
+            }
+            return;
+        }
         if (d["objetivo"]) {
             return void guardar({ objetivoSemanal: clamp(u.objetivoSemanal + (d["objetivo"] === "+1" ? 1 : -1), 1, 7) });
         }
@@ -130,5 +228,6 @@ export function montarAjustes(ctx, nav) {
     return () => {
         raiz.removeEventListener("click", alPulsar);
         raiz.classList.remove("sin-nav");
+        desuscribirSync();
     };
 }

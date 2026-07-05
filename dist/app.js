@@ -9,12 +9,14 @@ import { ConfiguradorStore } from "./state/configurador-store.js";
 import { HistorialStore } from "./state/historial-store.js";
 import { InicioStore } from "./state/inicio-store.js";
 import { PlanesStore } from "./state/planes-store.js";
+import { SyncService } from "./data/firebase/sync-service.js";
 export async function crearApp() {
     const db = await abrirDb();
     const usuarios = new UsuarioRepositoryIdb(db);
     const ejercicios = CatalogoEjercicioRepository.desdeSeed();
     const sesiones = new SesionRepositoryIdb(db);
     const planes = new PlanGuardadoRepositoryIdb(db);
+    const sync = new SyncService({ usuarios, sesiones, planes });
     return {
         repos: { usuarios, ejercicios, sesiones, planes },
         usecases: {
@@ -27,5 +29,6 @@ export async function crearApp() {
             historial: new HistorialStore(sesiones),
             planes: new PlanesStore(planes),
         },
+        sync,
     };
 }

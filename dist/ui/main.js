@@ -10,6 +10,8 @@ import { montarProgreso } from "./vista-progreso.js";
 import { montarRegistrar } from "./vista-registrar.js";
 import { montarSesion } from "./vista-sesion.js";
 import { montarGestor } from "./vista-gestor.js";
+import { montarDisenador } from "./vista-disenador.js";
+import { observarUsuario } from "../data/firebase/firebase-auth.js";
 const raiz = document.getElementById("app");
 let limpiar = null;
 function cambiar(montar) {
@@ -31,10 +33,25 @@ async function arrancar() {
             aProgreso: () => cambiar(() => montarProgreso(ctx, nav)),
             aAjustes: () => cambiar(() => montarAjustes(ctx, nav)),
             aGestor: () => cambiar(() => montarGestor(ctx, nav)),
+            aDisenador: (plan) => cambiar(() => montarDisenador(ctx, nav, plan)),
             aSesion: (plan, estado) => cambiar(() => montarSesion(ctx, nav, plan, estado)),
             aRegistrar: (plan) => cambiar(() => montarRegistrar(ctx, nav, plan)),
         };
         nav.aInicio();
+        // Observador de sesión de Firebase: si ya había sesión (o el usuario entra
+        // luego), el SyncService sincroniza. Es perezoso y no bloquea el arranque;
+        // si Firebase no carga (sin conexión la 1ª vez, bloqueadores…), la app
+        // sigue funcionando en local sin enterarse.
+        void (async () => {
+            try {
+                await observarUsuario((user) => {
+                    void app.sync.fijarUsuario(user);
+                });
+            }
+            catch {
+                /* Firebase no disponible: modo local */
+            }
+        })();
     }
     catch (e) {
         raiz.innerHTML = `<p class="cargando">${esc(e instanceof Error ? e.message : "No se pudo arrancar la app.")}</p>`;

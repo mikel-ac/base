@@ -2,6 +2,7 @@ import { type App } from "../app.js";
 import type { PlanSesion } from "../domain/entities/configuracion.js";
 import type { RunnerState } from "../state/runner.js";
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
+import type { PlanGuardado } from "../domain/entities/plan-guardado.js";
 /**
  * GESTOR DE PANTALLAS. La app es una sola página que cambia de "vista":
  * cada vista es una función que pinta dentro de #app y devuelve otra función
@@ -22,6 +23,8 @@ export interface Nav {
     aProgreso(): void;
     aAjustes(): void;
     aGestor(): void;
+    /** Diseñador de entrenamientos a medida. Sin plan = nuevo; con plan = editar. */
+    aDisenador(plan?: PlanGuardado): void;
     aSesion(plan: PlanSesion, estado?: RunnerState): void;
     aRegistrar(plan: PlanSesion): void;
 }

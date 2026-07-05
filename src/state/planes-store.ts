@@ -1,4 +1,5 @@
 import type { ConfigSesion } from "../domain/entities/configuracion.js";
+import type { EntrenamientoFijo } from "../domain/entities/entrenamiento-fijo.js";
 import type { PlanGuardado } from "../domain/entities/plan-guardado.js";
 import type { PlanGuardadoRepository } from "../domain/repositories/plan-guardado-repository.js";
 import { uuid } from "../core/util.js";
@@ -37,6 +38,34 @@ export class PlanesStore extends Store<PlanesState> {
     };
     await this.repo.guardar(plan);
     await this.cargar(usuarioId);
+  }
+
+  /**
+   * Crea o actualiza un ENTRENAMIENTO FIJO (diseñado a mano).
+   * Si se pasa `id`, actualiza ese plan conservando su fecha de creación;
+   * si no, crea uno nuevo. Refresca la lista al terminar.
+   */
+  async guardarFijo(
+    usuarioId: string,
+    nombre: string,
+    fijo: EntrenamientoFijo,
+    id?: string
+  ): Promise<void> {
+    const existente = id ? this.obtener().planes.find((p) => p.id === id) : undefined;
+    const plan: PlanGuardado = {
+      id: id ?? uuid(),
+      usuarioId,
+      nombre: nombre.trim() === "" ? "Mi entrenamiento" : nombre.trim(),
+      fijo,
+      creadoEn: existente?.creadoEn ?? Date.now(),
+    };
+    await this.repo.guardar(plan);
+    await this.cargar(usuarioId);
+  }
+
+  /** Busca un plan por id en el estado ya cargado (para editar/usar). */
+  obtenerPlan(id: string): PlanGuardado | undefined {
+    return this.obtener().planes.find((p) => p.id === id);
   }
 
   async eliminar(usuarioId: string, planId: string): Promise<void> {

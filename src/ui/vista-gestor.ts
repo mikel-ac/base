@@ -96,6 +96,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       <button class="back" data-accion="volver">← Ajustes</button>
       <h1 class="scr-title">Gestor de ejercicios</h1>
       <button class="btn primary wide" data-accion="nuevo">+ Nuevo ejercicio</button>
+      <button class="btn wide" data-accion="disenar" style="margin-top:8px">✎ Diseñar entrenamiento a medida</button>
       <div class="row" style="margin-top:8px">
         <button class="btn" style="flex:1" data-accion="exportar">Exportar datos</button>
         <label class="btn" style="flex:1;text-align:center;cursor:pointer">Importar datos<input id="g-importar" type="file" accept="application/json,.json" hidden /></label>
@@ -127,6 +128,16 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
           ? `<video src="${propio.url}" autoplay loop muted playsinline></video>`
           : `<img src="${propio.url}" alt="" />`;
       if (q) q.hidden = false;
+      return;
+    }
+    // Prioridad: medio subido (este dispositivo) > URL de media (compartida) > imagen base.
+    const url = e?.urlMedia?.trim();
+    if (url) {
+      const esVideo = /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url);
+      cont.innerHTML = esVideo
+        ? `<video src="${esc(url)}" autoplay loop muted playsinline></video>`
+        : `<img src="${esc(url)}" alt="" />`;
+      if (q) q.hidden = true;
       return;
     }
     const base = e?.images.find((m) => m.src || m.svg);
@@ -173,6 +184,10 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       <p class="lbl" style="margin-top:14px">Notas</p>
       <textarea id="g-notas" class="field" rows="2" placeholder="Tus notas personales…">${esc(e.notas ?? "")}</textarea>
 
+      <p class="lbl" style="margin-top:14px">URL de vídeo/imagen (se comparte a todos)</p>
+      <input id="g-urlmedia" class="field" type="text" value="${esc(e.urlMedia ?? "")}" placeholder="media/mi-video.mp4" autocomplete="off" />
+      <p class="hint" style="margin-top:6px">Apunta a un archivo de la carpeta media/ de la web. Al ser texto, se sincroniza a todos los dispositivos (los vídeos subidos, en cambio, se quedan en este). Si ambos existen, manda el subido.</p>
+
       <p class="lbl" style="margin-top:14px">Zona de trabajo</p>
       <div class="chips" id="g-zt">${segZT}</div>
 
@@ -207,6 +222,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     const nombre = (raiz.querySelector<HTMLInputElement>("#g-nombre")?.value ?? "").trim();
     const consejo = (raiz.querySelector<HTMLTextAreaElement>("#g-consejo")?.value ?? "").trim();
     const notas = (raiz.querySelector<HTMLTextAreaElement>("#g-notas")?.value ?? "").trim();
+    const urlMedia = (raiz.querySelector<HTMLInputElement>("#g-urlmedia")?.value ?? "").trim();
     const clavesTxt = raiz.querySelector<HTMLTextAreaElement>("#g-claves")?.value ?? "";
     const claves = clavesTxt.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
 
@@ -217,6 +233,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     e.claves = claves;
     e.zonaTrabajo = ztSel;
     e.porLados = unilatSel;
+    e.urlMedia = urlMedia || undefined;
 
     if (esAnadido(e.id)) {
       // ejercicio propio: se actualiza entero (y recalculamos su patrón)
@@ -232,6 +249,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
         claves,
         zonaTrabajo: ztSel,
         porLados: unilatSel,
+        urlMedia: urlMedia || undefined,
       });
     }
 
@@ -323,6 +341,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       return render();
     }
     if (d["accion"] === "nuevo") return nuevo();
+    if (d["accion"] === "disenar") return nav.aDisenador();
     if (d["accion"] === "exportar") { void exportar(); return; }
     if (d["editar"]) {
       editandoId = d["editar"];

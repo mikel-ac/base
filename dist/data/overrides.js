@@ -137,6 +137,7 @@ export function aplicarOverrides(ejercicios) {
             ...(o.porLados !== undefined ? { porLados: o.porLados } : {}),
             ...(o.claves ? { claves: o.claves } : {}),
             ...(o.tipo ? { tipo: o.tipo } : {}),
+            ...(o.urlMedia !== undefined ? { urlMedia: o.urlMedia } : {}),
         };
     });
 }

@@ -42,4 +42,6 @@ export interface Ejercicio {
   zonaTrabajo?: ZonaTrabajo;
   parejaId?: string;
   porLados?: boolean;
+  /** URL de un medio servido por la web (media/…); se sincroniza como texto. */
+  urlMedia?: string;
 }

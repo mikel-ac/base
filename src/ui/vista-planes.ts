@@ -1,7 +1,9 @@
 import type { ConfigSesion } from "../domain/entities/configuracion.js";
 import type { PlanGuardado } from "../domain/entities/plan-guardado.js";
+import { esEntrenamientoFijo } from "../domain/entities/plan-guardado.js";
 import type { Usuario } from "../domain/entities/usuario.js";
 import { generarSesion } from "../domain/usecases/generar-sesion.js";
+import { expandirEntrenamiento } from "../domain/usecases/expandir-entrenamiento.js";
 import { zonaDesdePatrones } from "../state/configurador-store.js";
 import type { PlanesState } from "../state/planes-store.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
@@ -21,9 +23,9 @@ import { mostrarDetallePlan } from "./panel-detalle.js";
  *   el día que guardaste (las molestias puntuales no deben perseguirte).
  */
 
-function cfgParaUsar(plan: PlanGuardado, usuario: Usuario): ConfigSesion {
+function cfgParaUsar(cfgBase: ConfigSesion, usuario: Usuario): ConfigSesion {
   const cfg: ConfigSesion = {
-    ...plan.cfg,
+    ...cfgBase,
     nivel: usuario.nivel,
     molestias: [...usuario.molestiasPermanentes],
   };
@@ -38,11 +40,17 @@ const ETIQUETA_ZONA_TRABAJO: Record<string, string> = {
 };
 
 function resumenPlan(p: PlanGuardado): string {
-  const partes = [`${p.cfg.durMin} min`];
-  const zona = zonaDesdePatrones(p.cfg.patrones);
+  if (esEntrenamientoFijo(p)) {
+    const total = p.fijo.calentamiento.length + p.fijo.principal.length;
+    const partes = [`${total} ejercicio${total === 1 ? "" : "s"}`, `${p.fijo.workSec}/${p.fijo.restSec}s`];
+    return partes.join(" · ");
+  }
+  const cfg = p.cfg!;
+  const partes = [`${cfg.durMin} min`];
+  const zona = zonaDesdePatrones(cfg.patrones);
   if (zona !== "todo") partes.push(ETIQUETA_ZONA_TRABAJO[zona]!);
-  partes.push(p.cfg.focus.join(" y "), `${p.cfg.workSec}/${p.cfg.restSec}s`);
-  if (p.cfg.bajoImpacto) partes.push("bajo impacto");
+  partes.push(cfg.focus.join(" y "), `${cfg.workSec}/${cfg.restSec}s`);
+  if (cfg.bajoImpacto) partes.push("bajo impacto");
   return partes.join(" · ");
 }
 
@@ -68,31 +76,37 @@ export function montarPlanes(ctx: Ctx, nav: Nav): () => void {
       estado.planes.length === 0
         ? `<div class="vacio">
              <p>No tienes planes guardados.</p>
-             <p class="hint">Se crean desde "Montar a medida" con el botón "Guardar como plan".</p>
+             <p class="hint">Crea un entrenamiento a medida con el botón de arriba, o guarda una configuración desde "Montar a medida".</p>
              <button class="btn" data-accion="ir-configurador" style="margin-top: 12px;">Ir a montar a medida</button>
            </div>`
         : estado.planes
-            .map(
-              (p) => `
+            .map((p) => {
+              const fijo = esEntrenamientoFijo(p);
+              const editar = fijo
+                ? `<button class="link" data-accion="editar" data-id="${esc(p.id)}" style="padding-left:0;">Editar</button>`
+                : `<button class="link" data-accion="ajustar" data-id="${esc(p.id)}" style="padding-left:0;">Ajustar</button>`;
+              const etiqueta = fijo ? ` <span class="etq">a medida</span>` : "";
+              return `
               <section class="plan">
                 <div class="pn">
-                  <div class="pt">${esc(p.nombre)}</div>
+                  <div class="pt">${esc(p.nombre)}${etiqueta}</div>
                   <div class="pd">${esc(resumenPlan(p))}</div>
                   <div style="margin-top:6px;">
-                    <button class="link" data-accion="ajustar" data-id="${esc(p.id)}" style="padding-left:0;">Ajustar</button>
+                    ${editar}
                     <button class="link" data-accion="borrar" data-id="${esc(p.id)}">Borrar</button>
                   </div>
                 </div>
                 <button class="btn primary" data-accion="usar" data-id="${esc(p.id)}">Usar</button>
-              </section>`
-            )
+              </section>`;
+            })
             .join("");
 
     raiz.innerHTML = `
       <h1 class="scr-title">Planes</h1>
-      <p class="lbl" style="margin:0;">Guardados</p>
+      <button class="btn primary wide" data-accion="disenar">✎ Diseñar entrenamiento a medida</button>
+      <p class="lbl" style="margin-top:16px;">Guardados</p>
       ${cuerpo}
-      ${estado.planes.length > 0 ? `<p class="hint" style="text-align:center;">Un plan guarda tu configuración, no ejercicios: cada uso genera una sesión fresca con tu nivel actual.</p>` : ""}
+      ${estado.planes.length > 0 ? `<p class="hint" style="text-align:center;">Los planes de configuración generan una sesión fresca cada vez; los "a medida" ejecutan los ejercicios que elegiste. Ambos usan tu nivel actual.</p>` : ""}
       ${htmlNav("planes")}
     `;
     activarIndicador(raiz, "planes");
@@ -114,16 +128,36 @@ export function montarPlanes(ctx: Ctx, nav: Nav): () => void {
       case "ir-configurador":
         nav.aConfigurador();
         break;
+      case "disenar":
+        nav.aDisenador();
+        break;
       case "usar": {
         if (!plan) return;
-        const res = generarSesion(catalogo, cfgParaUsar(plan, u));
-        if (res.ok) mostrarDetallePlan(catalogo, res.valor, `Plan: ${plan.nombre}`, (p) => nav.aSesion(p));
-        else aviso(res.error);
+        if (esEntrenamientoFijo(plan)) {
+          const res = expandirEntrenamiento(plan.fijo, catalogo, u.nivel, false);
+          if (!res.ok) {
+            aviso(res.error);
+            return;
+          }
+          if (res.valor.omitidos.length > 0) {
+            aviso(`Se omitieron ${res.valor.omitidos.length} ejercicio(s) no disponibles hoy.`);
+          }
+          mostrarDetallePlan(catalogo, res.valor.plan, `A medida: ${plan.nombre}`, (p) => nav.aSesion(p));
+        } else {
+          const res = generarSesion(catalogo, cfgParaUsar(plan.cfg!, u));
+          if (res.ok) mostrarDetallePlan(catalogo, res.valor, `Plan: ${plan.nombre}`, (p) => nav.aSesion(p));
+          else aviso(res.error);
+        }
+        break;
+      }
+      case "editar": {
+        if (!plan) return;
+        nav.aDisenador(plan);
         break;
       }
       case "ajustar": {
-        if (!plan) return;
-        app.stores.configurador.desdeConfig(cfgParaUsar(plan, u));
+        if (!plan || !plan.cfg) return;
+        app.stores.configurador.desdeConfig(cfgParaUsar(plan.cfg, u));
         app.stores.configurador.fijarNivelDia(null); // nivel: siempre el actual
         nav.aConfigurador();
         break;

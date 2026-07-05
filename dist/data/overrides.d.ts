@@ -15,6 +15,13 @@ export interface OverrideEjercicio {
     parejaId?: string;
     porLados?: boolean;
     claves?: string[];
+    /**
+     * URL de un medio (imagen/vídeo) servido por la propia web, p. ej.
+     * "media/sentadilla.mp4". A diferencia de los medios subidos (que viven en
+     * IndexedDB de un solo dispositivo), una URL SÍ se sincroniza a todos: es
+     * texto. Se usa para tener vídeos comunes sin pagar Firebase Storage.
+     */
+    urlMedia?: string;
 }
 export declare function leerOverrides(): Record<string, OverrideEjercicio>;
 export declare function guardarOverride(id: string, ov: OverrideEjercicio): void;

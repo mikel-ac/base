@@ -24,7 +24,7 @@ async function pintarPreview(e: Ejercicio, zona: HTMLElement): Promise<void> {
   const r = await resolverMedia(e, sondaFetch);
   if (!zona.isConnected) return;
   if (r.tipo === "clip") {
-    const medio = r.src.endsWith(".mp4")
+    const medio = /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(r.src)
       ? `<video src="${esc(r.src)}" autoplay loop muted playsinline></video>`
       : `<img src="${esc(r.src)}" alt="" />`;
     zona.innerHTML = `<div class="prev-galeria"><div class="prev-img">${medio}</div></div>`;

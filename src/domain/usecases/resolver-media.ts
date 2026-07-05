@@ -27,6 +27,11 @@ export function candidatosClip(ejercicioId: string): string[] {
 }
 
 export async function resolverMedia(e: Ejercicio, sonda: SondaMedia): Promise<MediaResuelta> {
+  // 0) URL explícita fijada por el usuario en el Gestor (se sincroniza como
+  //    texto a todos los dispositivos). Tiene prioridad sobre el autodescubrimiento.
+  const url = e.urlMedia?.trim();
+  if (url) return { tipo: "clip", src: url };
+
   for (const src of candidatosClip(e.id)) {
     if (await sonda.existe(src)) return { tipo: "clip", src };
   }

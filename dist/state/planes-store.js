@@ -28,6 +28,27 @@ export class PlanesStore extends Store {
         await this.repo.guardar(plan);
         await this.cargar(usuarioId);
     }
+    /**
+     * Crea o actualiza un ENTRENAMIENTO FIJO (diseñado a mano).
+     * Si se pasa `id`, actualiza ese plan conservando su fecha de creación;
+     * si no, crea uno nuevo. Refresca la lista al terminar.
+     */
+    async guardarFijo(usuarioId, nombre, fijo, id) {
+        const existente = id ? this.obtener().planes.find((p) => p.id === id) : undefined;
+        const plan = {
+            id: id ?? uuid(),
+            usuarioId,
+            nombre: nombre.trim() === "" ? "Mi entrenamiento" : nombre.trim(),
+            fijo,
+            creadoEn: existente?.creadoEn ?? Date.now(),
+        };
+        await this.repo.guardar(plan);
+        await this.cargar(usuarioId);
+    }
+    /** Busca un plan por id en el estado ya cargado (para editar/usar). */
+    obtenerPlan(id) {
+        return this.obtener().planes.find((p) => p.id === id);
+    }
     async eliminar(usuarioId, planId) {
         await this.repo.eliminar(planId);
         await this.cargar(usuarioId);

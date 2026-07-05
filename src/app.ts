@@ -13,6 +13,7 @@ import { ConfiguradorStore } from "./state/configurador-store.js";
 import { HistorialStore } from "./state/historial-store.js";
 import { InicioStore } from "./state/inicio-store.js";
 import { PlanesStore } from "./state/planes-store.js";
+import { SyncService } from "./data/firebase/sync-service.js";
 
 /**
  * RAÍZ DE COMPOSICIÓN. El ÚNICO sitio donde se decide qué implementación
@@ -43,6 +44,8 @@ export interface App {
     planes: PlanesStore;
     // El RunnerStore se crea al empezar cada sesión: new RunnerStore(plan)
   };
+  /** Sincronización en la nube (Firebase). Opcional: la app va sin ella. */
+  sync: SyncService;
 }
 
 export async function crearApp(): Promise<App> {
@@ -52,6 +55,8 @@ export async function crearApp(): Promise<App> {
   const ejercicios = CatalogoEjercicioRepository.desdeSeed();
   const sesiones = new SesionRepositoryIdb(db);
   const planes = new PlanGuardadoRepositoryIdb(db);
+
+  const sync = new SyncService({ usuarios, sesiones, planes });
 
   return {
     repos: { usuarios, ejercicios, sesiones, planes },
@@ -65,5 +70,6 @@ export async function crearApp(): Promise<App> {
       historial: new HistorialStore(sesiones),
       planes: new PlanesStore(planes),
     },
+    sync,
   };
 }

@@ -8,6 +8,7 @@ import { ConfiguradorStore } from "./state/configurador-store.js";
 import { HistorialStore } from "./state/historial-store.js";
 import { InicioStore } from "./state/inicio-store.js";
 import { PlanesStore } from "./state/planes-store.js";
+import { SyncService } from "./data/firebase/sync-service.js";
 /**
  * RAÍZ DE COMPOSICIÓN. El ÚNICO sitio donde se decide qué implementación
  * concreta usa cada contrato. La futura UI hará:
@@ -36,5 +37,7 @@ export interface App {
         historial: HistorialStore;
         planes: PlanesStore;
     };
+    /** Sincronización en la nube (Firebase). Opcional: la app va sin ella. */
+    sync: SyncService;
 }
 export declare function crearApp(): Promise<App>;
