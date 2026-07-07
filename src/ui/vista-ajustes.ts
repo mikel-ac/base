@@ -65,7 +65,6 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
   function htmlBloqueCuenta(): string {
     if (!user) {
       return `
-        <p class="lbl">Cuenta y sincronización</p>
         <p class="hint" style="margin-top:0">Entra para tener tu historial, ajustes y entrenamientos en todos tus dispositivos.</p>
         <button class="btn wide g-signin" data-accion="login">
           <span class="g-logo" aria-hidden="true">G</span> Continuar con Google
@@ -81,7 +80,6 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
     const claseEstado =
       estadoSync === "sincronizado" ? "ok" : estadoSync === "error" ? "err" : "neutro";
     return `
-      <p class="lbl">Cuenta y sincronización</p>
       <div class="cuenta-fila">
         <div class="avatar">${esc(inicial)}</div>
         <div style="min-width:0">
@@ -101,9 +99,21 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
       <button class="btn wide" data-accion="logout" style="color:var(--danger-ink);border-color:var(--danger-soft);margin-top:6px">Cerrar sesión</button>`;
   }
 
+  /** Texto corto para el summary plegado (a la derecha del título). */
+  function miniEstadoCuenta(): string {
+    if (!user) return "Entrar";
+    if (estadoSync === "sincronizado") return "Sincronizado";
+    if (estadoSync === "sincronizando") return "Sincronizando…";
+    if (estadoSync === "sin_conexion") return "Sin conexión";
+    if (estadoSync === "error") return "Error";
+    return esc(user.displayName ?? "Conectado");
+  }
+
   function actualizarBloqueCuenta(): void {
-    const cont = raiz.querySelector<HTMLElement>("#bloque-cuenta");
+    const cont = raiz.querySelector<HTMLElement>("#bloque-cuenta-inner");
     if (cont) cont.innerHTML = htmlBloqueCuenta();
+    const mini = raiz.querySelector<HTMLElement>("#cuenta-mini");
+    if (mini) mini.textContent = miniEstadoCuenta();
   }
 
   async function guardar(cambios: Partial<Usuario>): Promise<void> {
@@ -156,7 +166,13 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
         </div>
       </div>
 
-      <div id="bloque-cuenta">${htmlBloqueCuenta()}</div>
+      <details class="cuenta-plegable">
+        <summary>
+          <span>Cuenta y sincronización</span>
+          <span class="estado-mini" id="cuenta-mini">${miniEstadoCuenta()}</span>
+        </summary>
+        <div id="bloque-cuenta-inner">${htmlBloqueCuenta()}</div>
+      </details>
 
       <div>
         <p class="lbl">Molestias permanentes</p>

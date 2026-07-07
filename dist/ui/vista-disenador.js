@@ -3,6 +3,7 @@ import { zonaTrabajoDe } from "../data/overrides.js";
 import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
 import { ZONA_TRABAJO_ETIQUETA, TODOS_MATERIALES, MATERIAL_ETIQUETA } from "../domain/entities/tipos.js";
 import { uuid } from "../core/util.js";
+import { sustituirEjercicio } from "../domain/usecases/sustituir-ejercicio.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
 const LIMITES = { min: 5, max: 120, paso: 5 };
 function nuevaLinea(ejercicioId) {
@@ -76,6 +77,7 @@ export function montarDisenador(ctx, nav, planExistente) {
           <div class="ds-item-nombre">${nombreEj}</div>
           <div class="ds-item-sub">${esc(sub)}</div>
         </div>
+        ${e ? `<button class="ds-sust" data-sustituir aria-label="Sustituir por otro ejercicio" title="Sustituir">⟳</button>` : ""}
         <button class="ds-quitar" data-quitar aria-label="Quitar del entrenamiento">✕</button>
       </div>`;
     }
@@ -425,6 +427,36 @@ export function montarDisenador(ctx, nav, planExistente) {
         const add = objetivo.closest("[data-add]");
         if (add) {
             abrirSelector(add.dataset["add"]);
+            return;
+        }
+        const sustituir = objetivo.closest("[data-sustituir]");
+        if (sustituir) {
+            const fila = sustituir.closest(".ds-item");
+            if (fila) {
+                const b = fila.dataset["bloque"];
+                const i = Number(fila.dataset["indice"]);
+                const linea = lista(b)[i];
+                const actual = linea ? porId.get(linea.ejercicioId) : undefined;
+                if (linea && actual) {
+                    const usados = [...calentamiento, ...principal].map((l) => l.ejercicioId);
+                    const sust = sustituirEjercicio(actual, {
+                        catalogo,
+                        usados,
+                        nivel: usuario?.nivel ?? 2,
+                        material: usuario?.materialPorDefecto ?? [],
+                        molestias: usuario?.molestiasPermanentes ?? [],
+                        bajoImpacto: false,
+                    });
+                    if (sust) {
+                        // Conserva el mismo lineaId (sigue siendo "esta línea"), cambia el ejercicio.
+                        linea.ejercicioId = sust.ejercicio.id;
+                        refrescarBloques();
+                    }
+                    else {
+                        aviso("No hay otro ejercicio equivalente disponible.");
+                    }
+                }
+            }
             return;
         }
         const quitar = objetivo.closest("[data-quitar]");

@@ -26,8 +26,7 @@ export function fijarTema(tema) {
 }
 export function aplicarTema(tema) {
     const raiz = document.documentElement;
-    if (tema === "sistema")
-        raiz.removeAttribute("data-theme");
-    else
-        raiz.setAttribute("data-theme", tema === "oscuro" ? "dark" : "light");
+    // Raw Underground nace oscuro: "sistema" (sin preferencia) = oscuro, no el
+    // tema del SO. Solo "claro" fuerza la variante hormigón.
+    raiz.setAttribute("data-theme", tema === "claro" ? "light" : "dark");
 }

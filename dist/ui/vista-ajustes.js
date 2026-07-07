@@ -56,7 +56,6 @@ export function montarAjustes(ctx, nav) {
     function htmlBloqueCuenta() {
         if (!user) {
             return `
-        <p class="lbl">Cuenta y sincronización</p>
         <p class="hint" style="margin-top:0">Entra para tener tu historial, ajustes y entrenamientos en todos tus dispositivos.</p>
         <button class="btn wide g-signin" data-accion="login">
           <span class="g-logo" aria-hidden="true">G</span> Continuar con Google
@@ -71,7 +70,6 @@ export function montarAjustes(ctx, nav) {
         const uidCorto = user.uid.length > 12 ? `${user.uid.slice(0, 6)}…${user.uid.slice(-4)}` : user.uid;
         const claseEstado = estadoSync === "sincronizado" ? "ok" : estadoSync === "error" ? "err" : "neutro";
         return `
-      <p class="lbl">Cuenta y sincronización</p>
       <div class="cuenta-fila">
         <div class="avatar">${esc(inicial)}</div>
         <div style="min-width:0">
@@ -90,10 +88,27 @@ export function montarAjustes(ctx, nav) {
       <p class="hint">El UID es lo que pega en las reglas de Firestore para poder editar el catálogo común.</p>
       <button class="btn wide" data-accion="logout" style="color:var(--danger-ink);border-color:var(--danger-soft);margin-top:6px">Cerrar sesión</button>`;
     }
+    /** Texto corto para el summary plegado (a la derecha del título). */
+    function miniEstadoCuenta() {
+        if (!user)
+            return "Entrar";
+        if (estadoSync === "sincronizado")
+            return "Sincronizado";
+        if (estadoSync === "sincronizando")
+            return "Sincronizando…";
+        if (estadoSync === "sin_conexion")
+            return "Sin conexión";
+        if (estadoSync === "error")
+            return "Error";
+        return esc(user.displayName ?? "Conectado");
+    }
     function actualizarBloqueCuenta() {
-        const cont = raiz.querySelector("#bloque-cuenta");
+        const cont = raiz.querySelector("#bloque-cuenta-inner");
         if (cont)
             cont.innerHTML = htmlBloqueCuenta();
+        const mini = raiz.querySelector("#cuenta-mini");
+        if (mini)
+            mini.textContent = miniEstadoCuenta();
     }
     async function guardar(cambios) {
         if (!usuario)
@@ -138,7 +153,13 @@ export function montarAjustes(ctx, nav) {
         </div>
       </div>
 
-      <div id="bloque-cuenta">${htmlBloqueCuenta()}</div>
+      <details class="cuenta-plegable">
+        <summary>
+          <span>Cuenta y sincronización</span>
+          <span class="estado-mini" id="cuenta-mini">${miniEstadoCuenta()}</span>
+        </summary>
+        <div id="bloque-cuenta-inner">${htmlBloqueCuenta()}</div>
+      </details>
 
       <div>
         <p class="lbl">Molestias permanentes</p>

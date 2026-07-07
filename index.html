@@ -6,18 +6,22 @@
   <title>Base</title>
   <script>
     /* Aplicar el tema guardado ANTES de pintar nada, para que no parpadee.
-       "sistema" (o nada guardado) = sin atributo: manda prefers-color-scheme. */
+       Este diseño (Raw Underground) nace oscuro: si no hay preferencia
+       guardada, se usa oscuro por defecto aunque el sistema vaya en claro.
+       El usuario puede forzar claro desde Ajustes. */
     (function () {
       try {
         var t = localStorage.getItem("base-tema");
         if (t === "claro") document.documentElement.setAttribute("data-theme", "light");
-        if (t === "oscuro") document.documentElement.setAttribute("data-theme", "dark");
-      } catch (e) {}
+        else document.documentElement.setAttribute("data-theme", "dark");
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
     })();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
   <meta name="description" content="Base — entrenamiento en casa, sencillo y a tu ritmo." />
   <meta name="theme-color" content="#12A06A" media="(prefers-color-scheme: light)" />
