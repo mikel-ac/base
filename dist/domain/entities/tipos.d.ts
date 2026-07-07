@@ -34,6 +34,8 @@ export interface Media {
 export declare const TODOS_TIPOS: readonly Tipo[];
 export declare const TODOS_PATRONES: readonly Patron[];
 export declare const TODOS_MATERIALES: readonly Material[];
+/** Etiqueta legible de cada material (para chips y filtros). */
+export declare const MATERIAL_ETIQUETA: Record<Material, string>;
 export declare const TODAS_ZONAS: readonly Zona[];
 export declare const TODOS_IMPACTOS: readonly Impacto[];
 /** Zona de trabajo del ejercicio (para filtrar y para sustituir por zona).

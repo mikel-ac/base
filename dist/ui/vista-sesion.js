@@ -4,6 +4,7 @@ import { mostrarDetalleEjercicio, sondaFetch } from "./detalle-ejercicio.js";
 import { resolverMedia } from "../domain/usecases/resolver-media.js";
 import { urlMediaUsuario } from "../data/media-usuario.js";
 import { mostrarListaSesion } from "./lista-sesion.js";
+import { guardarRegistroPendiente } from "./registro-pendiente.js";
 /** Previsualización del siguiente ejercicio durante el descanso/prepárate:
  *  usa la misma resolución de medios (clip propio → fotos → nada). */
 async function pintarPreview(e, zona) {
@@ -83,6 +84,8 @@ function sonarEfectos(efectos) {
             pitido(880);
         if (efecto === "AVISO_DESCANSO")
             pitido(440);
+        if (efecto === "AVISO_PREP_PRINCIPAL")
+            pitido(520, 0.18);
         if (efecto === "AVISO_FIN") {
             pitido(660, 0.15, 0);
             pitido(660, 0.15, 0.2);
@@ -98,6 +101,8 @@ function formatearTiempo(sec) {
 function duracionDeFase(s) {
     if (s.fase === "prep")
         return s.prepSec;
+    if (s.fase === "prep-principal")
+        return s.prepPrincipalSec;
     if (s.fase === "descanso")
         return s.restSec;
     return s.workSec;
@@ -108,6 +113,7 @@ function offsetAnillo(s) {
 }
 const FASE_TEXTO = {
     prep: "Prepárate",
+    "prep-principal": "Empieza el entrenamiento",
     trabajo: "Trabajo",
     descanso: "Descanso",
     fin: "Fin",
@@ -179,6 +185,9 @@ export function montarSesion(ctx, nav, plan, estadoInicial) {
     function pintar(s) {
         if (s.fase === "fin") {
             borrarSesionActiva();
+            // Deja un registro pendiente (vacío de anotaciones) para que la pantalla
+            // "¿Qué tal la sesión?" sobreviva a recargas y espere tu decisión.
+            guardarRegistroPendiente({ plan, valoracion: null, kcal: "", nota: "" });
             return;
         }
         guardarSesionActiva(plan, s);
@@ -197,7 +206,7 @@ export function montarSesion(ctx, nav, plan, estadoInicial) {
             return;
         }
         claveUltimoPintado = clave;
-        const esDescansoOPrep = s.fase === "descanso" || s.fase === "prep";
+        const esDescansoOPrep = s.fase === "descanso" || s.fase === "prep" || s.fase === "prep-principal";
         const bloqueTexto = paso.bloque === "calentamiento" ? "Calentamiento" : "Entrenamiento";
         raiz.innerHTML = `
       <div class="runner">

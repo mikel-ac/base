@@ -1,6 +1,6 @@
 import { Store } from "./store.js";
 /** Crea el estado inicial a partir de un plan generado. */
-export function crearRunner(plan, prepSec = 10) {
+export function crearRunner(plan, prepSec = 10, prepPrincipalSec = 20) {
     const pasos = [
         ...plan.calentamiento.map((a) => ({ bloque: "calentamiento", asignado: a })),
         ...plan.principal.map((a) => ({ bloque: "principal", asignado: a })),
@@ -12,6 +12,7 @@ export function crearRunner(plan, prepSec = 10) {
         restanteSec: prepSec,
         pausado: false,
         prepSec,
+        prepPrincipalSec,
         workSec: plan.cfg.workSec,
         restSec: plan.cfg.restSec,
     };
@@ -22,6 +23,22 @@ function aTrabajo(s, indice) {
         efectos: ["AVISO_TRABAJO"],
     };
 }
+/** Preparación (cuenta atrás) al entrar en el bloque principal tras calentar. */
+function aPrepPrincipal(s, indice) {
+    // Si no hay preparación configurada, saltamos directos al trabajo.
+    if (s.prepPrincipalSec <= 0)
+        return aTrabajo(s, indice);
+    return {
+        estado: { ...s, indice, fase: "prep-principal", restanteSec: s.prepPrincipalSec },
+        efectos: ["AVISO_PREP_PRINCIPAL"],
+    };
+}
+/** ¿El paso `indice` inaugura el bloque principal viniendo de calentamiento? */
+function entraEnPrincipal(s, indice) {
+    const previo = s.pasos[indice - 1];
+    const actual = s.pasos[indice];
+    return !!previo && previo.bloque === "calentamiento" && !!actual && actual.bloque === "principal";
+}
 function aFin(s) {
     return { estado: { ...s, fase: "fin", restanteSec: 0, pausado: false }, efectos: ["AVISO_FIN"] };
 }
@@ -31,10 +48,15 @@ function siguienteFase(s) {
     switch (s.fase) {
         case "prep":
             return aTrabajo(s, 0);
+        case "prep-principal":
+            return aTrabajo(s, s.indice);
         case "trabajo":
             if (esUltimo)
                 return aFin(s);
-            // Calentamiento seguido: sin descanso entre sus ejercicios.
+            // Calentamiento seguido: sin descanso entre sus ejercicios, PERO al
+            // cruzar al bloque principal se intercala una preparación (cuenta atrás).
+            if (entraEnPrincipal(s, s.indice + 1))
+                return aPrepPrincipal(s, s.indice + 1);
             if (s.restSec <= 0 || s.pasos[s.indice]?.bloque === "calentamiento")
                 return aTrabajo(s, s.indice + 1);
             return {
@@ -60,13 +82,17 @@ export function reducirRunner(s, ev) {
             return aFin(s);
         case "SALTAR": {
             // Desde prep o trabajo: pasa al siguiente ejercicio (o fin).
-            // Desde descanso: entra ya al ejercicio que esperaba.
-            if (s.fase === "descanso")
+            // Desde descanso o prep-principal: entra ya al ejercicio que esperaba.
+            if (s.fase === "descanso" || s.fase === "prep-principal")
                 return aTrabajo(s, s.indice);
             const esUltimo = s.indice >= s.pasos.length - 1;
             if (s.fase === "trabajo" && esUltimo)
                 return aFin(s);
-            return aTrabajo(s, s.fase === "prep" ? 0 : s.indice + 1);
+            const proximo = s.fase === "prep" ? 0 : s.indice + 1;
+            // Si al saltar cruzamos al bloque principal, respeta la preparación.
+            if (entraEnPrincipal(s, proximo))
+                return aPrepPrincipal(s, proximo);
+            return aTrabajo(s, proximo);
         }
         case "TICK": {
             if (s.pausado)

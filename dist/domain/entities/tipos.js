@@ -25,6 +25,15 @@ export const NIVEL_POR_DEFECTO = 2.0;
 export const TODOS_TIPOS = ["fuerza", "cardio", "movilidad", "calentamiento"];
 export const TODOS_PATRONES = ["empuje", "tiron", "pierna", "core", "cardio", "movilidad", "calentamiento"];
 export const TODOS_MATERIALES = ["banda", "goma_mangos", "tabla", "esterilla", "eliptica", "bici"];
+/** Etiqueta legible de cada material (para chips y filtros). */
+export const MATERIAL_ETIQUETA = {
+    banda: "Banda",
+    goma_mangos: "Gomas con mangos",
+    tabla: "Tabla",
+    esterilla: "Esterilla",
+    eliptica: "Elíptica",
+    bici: "Bici",
+};
 export const TODAS_ZONAS = ["hombro", "muneca", "codo", "rodilla", "tobillo", "gemelo", "lumbar", "cuello"];
 export const TODOS_IMPACTOS = ["bajo", "medio", "alto"];
 export const ZONAS_TRABAJO = ["tren_superior", "core", "pierna_gluteo", "movilidad", "global"];

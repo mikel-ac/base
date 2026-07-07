@@ -1,6 +1,6 @@
 import type { Usuario } from "../domain/entities/usuario.js";
 import type { Material, Zona } from "../domain/entities/tipos.js";
-import { NIVEL_MAX, NIVEL_MIN, TODAS_ZONAS, TODOS_MATERIALES } from "../domain/entities/tipos.js";
+import { NIVEL_MAX, NIVEL_MIN, TODAS_ZONAS, TODOS_MATERIALES, MATERIAL_ETIQUETA } from "../domain/entities/tipos.js";
 import { numEjerciciosPara } from "../domain/usecases/generar-sesion.js";
 import { clamp, redondear2 } from "../core/util.js";
 import type { ConfiguradorState, ZonaTrabajo } from "../state/configurador-store.js";
@@ -14,15 +14,6 @@ import { mostrarDetallePlan } from "./panel-detalle.js";
  * y steppers en filas, como el mockup. El estado sigue viviendo en
  * ConfiguradorStore; esto solo pinta y traduce toques.
  */
-
-const ETIQUETA_MATERIAL: Record<Material, string> = {
-  banda: "Banda",
-  goma_mangos: "Gomas con mangos",
-  tabla: "Tabla",
-  esterilla: "Esterilla",
-  eliptica: "Elíptica",
-  bici: "Bici",
-};
 
 const ETIQUETA_ZONA: Record<Zona, string> = {
   hombro: "Hombro",
@@ -102,7 +93,7 @@ export function montarConfigurador(ctx: Ctx, nav: Nav): () => void {
       <div>
         <p class="lbl">Material</p>
         <div class="chips">
-          ${TODOS_MATERIALES.map((m) => chip("material", m, ETIQUETA_MATERIAL[m], s.material.includes(m))).join("")}
+          ${TODOS_MATERIALES.map((m) => chip("material", m, MATERIAL_ETIQUETA[m], s.material.includes(m))).join("")}
         </div>
       </div>
 

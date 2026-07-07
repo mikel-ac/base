@@ -12,7 +12,7 @@ import { Store } from "./store.js";
  * Secuencia: prep → [trabajo → descanso] × pasos → fin
  * (el descanso se salta tras el último paso, o si restSec = 0).
  */
-export type FaseRunner = "prep" | "trabajo" | "descanso" | "fin";
+export type FaseRunner = "prep" | "prep-principal" | "trabajo" | "descanso" | "fin";
 export interface PasoRunner {
     bloque: "calentamiento" | "principal";
     asignado: EjercicioAsignado;
@@ -25,6 +25,8 @@ export interface RunnerState {
     restanteSec: number;
     pausado: boolean;
     prepSec: number;
+    /** Segundos de preparación al entrar en el bloque principal (tras calentar). */
+    prepPrincipalSec: number;
     workSec: number;
     restSec: number;
 }
@@ -40,13 +42,13 @@ export type EventoRunner = {
     tipo: "TERMINAR";
 };
 /** Avisos sonoros/visuales que la UI debe ejecutar (con su control de volumen). */
-export type EfectoRunner = "AVISO_CUENTA" | "AVISO_TRABAJO" | "AVISO_DESCANSO" | "AVISO_FIN";
+export type EfectoRunner = "AVISO_CUENTA" | "AVISO_TRABAJO" | "AVISO_DESCANSO" | "AVISO_PREP_PRINCIPAL" | "AVISO_FIN";
 export interface PasoRunnerResultado {
     estado: RunnerState;
     efectos: EfectoRunner[];
 }
 /** Crea el estado inicial a partir de un plan generado. */
-export declare function crearRunner(plan: PlanSesion, prepSec?: number): RunnerState;
+export declare function crearRunner(plan: PlanSesion, prepSec?: number, prepPrincipalSec?: number): RunnerState;
 /** Transición pura: estado + evento → nuevo estado + efectos. */
 export declare function reducirRunner(s: RunnerState, ev: EventoRunner): PasoRunnerResultado;
 /** Contrato de estado de la pantalla Sesión (§11.4), envuelto en un Store. */

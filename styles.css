@@ -512,3 +512,13 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
   padding: 9px 12px;
 }
 .uid-fila .uid { font-family: monospace; font-size: 12px; color: var(--ink); }
+
+/* Material disponible (plegable) en el selector del diseñador */
+.ds-matdisp { margin-top: 10px; }
+.ds-matdisp summary {
+  cursor: pointer; font-size: 13px; color: var(--accent-ink);
+  font-family: var(--fd); padding: 4px 0; list-style: none;
+}
+.ds-matdisp summary::-webkit-details-marker { display: none; }
+.ds-matdisp summary::before { content: "▸ "; }
+.ds-matdisp[open] summary::before { content: "▾ "; }

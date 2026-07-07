@@ -12,6 +12,7 @@ import { montarSesion } from "./vista-sesion.js";
 import { montarGestor } from "./vista-gestor.js";
 import { montarDisenador } from "./vista-disenador.js";
 import { observarUsuario } from "../data/firebase/firebase-auth.js";
+import { leerRegistroPendiente } from "./registro-pendiente.js";
 const raiz = document.getElementById("app");
 let limpiar = null;
 function cambiar(montar) {
@@ -37,7 +38,14 @@ async function arrancar() {
             aSesion: (plan, estado) => cambiar(() => montarSesion(ctx, nav, plan, estado)),
             aRegistrar: (plan) => cambiar(() => montarRegistrar(ctx, nav, plan)),
         };
-        nav.aInicio();
+        // Si quedó una sesión terminada sin registrar (p. ej. la app se recargó
+        // mientras anotabas), vuelve a la pantalla de registro con lo que hubiera,
+        // en vez de perderlo e ir a Inicio.
+        const pendiente = leerRegistroPendiente();
+        if (pendiente)
+            nav.aRegistrar(pendiente.plan);
+        else
+            nav.aInicio();
         // Observador de sesión de Firebase: si ya había sesión (o el usuario entra
         // luego), el SyncService sincroniza. Es perezoso y no bloquea el arranque;
         // si Firebase no carga (sin conexión la 1ª vez, bloqueadores…), la app

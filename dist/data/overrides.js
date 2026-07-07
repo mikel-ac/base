@@ -77,7 +77,7 @@ export function crearEjercicioUsuario(datos) {
         tipo: datos.tipo,
         patron: patronDesde(datos.tipo, datos.zonaTrabajo),
         musculos: [],
-        materiales: [],
+        materiales: datos.materiales ?? [],
         impacto: "bajo",
         dumbbellReady: false,
         variantes: [{ nivel: 2, nombre: "Estándar", cue: datos.consejo ?? "" }],
@@ -137,6 +137,7 @@ export function aplicarOverrides(ejercicios) {
             ...(o.porLados !== undefined ? { porLados: o.porLados } : {}),
             ...(o.claves ? { claves: o.claves } : {}),
             ...(o.tipo ? { tipo: o.tipo } : {}),
+            ...(o.materiales ? { materiales: o.materiales } : {}),
             ...(o.urlMedia !== undefined ? { urlMedia: o.urlMedia } : {}),
         };
     });

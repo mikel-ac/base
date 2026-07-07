@@ -5,7 +5,8 @@ import type { Usuario } from "../domain/entities/usuario.js";
 import { esEntrenamientoFijo } from "../domain/entities/plan-guardado.js";
 import { zonaTrabajoDe } from "../data/overrides.js";
 import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
-import { ZONA_TRABAJO_ETIQUETA } from "../domain/entities/tipos.js";
+import { ZONA_TRABAJO_ETIQUETA, TODOS_MATERIALES, MATERIAL_ETIQUETA } from "../domain/entities/tipos.js";
+import type { Material } from "../domain/entities/tipos.js";
 import { uuid } from "../core/util.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
 import type { Ctx, Nav } from "./main.js";
@@ -69,6 +70,10 @@ export function montarDisenador(
   let selBusca = "";
   let selFiltro: "todos" | "core" | "pierna_gluteo" | "tren_superior" | "movilidad" | "global" | "calentamiento" =
     "todos";
+  // Material disponible al diseñar: si no hay ninguno marcado, no se filtra por
+  // material (se muestran todos). Si hay alguno, solo se ofrecen ejercicios
+  // realizables con ESE material (o que no requieran nada).
+  const materialDisponible = new Set<Material>();
 
   raiz.classList.add("sin-nav");
 
@@ -192,10 +197,18 @@ export function montarDisenador(
     const q = selBusca.trim().toLowerCase();
     return catalogo.filter((e) => {
       if (q && !e.nombre.toLowerCase().includes(q)) return false;
+      // Material disponible: si hay restricción, el ejercicio debe poder hacerse
+      // con lo que tienes (todos sus materiales están disponibles, o no requiere).
+      if (materialDisponible.size > 0 && !e.materiales.every((m) => materialDisponible.has(m))) return false;
       if (selFiltro === "todos") return true;
       if (selFiltro === "calentamiento") return e.tipo === "calentamiento";
       return zonaTrabajoDe(e) === selFiltro;
     });
+  }
+
+  function subCandidato(e: Ejercicio, yaEsta: boolean): string {
+    const mat = e.materiales.length > 0 ? " · " + e.materiales.map((m) => MATERIAL_ETIQUETA[m]).join(", ") : "";
+    return `${esc(ZONA_TRABAJO_ETIQUETA[zonaTrabajoDe(e)])}${e.porLados ? " · por lados" : ""}${esc(mat)}${yaEsta ? " · ya en el entrenamiento" : ""}`;
   }
 
   function pintarSelector(): void {
@@ -227,6 +240,10 @@ export function montarDisenador(
       )
       .join("");
 
+    const chipsMat = TODOS_MATERIALES.map(
+      (m) => `<button class="chip ${materialDisponible.has(m) ? "on" : ""}" data-selmat="${m}">${MATERIAL_ETIQUETA[m]}</button>`
+    ).join("");
+
     const filas =
       cs.length === 0
         ? `<p class="hint" style="margin-top:12px">Ningún ejercicio con esos criterios.</p>`
@@ -237,7 +254,7 @@ export function montarDisenador(
                 <button class="ds-cand ${yaEsta ? "usado" : ""}" data-cand="${esc(e.id)}">
                   <div class="ds-item-main">
                     <div class="ds-item-nombre">${esc(e.nombre)}</div>
-                    <div class="ds-item-sub">${esc(ZONA_TRABAJO_ETIQUETA[zonaTrabajoDe(e)])}${e.porLados ? " · por lados" : ""}${yaEsta ? " · ya en el entrenamiento" : ""}</div>
+                    <div class="ds-item-sub">${subCandidato(e, yaEsta)}</div>
                   </div>
                   <span class="ds-cand-add">＋</span>
                 </button>`;
@@ -252,6 +269,11 @@ export function montarDisenador(
         <input id="ds-selbuscar" class="field" type="search" placeholder="Buscar por nombre…"
                value="${esc(selBusca)}" autocomplete="off" />
         <div class="chips" style="margin-top:10px">${chips}</div>
+        <details class="ds-matdisp"${materialDisponible.size > 0 ? " open" : ""}>
+          <summary>Material disponible${materialDisponible.size > 0 ? ` · ${materialDisponible.size}` : ""}</summary>
+          <div class="chips" style="margin-top:8px">${chipsMat}</div>
+          <p class="hint" style="margin-top:6px">Si marcas material, solo se ofrecen ejercicios que puedas hacer con eso (los que no necesitan nada salen siempre).</p>
+        </details>
         <div class="ds-candlista">${filas}</div>
         <div class="row"><button class="btn wide" data-accion="cerrar-sel">Hecho</button></div>
       </div>`;
@@ -275,7 +297,7 @@ export function montarDisenador(
                   <button class="ds-cand ${yaEsta ? "usado" : ""}" data-cand="${esc(e.id)}">
                     <div class="ds-item-main">
                       <div class="ds-item-nombre">${esc(e.nombre)}</div>
-                      <div class="ds-item-sub">${esc(ZONA_TRABAJO_ETIQUETA[zonaTrabajoDe(e)])}${e.porLados ? " · por lados" : ""}${yaEsta ? " · ya en el entrenamiento" : ""}</div>
+                      <div class="ds-item-sub">${subCandidato(e, yaEsta)}</div>
                     </div>
                     <span class="ds-cand-add">＋</span>
                   </button>`;
@@ -307,6 +329,15 @@ export function montarDisenador(
       if (chip) {
         selFiltro = chip.dataset["selfiltro"] as typeof selFiltro;
         pintarSelector();
+        return;
+      }
+      const chipMat = objetivo.closest<HTMLElement>("[data-selmat]");
+      if (chipMat) {
+        const m = chipMat.dataset["selmat"] as Material;
+        if (materialDisponible.has(m)) materialDisponible.delete(m);
+        else materialDisponible.add(m);
+        pintarSelector();
+        return;
       }
     });
   }

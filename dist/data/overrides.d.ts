@@ -1,5 +1,5 @@
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
-import type { Patron, Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
+import type { Material, Patron, Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
 /**
  * MODIFICACIONES DEL USUARIO ("overrides").
  * El catálogo base es semilla de solo lectura. Lo que el usuario edita en el
@@ -15,6 +15,8 @@ export interface OverrideEjercicio {
     parejaId?: string;
     porLados?: boolean;
     claves?: string[];
+    /** Material necesario para el ejercicio (banda, tabla…). Filtra por disponibilidad. */
+    materiales?: Material[];
     /**
      * URL de un medio (imagen/vídeo) servido por la propia web, p. ej.
      * "media/sentadilla.mp4". A diferencia de los medios subidos (que viven en
@@ -37,6 +39,7 @@ export declare function crearEjercicioUsuario(datos: {
     consejo?: string;
     claves?: string[];
     porLados?: boolean;
+    materiales?: Material[];
 }): Ejercicio;
 export declare function actualizarAnadido(ej: Ejercicio): void;
 export declare function eliminarEjercicio(id: string): void;

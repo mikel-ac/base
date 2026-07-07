@@ -1,6 +1,11 @@
 import type { PlanSesion } from "../domain/entities/configuracion.js";
 import type { Valoracion } from "../domain/entities/tipos.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
+import {
+  borrarRegistroPendiente,
+  guardarRegistroPendiente,
+  leerRegistroPendiente,
+} from "./registro-pendiente.js";
 import type { Ctx, Nav } from "./main.js";
 
 /**
@@ -11,10 +16,28 @@ import type { Ctx, Nav } from "./main.js";
 
 export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => void {
   const { raiz, app } = ctx;
-  let valoracion: Valoracion | null = null;
+
+  // Recupera lo que hubiera escrito antes de una recarga (registro pendiente).
+  const previo = leerRegistroPendiente();
+  let valoracion: Valoracion | null = previo?.valoracion ?? null;
+  let kcalGuardado = previo?.kcal ?? "";
+  let notaGuardada = previo?.nota ?? "";
   let guardando = false;
 
   raiz.classList.add("sin-nav");
+
+  /** Persiste el estado actual del formulario, para que sobreviva a recargas. */
+  function persistir(): void {
+    guardarRegistroPendiente({ plan, valoracion, kcal: kcalGuardado, nota: notaGuardada });
+  }
+
+  /** Lee los campos del DOM a las variables (antes de repintar o guardar). */
+  function capturarCampos(): void {
+    const kcalEl = document.getElementById("kcal") as HTMLInputElement | null;
+    const notaEl = document.getElementById("nota") as HTMLTextAreaElement | null;
+    if (kcalEl) kcalGuardado = kcalEl.value;
+    if (notaEl) notaGuardada = notaEl.value;
+  }
 
   function pintar(): void {
     raiz.innerHTML = `
@@ -33,12 +56,12 @@ export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => voi
 
       <div>
         <p class="lbl">Calorías (opcional)</p>
-        <input id="kcal" class="field" type="number" inputmode="numeric" min="0" placeholder="—" />
+        <input id="kcal" class="field" type="number" inputmode="numeric" min="0" placeholder="—" value="${esc(kcalGuardado)}" />
       </div>
 
       <div>
         <p class="lbl">Nota</p>
-        <textarea id="nota" class="field" rows="3" placeholder="Escribe algo si quieres…"></textarea>
+        <textarea id="nota" class="field" rows="3" placeholder="Escribe algo si quieres…">${esc(notaGuardada)}</textarea>
       </div>
 
       <button class="btn primary wide" data-accion="guardar" style="margin-top:auto;">Guardar en el historial</button>
@@ -51,8 +74,9 @@ export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => voi
     if (guardando) return;
     guardando = true;
     try {
-      const kcalTexto = (document.getElementById("kcal") as HTMLInputElement).value.trim();
-      const nota = (document.getElementById("nota") as HTMLTextAreaElement).value.trim();
+      capturarCampos();
+      const kcalTexto = kcalGuardado.trim();
+      const nota = notaGuardada.trim();
       const kcal = kcalTexto === "" ? null : Math.max(0, Math.round(Number(kcalTexto)));
 
       const usuario = await app.repos.usuarios.obtenerActivo();
@@ -61,6 +85,10 @@ export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => voi
         kcal: Number.isFinite(kcal as number) ? kcal : null,
         nota,
       });
+
+      borrarRegistroPendiente();
+      // Sube el historial recién guardado a la nube si hay sesión iniciada.
+      void app.sync.sincronizar();
 
       if (resultado.nivelNuevo > resultado.nivelAnterior) {
         aviso(`Guardada. Nivel: ${resultado.nivelAnterior.toFixed(2)} → ${resultado.nivelNuevo.toFixed(2)} (subiendo despacio).`);
@@ -82,26 +110,34 @@ export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => voi
 
     const v = boton.dataset["valoracion"] as Valoracion | undefined;
     if (v) {
+      capturarCampos(); // no perder kcal/nota al repintar
       valoracion = valoracion === v ? null : v;
-      const kcalPrevio = (document.getElementById("kcal") as HTMLInputElement).value;
-      const notaPrevio = (document.getElementById("nota") as HTMLTextAreaElement).value;
+      persistir();
       pintar();
-      (document.getElementById("kcal") as HTMLInputElement).value = kcalPrevio;
-      (document.getElementById("nota") as HTMLTextAreaElement).value = notaPrevio;
       return;
     }
 
     if (boton.dataset["accion"] === "guardar") void guardar();
     if (boton.dataset["accion"] === "descartar") {
-      if (window.confirm("¿Salir sin guardar esta sesión?")) nav.aInicio();
+      if (window.confirm("¿Salir sin guardar esta sesión?")) {
+        borrarRegistroPendiente();
+        nav.aInicio();
+      }
     }
   }
 
+  function alEscribir(): void {
+    capturarCampos();
+    persistir();
+  }
+
   raiz.addEventListener("click", alPulsar);
+  raiz.addEventListener("input", alEscribir);
   pintar();
 
   return () => {
     raiz.removeEventListener("click", alPulsar);
+    raiz.removeEventListener("input", alEscribir);
     raiz.classList.remove("sin-nav");
   };
 }

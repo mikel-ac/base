@@ -1,6 +1,6 @@
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
-import type { Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
-import { ZONAS_TRABAJO, ZONA_TRABAJO_ETIQUETA } from "../domain/entities/tipos.js";
+import type { Material, Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
+import { ZONAS_TRABAJO, ZONA_TRABAJO_ETIQUETA, TODOS_MATERIALES, MATERIAL_ETIQUETA } from "../domain/entities/tipos.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
 import {
   guardarOverride,
@@ -38,12 +38,14 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
   let ztSel: ZonaTrabajo = "global";
   let tipoSel: Tipo = "fuerza";
   let unilatSel = false;
+  let matSel = new Set<Material>();
   let animado = false;
 
   // buscador + filtros de la lista
   let busca = "";
   const filtroTipos = new Set<Tipo>();
   const filtroZonas = new Set<ZonaTrabajo>();
+  const filtroMateriales = new Set<Material>();
 
   raiz.classList.add("sin-nav");
 
@@ -53,6 +55,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       if (q && !e.nombre.toLowerCase().includes(q)) return false;
       if (filtroTipos.size > 0 && !filtroTipos.has(e.tipo)) return false;
       if (filtroZonas.size > 0 && !filtroZonas.has(zonaTrabajoDe(e))) return false;
+      if (filtroMateriales.size > 0 && !e.materiales.some((m) => filtroMateriales.has(m))) return false;
       return true;
     });
   }
@@ -75,7 +78,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
           (e) => `<button class="histrow" data-editar="${e.id}">
             <div class="hr-main">
               <div class="hr-f">${esc(e.nombre)}${esAnadido(e.id) ? ' <span class="etq">propio</span>' : ""}</div>
-              <div class="hr-s">${ZONA_TRABAJO_ETIQUETA[zonaTrabajoDe(e)]}${e.porLados ? " · dos lados" : ""}</div>
+              <div class="hr-s">${ZONA_TRABAJO_ETIQUETA[zonaTrabajoDe(e)]}${e.porLados ? " · dos lados" : ""}${e.materiales.length > 0 ? " · " + e.materiales.map((m) => MATERIAL_ETIQUETA[m]).join(", ") : ""}</div>
             </div>
             <span class="chev">›</span>
           </button>`
@@ -92,6 +95,9 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     const chipsZona = ZONAS_TRABAJO.map(
       (z) => `<button class="chip ${filtroZonas.has(z) ? "on" : ""}" data-fzona="${z}">${ZONA_TRABAJO_ETIQUETA[z]}</button>`
     ).join("");
+    const chipsMatFiltro = TODOS_MATERIALES.map(
+      (m) => `<button class="chip ${filtroMateriales.has(m) ? "on" : ""}" data-fmat="${m}">${MATERIAL_ETIQUETA[m]}</button>`
+    ).join("");
     raiz.innerHTML = `
       <button class="back" data-accion="volver">← Ajustes</button>
       <h1 class="scr-title">Gestor de ejercicios</h1>
@@ -107,6 +113,8 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       <div class="chips" id="g-ftipo">${chipsTipo}</div>
       <p class="lbl" style="margin-top:10px">Filtrar por zona</p>
       <div class="chips" id="g-fzona">${chipsZona}</div>
+      <p class="lbl" style="margin-top:10px">Filtrar por material</p>
+      <div class="chips" id="g-fmat">${chipsMatFiltro}</div>
       <div id="g-lista" style="margin-top:12px"></div>
     `;
     refrescarLista();
@@ -151,11 +159,15 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     ztSel = zonaTrabajoDe(e);
     tipoSel = e.tipo;
     unilatSel = !!e.porLados;
+    matSel = new Set(e.materiales ?? []);
     const segTipo = TIPOS.map(
       (t) => `<button data-tipo="${t}" class="chip ${t === tipoSel ? "on" : ""}">${TIPO_ETIQUETA[t]}</button>`
     ).join("");
     const segZT = ZONAS_TRABAJO.map(
       (z) => `<button data-zt="${z}" class="chip ${z === ztSel ? "on" : ""}">${ZONA_TRABAJO_ETIQUETA[z]}</button>`
+    ).join("");
+    const segMat = TODOS_MATERIALES.map(
+      (m) => `<button data-mat="${m}" class="chip ${matSel.has(m) ? "on" : ""}">${MATERIAL_ETIQUETA[m]}</button>`
     ).join("");
     raiz.innerHTML = `
       <button class="back" data-accion="volver-lista">← Todos los ejercicios</button>
@@ -190,6 +202,10 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
 
       <p class="lbl" style="margin-top:14px">Zona de trabajo</p>
       <div class="chips" id="g-zt">${segZT}</div>
+
+      <p class="lbl" style="margin-top:14px">Material necesario</p>
+      <div class="chips" id="g-mat">${segMat}</div>
+      <p class="hint" style="margin-top:6px">Marca lo que hace falta para este ejercicio. Al montar un entrenamiento con material disponible, se filtran los que requieran algo que no tengas.</p>
 
       <div class="frow" style="margin-top:14px">
         <div><div class="nm">Unilateral</div><div class="hint">se hace a los dos lados seguidos (saldrá dos veces)</div></div>
@@ -234,6 +250,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     e.zonaTrabajo = ztSel;
     e.porLados = unilatSel;
     e.urlMedia = urlMedia || undefined;
+    e.materiales = [...matSel];
 
     if (esAnadido(e.id)) {
       // ejercicio propio: se actualiza entero (y recalculamos su patrón)
@@ -250,6 +267,7 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
         zonaTrabajo: ztSel,
         porLados: unilatSel,
         urlMedia: urlMedia || undefined,
+        materiales: [...matSel],
       });
     }
 
@@ -361,6 +379,13 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
       boton.classList.toggle("on");
       return refrescarLista();
     }
+    if (d["fmat"]) {
+      const m = d["fmat"] as Material;
+      if (filtroMateriales.has(m)) filtroMateriales.delete(m);
+      else filtroMateriales.add(m);
+      boton.classList.toggle("on");
+      return refrescarLista();
+    }
     if (d["tipo"]) {
       tipoSel = d["tipo"] as Tipo;
       raiz.querySelectorAll("#g-tipo [data-tipo]").forEach((b) => b.classList.toggle("on", b === boton));
@@ -369,6 +394,13 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     if (d["zt"]) {
       ztSel = d["zt"] as ZonaTrabajo;
       raiz.querySelectorAll("#g-zt [data-zt]").forEach((b) => b.classList.toggle("on", b === boton));
+      return;
+    }
+    if (d["mat"]) {
+      const m = d["mat"] as Material;
+      if (matSel.has(m)) matSel.delete(m);
+      else matSel.add(m);
+      boton.classList.toggle("on", matSel.has(m));
       return;
     }
     if (d["accion"] === "toggle-unilat") {

@@ -73,6 +73,16 @@ export interface Media {
 export const TODOS_TIPOS: readonly Tipo[] = ["fuerza", "cardio", "movilidad", "calentamiento"];
 export const TODOS_PATRONES: readonly Patron[] = ["empuje", "tiron", "pierna", "core", "cardio", "movilidad", "calentamiento"];
 export const TODOS_MATERIALES: readonly Material[] = ["banda", "goma_mangos", "tabla", "esterilla", "eliptica", "bici"];
+
+/** Etiqueta legible de cada material (para chips y filtros). */
+export const MATERIAL_ETIQUETA: Record<Material, string> = {
+  banda: "Banda",
+  goma_mangos: "Gomas con mangos",
+  tabla: "Tabla",
+  esterilla: "Esterilla",
+  eliptica: "Elíptica",
+  bici: "Bici",
+};
 export const TODAS_ZONAS: readonly Zona[] = ["hombro", "muneca", "codo", "rodilla", "tobillo", "gemelo", "lumbar", "cuello"];
 export const TODOS_IMPACTOS: readonly Impacto[] = ["bajo", "medio", "alto"];
 

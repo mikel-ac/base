@@ -267,14 +267,17 @@ if (planPrueba.ok) {
             avisosFin++;
     }
     comprobar(cursor.fase === "fin" && avisosFin === 1, "runner: la sesión llega a fin con un único aviso");
-    // Cuenta atrás audible: en una fase de trabajo de 40s deben sonar
-    // exactamente 3 tics (en 3, 2 y 1) antes del cambio de fase.
+    // Cuenta atrás audible: en una fase de trabajo deben sonar exactamente 3
+    // tics (en 3, 2 y 1) antes de cambiar de fase. Se mide UNA sola fase de
+    // trabajo: en cuanto el índice o la fase cambian, se corta el recuento
+    // (si no, se sumarían los tics de los ejercicios de calentamiento seguidos).
     let enTrabajo = crearRunner(planPrueba.valor, 3);
     let paso2 = reducirRunner(enTrabajo, { tipo: "SALTAR" }); // directo a trabajo
     comprobar(paso2.estado.fase === "trabajo", "runner: SALTAR desde prep entra a trabajo");
     let tics = 0;
     let cursor2 = paso2.estado;
-    while (cursor2.fase === "trabajo") {
+    const indiceMedido = cursor2.indice;
+    while (cursor2.fase === "trabajo" && cursor2.indice === indiceMedido) {
         const r2 = reducirRunner(cursor2, { tipo: "TICK" });
         if (r2.efectos.includes("AVISO_CUENTA"))
             tics++;

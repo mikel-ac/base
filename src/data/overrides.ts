@@ -1,5 +1,5 @@
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
-import type { Patron, Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
+import type { Material, Patron, Tipo, ZonaTrabajo } from "../domain/entities/tipos.js";
 
 /**
  * MODIFICACIONES DEL USUARIO ("overrides").
@@ -16,6 +16,8 @@ export interface OverrideEjercicio {
   parejaId?: string;
   porLados?: boolean;
   claves?: string[];
+  /** Material necesario para el ejercicio (banda, tabla…). Filtra por disponibilidad. */
+  materiales?: Material[];
   /**
    * URL de un medio (imagen/vídeo) servido por la propia web, p. ej.
    * "media/sentadilla.mp4". A diferencia de los medios subidos (que viven en
@@ -76,7 +78,7 @@ export function patronDesde(tipo: Tipo, zona: ZonaTrabajo): Patron {
   return "core";
 }
 export function crearEjercicioUsuario(datos: {
-  nombre: string; tipo: Tipo; zonaTrabajo: ZonaTrabajo; consejo?: string; claves?: string[]; porLados?: boolean;
+  nombre: string; tipo: Tipo; zonaTrabajo: ZonaTrabajo; consejo?: string; claves?: string[]; porLados?: boolean; materiales?: Material[];
 }): Ejercicio {
   const id = "user_" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   const ej: Ejercicio = {
@@ -85,7 +87,7 @@ export function crearEjercicioUsuario(datos: {
     tipo: datos.tipo,
     patron: patronDesde(datos.tipo, datos.zonaTrabajo),
     musculos: [],
-    materiales: [],
+    materiales: datos.materiales ?? [],
     impacto: "bajo",
     dumbbellReady: false,
     variantes: [{ nivel: 2, nombre: "Estándar", cue: datos.consejo ?? "" }],
@@ -135,6 +137,7 @@ export function aplicarOverrides(ejercicios: Ejercicio[]): Ejercicio[] {
       ...(o.porLados !== undefined ? { porLados: o.porLados } : {}),
       ...(o.claves ? { claves: o.claves } : {}),
       ...(o.tipo ? { tipo: o.tipo } : {}),
+      ...(o.materiales ? { materiales: o.materiales } : {}),
       ...(o.urlMedia !== undefined ? { urlMedia: o.urlMedia } : {}),
     };
   });

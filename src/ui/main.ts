@@ -16,6 +16,7 @@ import { montarGestor } from "./vista-gestor.js";
 import { montarDisenador } from "./vista-disenador.js";
 import type { PlanGuardado } from "../domain/entities/plan-guardado.js";
 import { observarUsuario } from "../data/firebase/firebase-auth.js";
+import { leerRegistroPendiente } from "./registro-pendiente.js";
 
 /**
  * GESTOR DE PANTALLAS. La app es una sola página que cambia de "vista":
@@ -74,7 +75,12 @@ async function arrancar(): Promise<void> {
       aRegistrar: (plan) => cambiar(() => montarRegistrar(ctx, nav, plan)),
     };
 
-    nav.aInicio();
+    // Si quedó una sesión terminada sin registrar (p. ej. la app se recargó
+    // mientras anotabas), vuelve a la pantalla de registro con lo que hubiera,
+    // en vez de perderlo e ir a Inicio.
+    const pendiente = leerRegistroPendiente();
+    if (pendiente) nav.aRegistrar(pendiente.plan);
+    else nav.aInicio();
 
     // Observador de sesión de Firebase: si ya había sesión (o el usuario entra
     // luego), el SyncService sincroniza. Es perezoso y no bloquea el arranque;
