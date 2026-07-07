@@ -1,10 +1,14 @@
 import { materialOk, sinMolestias, varianteParaNivel } from "./filtros.js";
 function candidatos(actual, ctx, mismoPatron) {
     const usados = new Set(ctx.usados);
-    return ctx.catalogo.filter((e) => {
+    // Preferimos NO repetir lo que ya está en la sesión, pero como una sesión
+    // puede repetir los mismos ejercicios varias veces (el catálogo viable para
+    // un foco es pequeño), no podemos excluirlos todos o no quedaría ninguno.
+    // Estrategia: primero probamos con candidatos "frescos" (no usados); si no
+    // hay, permitimos también los ya presentes. Lo único que nunca ofrecemos es
+    // el ejercicio idéntico al que se está sustituyendo.
+    const base = ctx.catalogo.filter((e) => {
         if (e.id === actual.id)
-            return false;
-        if (usados.has(e.id))
             return false;
         if (e.tipo !== actual.tipo)
             return false;
@@ -14,9 +18,13 @@ function candidatos(actual, ctx, mismoPatron) {
             return false;
         if (!sinMolestias(e, ctx.molestias))
             return false;
-        // Debe tener una variante utilizable para el nivel/impacto actual.
         return varianteParaNivel(e, ctx.nivel, ctx.bajoImpacto) !== null;
     });
+    const frescos = base.filter((e) => !usados.has(e.id));
+    const repetidos = base.filter((e) => usados.has(e.id));
+    // Frescos primero (no repiten sesión), luego los ya presentes como relleno.
+    // Así siempre hay variedad para ofrecer 3, sin quedarnos en seco.
+    return [...frescos, ...repetidos];
 }
 /**
  * Elige un sustituto. `rng` permite inyectar aleatoriedad determinista en
@@ -44,8 +52,16 @@ export function sustituirEjercicio(actual, ctx, rng = Math.random) {
  */
 export function candidatosSustitucion(actual, ctx) {
     const cercanos = candidatos(actual, ctx, true);
-    const lejanos = candidatos(actual, ctx, false).filter((e) => !cercanos.some((c) => c.id === e.id));
-    const ordenados = [...cercanos, ...lejanos];
+    const lejanos = candidatos(actual, ctx, false);
+    // Une cercanos (mismo patrón) primero y luego los del mismo tipo, sin repetir.
+    const vistos = new Set();
+    const ordenados = [];
+    for (const e of [...cercanos, ...lejanos]) {
+        if (vistos.has(e.id))
+            continue;
+        vistos.add(e.id);
+        ordenados.push(e);
+    }
     return ordenados
         .map((e) => {
         const variante = varianteParaNivel(e, ctx.nivel, ctx.bajoImpacto);
