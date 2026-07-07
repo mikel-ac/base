@@ -5,20 +5,25 @@ import { aviso, esc } from "./comunes.js";
 /**
  * EDITOR DE COLORES DE GOMA (desde Ajustes).
  *
- * Lista editable: renombrar, cambiar el color, borrar, añadir y REORDENAR
- * arrastrando por el asa (⠿). El orden importa: de menos a más resistente.
- * Se guarda al pulsar "Guardar" y viaja con el catálogo compartido si hay
- * sincronización.
+ * Renombrar, cambiar color, borrar, añadir y REORDENAR arrastrando por el asa.
+ * Orden = de menos a más resistente. Guarda al pulsar "Guardar" y viaja con el
+ * catálogo compartido si hay sync.
+ *
+ * Reordenación robusta: cada fila tiene una clave estable (`data-key`). Durante
+ * el arrastre se mueve un fantasma flotante y se recolocan los NODOS existentes
+ * por su clave (sin recrear el DOM), evitando el "temblor" de re-renderizar en
+ * cada movimiento del dedo.
  */
 export function mostrarEditorGomas(alGuardar?: () => void): void {
-  let lista: ColorGoma[] = leerColoresGoma().map((c) => ({ ...c }));
+  // Clave interna estable por fila (independiente del nombre/id visible).
+  let lista: (ColorGoma & { _k: string })[] = leerColoresGoma().map((c, i) => ({ ...c, _k: `k${i}_${Math.random().toString(36).slice(2, 7)}` }));
 
   const velo = document.createElement("div");
   velo.className = "velo";
 
-  function fila(c: ColorGoma, i: number): string {
+  function fila(c: ColorGoma & { _k: string }): string {
     return `
-      <div class="goma-edit-fila" data-i="${i}">
+      <div class="goma-edit-fila" data-key="${c._k}">
         <button class="goma-edit-asa" data-asa aria-label="Arrastrar para reordenar">⠿</button>
         <input type="color" class="goma-edit-color" data-campo="css" value="${esc(c.css)}" aria-label="Color" />
         <input type="text" class="field goma-edit-nombre" data-campo="nombre" value="${esc(c.nombre)}" aria-label="Nombre" />
@@ -40,69 +45,82 @@ export function mostrarEditorGomas(alGuardar?: () => void): void {
       </div>`;
   }
 
-  /** Vuelca los inputs del DOM a `lista` antes de reordenar/guardar. */
+  /** Vuelca los inputs del DOM a `lista` (por clave), sin cambiar el orden. */
   function capturar(): void {
     velo.querySelectorAll<HTMLElement>(".goma-edit-fila").forEach((f) => {
-      const i = Number(f.dataset["i"]);
+      const key = f.dataset["key"];
+      const item = lista.find((c) => c._k === key);
+      if (!item) return;
       const css = f.querySelector<HTMLInputElement>('[data-campo="css"]')?.value;
       const nombre = f.querySelector<HTMLInputElement>('[data-campo="nombre"]')?.value;
-      if (lista[i]) {
-        if (css) lista[i].css = css;
-        if (nombre !== undefined) lista[i].nombre = nombre;
-      }
+      if (css) item.css = css;
+      if (nombre !== undefined) item.nombre = nombre;
     });
   }
 
   // ---- Arrastre por Pointer Events ----
-  let arrastrando = -1;
-  let filaEl: HTMLElement | null = null;
+  let dragKey: string | null = null;
+  let ghost: HTMLElement | null = null;
+  let offsetY = 0;
 
   function alPointerDown(ev: PointerEvent): void {
     const asa = (ev.target as HTMLElement).closest<HTMLElement>("[data-asa]");
     if (!asa) return;
-    ev.preventDefault();
-    filaEl = asa.closest<HTMLElement>(".goma-edit-fila");
+    const filaEl = asa.closest<HTMLElement>(".goma-edit-fila");
     if (!filaEl) return;
-    arrastrando = Number(filaEl.dataset["i"]);
+    ev.preventDefault();
     capturar();
+    dragKey = filaEl.dataset["key"] ?? null;
+    const r = filaEl.getBoundingClientRect();
+    offsetY = ev.clientY - r.top;
+    ghost = filaEl.cloneNode(true) as HTMLElement;
+    ghost.classList.add("goma-ghost");
+    ghost.style.width = `${r.width}px`;
+    ghost.style.left = `${r.left}px`;
+    ghost.style.top = `${r.top}px`;
+    document.body.appendChild(ghost);
     filaEl.classList.add("arrastrando");
     asa.setPointerCapture(ev.pointerId);
   }
 
   function alPointerMove(ev: PointerEvent): void {
-    if (arrastrando < 0 || !filaEl) return;
+    if (!dragKey || !ghost) return;
+    ev.preventDefault();
+    ghost.style.top = `${ev.clientY - offsetY}px`;
     const cont = velo.querySelector<HTMLElement>("#goma-lista");
     if (!cont) return;
     const filas = [...cont.querySelectorAll<HTMLElement>(".goma-edit-fila")];
-    // Encuentra sobre qué fila está el puntero
-    const y = ev.clientY;
-    let destino = arrastrando;
+    const iActual = lista.findIndex((c) => c._k === dragKey);
     for (let k = 0; k < filas.length; k++) {
+      const key = filas[k]!.dataset["key"];
+      if (key === dragKey) continue;
       const r = filas[k]!.getBoundingClientRect();
-      if (y >= r.top && y <= r.bottom) { destino = k; break; }
-      if (y < r.top) { destino = k; break; }
-      if (y > r.bottom) destino = k;
-    }
-    if (destino !== arrastrando && destino >= 0 && destino < lista.length) {
-      const [m] = lista.splice(arrastrando, 1);
-      lista.splice(destino, 0, m!);
-      arrastrando = destino;
-      render();
-      // reengancha la clase de arrastre a la nueva posición
-      filaEl = velo.querySelector<HTMLElement>(`.goma-edit-fila[data-i="${destino}"]`);
-      filaEl?.classList.add("arrastrando");
+      const centro = r.top + r.height / 2;
+      const iOtro = lista.findIndex((c) => c._k === key);
+      if ((iActual < iOtro && ev.clientY > centro) || (iActual > iOtro && ev.clientY < centro)) {
+        // Intercambia en el array y mueve el nodo real (sin recrear).
+        const tmp = lista[iActual]!; lista[iActual] = lista[iOtro]!; lista[iOtro] = tmp;
+        const nodoArr = cont.querySelector<HTMLElement>(`.goma-edit-fila[data-key="${dragKey}"]`);
+        const nodoOtro = filas[k]!;
+        if (nodoArr) {
+          if (iActual < iOtro) nodoOtro.after(nodoArr);
+          else nodoOtro.before(nodoArr);
+        }
+        break;
+      }
     }
   }
 
   function alPointerUp(): void {
-    if (filaEl) filaEl.classList.remove("arrastrando");
-    arrastrando = -1;
-    filaEl = null;
+    if (ghost) { ghost.remove(); ghost = null; }
+    velo.querySelectorAll(".goma-edit-fila").forEach((f) => f.classList.remove("arrastrando"));
+    dragKey = null;
   }
 
   velo.addEventListener("pointerdown", alPointerDown);
   velo.addEventListener("pointermove", alPointerMove);
   velo.addEventListener("pointerup", alPointerUp);
+  velo.addEventListener("pointercancel", alPointerUp);
 
   velo.addEventListener("click", (ev) => {
     const objetivo = ev.target as HTMLElement;
@@ -112,29 +130,30 @@ export function mostrarEditorGomas(alGuardar?: () => void): void {
     }
     if (objetivo.closest("[data-accion='anadir']")) {
       capturar();
-      lista.push({ id: "", nombre: "Nuevo", css: "#888888" });
+      lista.push({ id: "", nombre: "Nuevo", css: "#888888", _k: `k${Date.now()}` });
       render();
       return;
     }
     const borrar = objetivo.closest<HTMLElement>("[data-borrar]");
     if (borrar) {
       capturar();
-      const f = borrar.closest<HTMLElement>(".goma-edit-fila")!;
-      lista.splice(Number(f.dataset["i"]), 1);
+      const key = borrar.closest<HTMLElement>(".goma-edit-fila")?.dataset["key"];
+      lista = lista.filter((c) => c._k !== key);
       render();
       return;
     }
     if (objetivo.closest("[data-accion='guardar']")) {
       capturar();
+      const limpia: ColorGoma[] = lista.map(({ _k, ...c }) => c);
       const usados = new Set<string>();
-      for (const c of lista) {
+      for (const c of limpia) {
         if (!c.id) c.id = idDesdeNombre(c.nombre);
         const base = c.id; let n = 2;
         while (usados.has(c.id)) c.id = `${base}_${n++}`;
         usados.add(c.id);
       }
-      if (lista.length === 0) { aviso("Deja al menos un color, o cancela."); return; }
-      guardarColoresGoma(lista);
+      if (limpia.length === 0) { aviso("Deja al menos un color, o cancela."); return; }
+      guardarColoresGoma(limpia);
       aviso("Colores guardados.");
       velo.remove();
       alGuardar?.();

@@ -428,7 +428,7 @@ body {
 }
 @media (hover: hover) { .plan:hover { transform: translate(-2px,-2px); box-shadow: var(--hardshadow); } }
 .plan .pn { flex: 1; }
-.plan .pt { font-size: 14px; font-family: var(--fd); text-transform: uppercase; }
+.plan .pt { font-size: 15px; font-family: var(--fb); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
 .plan .pd { font-size: 10px; color: var(--soft); margin-top: 3px; text-transform: uppercase; letter-spacing: .03em; }
 .vacio { text-align: center; padding: 48px 12px; color: var(--soft); }
 .vacio p { margin: 0 0 4px; font-size: 13px; }
@@ -688,12 +688,14 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
    Sesión · layout OPCIÓN B (vídeo arriba, anillo + info al lado)
    ============================================================ */
 .runner .b-video {
-  margin: 10px 0 0; width: 100%; aspect-ratio: 16/9;
-  border: 3px solid var(--accent); overflow: hidden; background: #000;
+  margin: 10px 0 0; width: 100%;
+  overflow: hidden; background: transparent;
   position: relative;
 }
+.runner .b-video:empty { display: none; }
 .runner .b-video .prev-img,
-.runner .b-video .prev-galeria { border: none; aspect-ratio: 16/9; }
+.runner .b-video .prev-galeria { aspect-ratio: 16/9; }
+.runner .b-video .prev-img { border: 3px solid var(--accent); }
 
 .b-block { display: flex; align-items: center; gap: 16px; margin: 16px 0 4px; }
 .timer.b-ring {
@@ -708,5 +710,46 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
 .b-info .ex-n { font-size: 20px; line-height: 1.05; }
 .b-info .ex-v { margin-top: 5px; }
 .b-info .zona-tag { margin-top: 8px; }
-.b-detalle { align-self: flex-start; padding-left: 0; margin-top: 4px; }
-.runner .ex-evita { margin-top: 12px; }
+.runner .ex-evita {
+  margin-top: 14px; font-size: 13px; color: var(--danger-ink); line-height: 1.5;
+  background: var(--danger-soft); border-left: 4px solid var(--danger);
+  padding: 11px 13px; text-align: left;
+}
+.runner .ex-evita b { color: var(--danger); text-transform: uppercase; letter-spacing: .03em; font-size: 11px; display: block; margin-bottom: 3px; }
+.b-detalle {
+  align-self: flex-start; padding-left: 0; margin-top: 12px;
+  font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* ============================================================
+   Pantalla completa (detalle de ejercicio desde la sesión)
+   ============================================================ */
+.pantalla-full {
+  position: fixed; inset: 0; z-index: 30; background: var(--surface);
+  background-image: var(--scan);
+  display: flex; flex-direction: column;
+  animation: fadefull .2s ease both;
+}
+@keyframes fadefull { from { opacity: 0; } to { opacity: 1; } }
+.full-panel { display: flex; flex-direction: column; height: 100%; max-width: 480px; margin: 0 auto; width: 100%; }
+.full-hd {
+  flex: none; padding: 14px 16px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center;
+}
+.full-atras {
+  background: none; border: none; color: var(--accent-ink); cursor: pointer;
+  font-family: var(--fb); font-size: 14px; font-weight: 700; padding: 6px 0;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.full-body { flex: 1; overflow-y: auto; padding: 18px 16px 8px; -webkit-overflow-scrolling: touch; }
+.full-body h2 { font-family: var(--fd); font-size: 26px; font-weight: 400; text-transform: uppercase; margin: 0 0 4px; }
+.full-foot { flex: none; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+
+/* Fantasma del arrastre de gomas */
+.goma-ghost {
+  position: fixed; z-index: 60; pointer-events: none; margin: 0;
+  box-shadow: var(--hardshadow); opacity: .96;
+  background: var(--card); border: 1px solid var(--accent);
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+}
+.goma-edit-fila.arrastrando { opacity: .35; }

@@ -59,18 +59,23 @@ async function cargarMedia(e, zona) {
 export function mostrarDetalleEjercicio(asignado, alCerrar) {
     const e = asignado.ejercicio;
     const velo = document.createElement("div");
-    velo.className = "velo";
+    velo.className = "pantalla-full";
     const claves = e.claves.map((c) => `<li>${esc(c)}</li>`).join("");
     velo.innerHTML = `
-    <div class="panel" role="dialog" aria-label="Detalle del ejercicio">
-      <h2>${esc(e.nombre)}</h2>
-      <p class="sub">Tu variante: ${esc(asignado.variante.nombre)} · ${esc(asignado.variante.cue)}</p>
-      <div class="zona-media"><div class="mediabox">Cargando demostración…</div></div>
-      ${claves ? `<h3>Claves para hacerlo bien</h3><ul class="klist">${claves}</ul>` : ""}
-      ${e.evita ? `<h3 class="lbl danger" style="margin-bottom:0;">Evita</h3><div class="tip">${esc(e.evita)}</div>` : ""}
-      ${e.consejo ? `<p class="consejo">${esc(e.consejo)}</p>` : ""}
-      <div class="row">
-        <button class="btn primary" data-accion="cerrar-detalle">Cerrar</button>
+    <div class="full-panel" role="dialog" aria-label="Detalle del ejercicio">
+      <div class="full-hd">
+        <button class="full-atras" data-accion="cerrar-detalle" aria-label="Volver">← Atrás</button>
+      </div>
+      <div class="full-body">
+        <h2>${esc(e.nombre)}</h2>
+        <p class="sub">Tu variante: ${esc(asignado.variante.nombre)} · ${esc(asignado.variante.cue)}</p>
+        <div class="zona-media"><div class="mediabox">Cargando demostración…</div></div>
+        ${claves ? `<h3>Claves para hacerlo bien</h3><ul class="klist">${claves}</ul>` : ""}
+        ${e.evita ? `<h3 class="lbl danger" style="margin-bottom:0;">Evita</h3><div class="tip">${esc(e.evita)}</div>` : ""}
+        ${e.consejo ? `<p class="consejo">${esc(e.consejo)}</p>` : ""}
+      </div>
+      <div class="full-foot">
+        <button class="btn primary wide" data-accion="cerrar-detalle">Cerrar</button>
       </div>
     </div>`;
     const cerrar = () => {
@@ -79,7 +84,7 @@ export function mostrarDetalleEjercicio(asignado, alCerrar) {
     };
     velo.addEventListener("click", (ev) => {
         const objetivo = ev.target;
-        if (objetivo === velo || objetivo.closest("[data-accion='cerrar-detalle']"))
+        if (objetivo.closest("[data-accion='cerrar-detalle']"))
             cerrar();
     });
     document.body.appendChild(velo);

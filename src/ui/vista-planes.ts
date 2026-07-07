@@ -85,11 +85,10 @@ export function montarPlanes(ctx: Ctx, nav: Nav): () => void {
               const editar = fijo
                 ? `<button class="link" data-accion="editar" data-id="${esc(p.id)}" style="padding-left:0;">Editar</button>`
                 : `<button class="link" data-accion="ajustar" data-id="${esc(p.id)}" style="padding-left:0;">Ajustar</button>`;
-              const etiqueta = fijo ? ` <span class="etq">a medida</span>` : "";
               return `
               <section class="plan">
                 <div class="pn">
-                  <div class="pt">${esc(p.nombre)}${etiqueta}</div>
+                  <div class="pt">${esc(p.nombre)}</div>
                   <div class="pd">${esc(resumenPlan(p))}</div>
                   <div style="margin-top:6px;">
                     ${editar}
