@@ -1,13 +1,13 @@
 const PESTANAS = [
-    { clave: "inicio", texto: "Inicio" },
-    { clave: "historial", texto: "Historial" },
-    { clave: "planes", texto: "Planes" },
-    { clave: "progreso", texto: "Progreso" },
+    { clave: "inicio", texto: "Inicio", icono: "▲" },
+    { clave: "historial", texto: "Historial", icono: "≡" },
+    { clave: "planes", texto: "Planes", icono: "◫" },
+    { clave: "progreso", texto: "Progreso", icono: "◔" },
 ];
 let pestanaAnterior = null;
 export function htmlNav(activa) {
-    const botones = PESTANAS.map((p) => `<button data-nav="${p.clave}" class="${p.clave === activa ? "on" : ""}">${p.texto}</button>`).join("");
-    return `<nav class="tabs" aria-label="Navegación principal">${botones}<div class="tab-ind"></div></nav>`;
+    const botones = PESTANAS.map((p) => `<button data-nav="${p.clave}" class="${p.clave === activa ? "on" : ""}"><span class="tab-ic">${p.icono}</span>${p.texto}</button>`).join("");
+    return `<nav class="tabs" aria-label="Navegación principal">${botones}</nav>`;
 }
 /** Llamar tras pintar una pantalla con nav: coloca y desliza el indicador. */
 export function activarIndicador(raiz, activa) {

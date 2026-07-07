@@ -2,6 +2,7 @@ import { ZONAS_TRABAJO, ZONA_TRABAJO_ETIQUETA, TODOS_MATERIALES, MATERIAL_ETIQUE
 import { animarEntrada, aviso, esc } from "./comunes.js";
 import { guardarOverride, zonaTrabajoDe, esAnadido, crearEjercicioUsuario, actualizarAnadido, eliminarEjercicio, patronDesde, exportarTextos, importarTextos, } from "../data/overrides.js";
 import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario, exportarMedios, importarMedios } from "../data/media-usuario.js";
+import { leerColoresGoma } from "../data/colores-goma.js";
 import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
 /**
  * GESTOR DE EJERCICIOS (v2). Buscar/filtrar, editar (nombre, tipo, explicación,
@@ -24,6 +25,7 @@ export function montarGestor(ctx, nav) {
     let tipoSel = "fuerza";
     let unilatSel = false;
     let matSel = new Set();
+    let gomaSel = undefined;
     let animado = false;
     // buscador + filtros de la lista
     let busca = "";
@@ -81,11 +83,14 @@ export function montarGestor(ctx, nav) {
       <h1 class="scr-title">Gestor de ejercicios</h1>
       <button class="btn primary wide" data-accion="nuevo">+ Nuevo ejercicio</button>
       <button class="btn wide" data-accion="disenar" style="margin-top:8px">✎ Diseñar entrenamiento a medida</button>
-      <div class="row" style="margin-top:8px">
-        <button class="btn" style="flex:1" data-accion="exportar">Exportar datos</button>
-        <label class="btn" style="flex:1;text-align:center;cursor:pointer">Importar datos<input id="g-importar" type="file" accept="application/json,.json" hidden /></label>
-      </div>
-      <p class="hint" style="margin-top:6px">Para llevar tus ejercicios y medios a otro dispositivo: exporta aquí, pasa el archivo y en el otro móvil pulsa Importar.</p>
+      <details class="copias-plegable" style="margin-top:8px">
+        <summary>Copias de seguridad y traspaso</summary>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" style="flex:1" data-accion="exportar">Exportar datos</button>
+          <label class="btn" style="flex:1;text-align:center;cursor:pointer">Importar datos<input id="g-importar" type="file" accept="application/json,.json" hidden /></label>
+        </div>
+        <p class="hint" style="margin-top:6px">Aunque la app sincroniza tu cuenta, esto sirve para: tener una copia en archivo, pasar tus datos a otra persona, o usar la app sin cuenta. Exporta aquí y en el otro dispositivo pulsa Importar.</p>
+      </details>
       <input id="g-buscar" class="field" type="search" placeholder="Buscar por nombre…" value="${esc(busca)}" style="margin-top:12px" autocomplete="off" />
       <p class="lbl" style="margin-top:12px">Filtrar por tipo</p>
       <div class="chips" id="g-ftipo">${chipsTipo}</div>
@@ -138,11 +143,32 @@ export function montarGestor(ctx, nav) {
         if (q)
             q.hidden = true;
     }
+    /** ¿El ejercicio (según matSel en edición) usa gomas? */
+    function usaGomas() {
+        return matSel.has("banda") || matSel.has("goma_mangos");
+    }
+    /** Selector de color de goma. Solo se muestra si el ejercicio usa gomas. */
+    function htmlSelectorGoma(_e) {
+        if (!usaGomas())
+            return "";
+        const colores = leerColoresGoma();
+        const chips = colores
+            .map((c) => `<button class="goma-chip ${gomaSel === c.id ? "on" : ""}" data-goma="${esc(c.id)}">
+          <span class="goma-muestra" style="background:${esc(c.css)}"></span>${esc(c.nombre)}
+        </button>`)
+            .join("");
+        const ninguno = `<button class="goma-chip ${!gomaSel ? "on" : ""}" data-goma="">Sin preferencia</button>`;
+        return `
+      <p class="lbl" style="margin-top:14px">Color de goma que mejor va</p>
+      <div class="chips" id="g-goma">${ninguno}${chips}</div>
+      <p class="hint" style="margin-top:6px">Se mostrará en la pantalla de sesión. Edita los colores disponibles desde Ajustes.</p>`;
+    }
     function pintarEdicion(e) {
         ztSel = zonaTrabajoDe(e);
         tipoSel = e.tipo;
         unilatSel = !!e.porLados;
         matSel = new Set(e.materiales ?? []);
+        gomaSel = e.gomaColorId;
         const segTipo = TIPOS.map((t) => `<button data-tipo="${t}" class="chip ${t === tipoSel ? "on" : ""}">${TIPO_ETIQUETA[t]}</button>`).join("");
         const segZT = ZONAS_TRABAJO.map((z) => `<button data-zt="${z}" class="chip ${z === ztSel ? "on" : ""}">${ZONA_TRABAJO_ETIQUETA[z]}</button>`).join("");
         const segMat = TODOS_MATERIALES.map((m) => `<button data-mat="${m}" class="chip ${matSel.has(m) ? "on" : ""}">${MATERIAL_ETIQUETA[m]}</button>`).join("");
@@ -164,6 +190,20 @@ export function montarGestor(ctx, nav) {
       <p class="lbl" style="margin-top:14px">Tipo</p>
       <div class="chips" id="g-tipo">${segTipo}</div>
 
+      <p class="lbl" style="margin-top:14px">Zona de trabajo</p>
+      <div class="chips" id="g-zt">${segZT}</div>
+
+      <p class="lbl" style="margin-top:14px">Material necesario</p>
+      <div class="chips" id="g-mat">${segMat}</div>
+      <p class="hint" style="margin-top:6px">Marca lo que hace falta para este ejercicio. Al montar un entrenamiento con material disponible, se filtran los que requieran algo que no tengas.</p>
+
+      <div id="g-goma-wrap">${htmlSelectorGoma(e)}</div>
+
+      <div class="frow" style="margin-top:14px">
+        <div><div class="nm">Unilateral</div><div class="hint">se hace a los dos lados seguidos (saldrá dos veces)</div></div>
+        <button class="tgl ${unilatSel ? "on" : ""}" data-accion="toggle-unilat" aria-pressed="${unilatSel}"><i></i></button>
+      </div>
+
       <p class="lbl" style="margin-top:14px">Indicaciones / explicación</p>
       <textarea id="g-consejo" class="field" rows="2">${esc(e.consejo)}</textarea>
 
@@ -176,18 +216,6 @@ export function montarGestor(ctx, nav) {
       <p class="lbl" style="margin-top:14px">URL de vídeo/imagen (se comparte a todos)</p>
       <input id="g-urlmedia" class="field" type="text" value="${esc(e.urlMedia ?? "")}" placeholder="media/mi-video.mp4" autocomplete="off" />
       <p class="hint" style="margin-top:6px">Apunta a un archivo de la carpeta media/ de la web. Al ser texto, se sincroniza a todos los dispositivos (los vídeos subidos, en cambio, se quedan en este). Si ambos existen, manda el subido.</p>
-
-      <p class="lbl" style="margin-top:14px">Zona de trabajo</p>
-      <div class="chips" id="g-zt">${segZT}</div>
-
-      <p class="lbl" style="margin-top:14px">Material necesario</p>
-      <div class="chips" id="g-mat">${segMat}</div>
-      <p class="hint" style="margin-top:6px">Marca lo que hace falta para este ejercicio. Al montar un entrenamiento con material disponible, se filtran los que requieran algo que no tengas.</p>
-
-      <div class="frow" style="margin-top:14px">
-        <div><div class="nm">Unilateral</div><div class="hint">se hace a los dos lados seguidos (saldrá dos veces)</div></div>
-        <button class="tgl ${unilatSel ? "on" : ""}" data-accion="toggle-unilat" aria-pressed="${unilatSel}"><i></i></button>
-      </div>
 
       <button class="btn primary wide" data-accion="guardar" style="margin-top:18px">Guardar</button>
       <button class="btn wide" data-accion="eliminar" style="margin-top:10px;color:var(--danger-ink);border-color:var(--danger-soft)">Eliminar ejercicio</button>
@@ -228,6 +256,7 @@ export function montarGestor(ctx, nav) {
         e.porLados = unilatSel;
         e.urlMedia = urlMedia || undefined;
         e.materiales = [...matSel];
+        e.gomaColorId = usaGomas() ? gomaSel : undefined;
         if (esAnadido(e.id)) {
             // ejercicio propio: se actualiza entero (y recalculamos su patrón)
             e.patron = patronDesde(tipoSel, ztSel);
@@ -246,6 +275,7 @@ export function montarGestor(ctx, nav) {
                 porLados: unilatSel,
                 urlMedia: urlMedia || undefined,
                 materiales: [...matSel],
+                gomaColorId: usaGomas() ? gomaSel : undefined,
             });
         }
         aviso("Guardado");
@@ -395,6 +425,16 @@ export function montarGestor(ctx, nav) {
             else
                 matSel.add(m);
             boton.classList.toggle("on", matSel.has(m));
+            // El selector de goma aparece/desaparece según si ahora usa gomas.
+            const wrap = raiz.querySelector("#g-goma-wrap");
+            const e = items.find((x) => x.id === editandoId);
+            if (wrap && e)
+                wrap.innerHTML = htmlSelectorGoma(e);
+            return;
+        }
+        if (d["goma"] !== undefined) {
+            gomaSel = d["goma"] || undefined;
+            raiz.querySelectorAll("#g-goma [data-goma]").forEach((b) => b.classList.toggle("on", b === boton));
             return;
         }
         if (d["accion"] === "toggle-unilat") {

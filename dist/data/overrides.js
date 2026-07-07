@@ -138,6 +138,7 @@ export function aplicarOverrides(ejercicios) {
             ...(o.claves ? { claves: o.claves } : {}),
             ...(o.tipo ? { tipo: o.tipo } : {}),
             ...(o.materiales ? { materiales: o.materiales } : {}),
+            ...(o.gomaColorId !== undefined ? { gomaColorId: o.gomaColorId } : {}),
             ...(o.urlMedia !== undefined ? { urlMedia: o.urlMedia } : {}),
         };
     });
@@ -156,7 +157,12 @@ export function zonaTrabajoDe(e) {
     return e.zonaTrabajo ?? ZONA_DE_PATRON[e.patron];
 }
 export function exportarTextos() {
-    return { overrides: leerOverrides(), anadidos: leerAnadidos(), borrados: leerBorrados() };
+    let coloresGoma = undefined;
+    try {
+        coloresGoma = JSON.parse(localStorage.getItem("base.colores_goma") ?? "null");
+    }
+    catch { /* nada */ }
+    return { overrides: leerOverrides(), anadidos: leerAnadidos(), borrados: leerBorrados(), coloresGoma };
 }
 export function importarTextos(d) {
     if (d.overrides)
@@ -172,6 +178,11 @@ export function importarTextos(d) {
     if (d.borrados)
         try {
             localStorage.setItem(CLAVE_BORRADOS, JSON.stringify(d.borrados));
+        }
+        catch { /* nada */ }
+    if (d.coloresGoma)
+        try {
+            localStorage.setItem("base.colores_goma", JSON.stringify(d.coloresGoma));
         }
         catch { /* nada */ }
 }

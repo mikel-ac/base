@@ -232,6 +232,7 @@ export class SyncService {
         overrides?: unknown;
         anadidos?: unknown;
         borrados?: unknown;
+        coloresGoma?: unknown;
         actualizadoEn?: number;
       };
       const remotoTs = remoto.actualizadoEn ?? 0;
@@ -241,6 +242,7 @@ export class SyncService {
           overrides: remoto.overrides,
           anadidos: remoto.anadidos,
           borrados: remoto.borrados,
+          coloresGoma: remoto.coloresGoma,
         });
         this.guardarTsCatalogoLocal(remotoTs);
         return;
@@ -253,6 +255,7 @@ export class SyncService {
         overrides: local.overrides,
         anadidos: local.anadidos,
         borrados: local.borrados,
+        coloresGoma: local.coloresGoma ?? null,
         actualizadoEn: Date.now(),
       });
       this.guardarTsCatalogoLocal(Date.now());

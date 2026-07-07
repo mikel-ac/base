@@ -1,6 +1,6 @@
 import { generarSesion } from "../domain/usecases/generar-sesion.js";
 import { ConfiguradorStore } from "../state/configurador-store.js";
-import { animarEntrada, aviso, esc, VALORACION_TEXTO } from "./comunes.js";
+import { animarEntrada, aviso, esc } from "./comunes.js";
 import { activarIndicador, htmlNav, manejarNav } from "./nav.js";
 import { leerSesionActiva, borrarSesionActiva } from "./vista-sesion.js";
 import { mostrarDetallePlan } from "./panel-detalle.js";
@@ -49,7 +49,7 @@ export function montarInicio(ctx, nav) {
         const ultima = estado.ultimaSesion;
         const puntos = Array.from({ length: m.objetivoSemanal }, () => `<i></i>`).join("");
         const lineaUltima = ultima
-            ? `Última · ${esc(diaCorto(ultima.ts))} · ${esc(ultima.focus.join(" + "))} · ${ultima.durMin} min${ultima.valoracion ? ` · ${VALORACION_TEXTO[ultima.valoracion]}` : ""}`
+            ? `Última · ${esc(diaCorto(ultima.ts))} · ${esc(ultima.focus.join(" + "))} · ${ultima.durMin} min`
             : "Aún sin sesiones: la primera marca el comienzo.";
         const sesionGuardada = leerSesionActiva();
         const cardResume = sesionGuardada
@@ -57,7 +57,7 @@ export function montarInicio(ctx, nav) {
       <section class="card resume" aria-label="Sesión sin terminar">
         <p class="lbl">Sesión sin terminar</p>
         <div class="sug-t">Retoma donde lo dejaste</div>
-        <div class="row">
+        <div class="row" style="margin-top:14px">
           <button class="btn primary" data-accion="continuar-sesion">Continuar</button>
           <button class="btn" data-accion="descartar-sesion">Descartar</button>
         </div>

@@ -18,6 +18,8 @@ export interface OverrideEjercicio {
   claves?: string[];
   /** Material necesario para el ejercicio (banda, tabla…). Filtra por disponibilidad. */
   materiales?: Material[];
+  /** Id del color de goma preferido (si el ejercicio usa gomas). */
+  gomaColorId?: string;
   /**
    * URL de un medio (imagen/vídeo) servido por la propia web, p. ej.
    * "media/sentadilla.mp4". A diferencia de los medios subidos (que viven en
@@ -138,6 +140,7 @@ export function aplicarOverrides(ejercicios: Ejercicio[]): Ejercicio[] {
       ...(o.claves ? { claves: o.claves } : {}),
       ...(o.tipo ? { tipo: o.tipo } : {}),
       ...(o.materiales ? { materiales: o.materiales } : {}),
+      ...(o.gomaColorId !== undefined ? { gomaColorId: o.gomaColorId } : {}),
       ...(o.urlMedia !== undefined ? { urlMedia: o.urlMedia } : {}),
     };
   });
@@ -158,11 +161,14 @@ export function zonaTrabajoDe(e: Ejercicio): ZonaTrabajo {
   return e.zonaTrabajo ?? ZONA_DE_PATRON[e.patron];
 }
 
-export function exportarTextos(): { overrides: unknown; anadidos: unknown; borrados: unknown } {
-  return { overrides: leerOverrides(), anadidos: leerAnadidos(), borrados: leerBorrados() };
+export function exportarTextos(): { overrides: unknown; anadidos: unknown; borrados: unknown; coloresGoma: unknown } {
+  let coloresGoma: unknown = undefined;
+  try { coloresGoma = JSON.parse(localStorage.getItem("base.colores_goma") ?? "null"); } catch { /* nada */ }
+  return { overrides: leerOverrides(), anadidos: leerAnadidos(), borrados: leerBorrados(), coloresGoma };
 }
-export function importarTextos(d: { overrides?: unknown; anadidos?: unknown; borrados?: unknown }): void {
+export function importarTextos(d: { overrides?: unknown; anadidos?: unknown; borrados?: unknown; coloresGoma?: unknown }): void {
   if (d.overrides) try { localStorage.setItem(CLAVE, JSON.stringify(d.overrides)); } catch { /* nada */ }
   if (d.anadidos) try { localStorage.setItem(CLAVE_ANADIDOS, JSON.stringify(d.anadidos)); } catch { /* nada */ }
   if (d.borrados) try { localStorage.setItem(CLAVE_BORRADOS, JSON.stringify(d.borrados)); } catch { /* nada */ }
+  if (d.coloresGoma) try { localStorage.setItem("base.colores_goma", JSON.stringify(d.coloresGoma)); } catch { /* nada */ }
 }

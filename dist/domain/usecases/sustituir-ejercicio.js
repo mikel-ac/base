@@ -33,3 +33,23 @@ export function sustituirEjercicio(actual, ctx, rng = Math.random) {
     const variante = varianteParaNivel(elegido, ctx.nivel, ctx.bajoImpacto);
     return { ejercicio: elegido, variante };
 }
+/**
+ * CANDIDATOS ORDENADOS para sustituir (para la UI de "elige uno de 3").
+ *
+ * Devuelve TODOS los candidatos viables, ordenados por cercanía:
+ *   1º los del mismo patrón de movimiento (equivalencia fuerte),
+ *   2º los del mismo tipo pero distinto patrón (algo más lejanos).
+ * Nunca falla salvo catálogo casi vacío: si no hay equivalentes exactos,
+ * ofrece los "no muy lejanos". Quien llama enseña de 3 en 3 y pagina.
+ */
+export function candidatosSustitucion(actual, ctx) {
+    const cercanos = candidatos(actual, ctx, true);
+    const lejanos = candidatos(actual, ctx, false).filter((e) => !cercanos.some((c) => c.id === e.id));
+    const ordenados = [...cercanos, ...lejanos];
+    return ordenados
+        .map((e) => {
+        const variante = varianteParaNivel(e, ctx.nivel, ctx.bajoImpacto);
+        return variante ? { ejercicio: e, variante } : null;
+    })
+        .filter((x) => x !== null);
+}

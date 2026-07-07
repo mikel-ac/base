@@ -51,15 +51,19 @@ export function montarHistorial(ctx, nav) {
                     const enfoque = s.focus.join(" + ");
                     const linea2 = [
                         `${s.durMin} min`,
-                        s.valoracion ? VALORACION_TEXTO[s.valoracion] : "sin valorar",
                         ...(s.kcal !== null ? [`${s.kcal} kcal`] : []),
                     ].join(" · ");
+                    const claseVal = s.valoracion === "dura" ? "dura" : s.valoracion === "en_su_punto" ? "punto" : "";
+                    const pill = s.valoracion
+                        ? `<span class="hr-val ${claseVal}">${esc(VALORACION_TEXTO[s.valoracion] ?? "")}</span>`
+                        : "";
                     return `
                     <button class="histrow" data-sesion="${esc(s.id)}">
                       <span class="hr-main">
                         <span class="hr-f">${esc(enfoque.charAt(0).toUpperCase() + enfoque.slice(1))}</span>
                         <span class="hr-s" style="display:block;">${esc(linea2)}</span>
                       </span>
+                      ${pill}
                       <span class="chev">›</span>
                     </button>`;
                 })

@@ -7,6 +7,7 @@ import type { Ctx, Nav } from "./main.js";
 import { fijarTema, temaActual, type Tema } from "./tema.js";
 import { iniciarSesionGoogle, cerrarSesion, type User } from "../data/firebase/firebase-auth.js";
 import type { EstadoSync } from "../data/firebase/sync-service.js";
+import { mostrarEditorGomas } from "./editor-gomas.js";
 
 /**
  * PANTALLA DE AJUSTES / PERFIL (guía §7): nombre, objetivo semanal,
@@ -190,6 +191,8 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
         <p class="lbl">Ejercicios</p>
         <button class="btn wide" data-accion="gestor">Gestor de ejercicios</button>
         <p class="hint">Editar ejercicios: notas, explicación, zona de trabajo y parejas.</p>
+        <button class="btn wide" data-accion="colores-goma" style="margin-top:10px">Colores de goma</button>
+        <p class="hint">Editar la lista de colores que puedes asignar a los ejercicios con gomas.</p>
       </div>
     `;
 
@@ -213,6 +216,7 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
 
     if (d["accion"] === "volver") return nav.aInicio();
     if (d["accion"] === "gestor") return nav.aGestor();
+    if (d["accion"] === "colores-goma") { mostrarEditorGomas(); return; }
     if (d["accion"] === "login") {
       aviso("Abriendo Google…");
       void iniciarSesionGoogle().catch((e) => {

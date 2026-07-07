@@ -7,6 +7,7 @@ import { urlMediaUsuario } from "../data/media-usuario.js";
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
 import { mostrarListaSesion } from "./lista-sesion.js";
 import { guardarRegistroPendiente } from "./registro-pendiente.js";
+import { colorGomaPorId } from "../data/colores-goma.js";
 import type { Ctx, Nav } from "./main.js";
 
 /** Previsualización del siguiente ejercicio durante el descanso/prepárate:
@@ -230,8 +231,17 @@ export function montarSesion(ctx: Ctx, nav: Nav, plan: PlanSesion, estadoInicial
           <div class="ex-n">${esDescansoOPrep ? "Siguiente: " : ""}${esc(paso.asignado.ejercicio.nombre)}</div>
           <div class="ex-v">${esc(paso.asignado.variante.nombre)}</div>
           <div class="zona-tag">Trabaja: ${ZONA_TEXTO[paso.asignado.ejercicio.patron] ?? "Global"}</div>
+          ${(() => {
+            const goma = colorGomaPorId(paso.asignado.ejercicio.gomaColorId);
+            return goma
+              ? `<div class="goma-linea"><span class="goma-muestra" style="background:${esc(goma.css)}"></span>Goma: ${esc(goma.nombre)}</div>`
+              : "";
+          })()}
           <div class="prev-media" id="prev-media"></div>
           <p class="ex-c">${esc(paso.asignado.variante.cue)}</p>
+          ${paso.asignado.ejercicio.evita && paso.asignado.ejercicio.evita.trim() !== ""
+            ? `<p class="ex-evita"><b>Evita:</b> ${esc(paso.asignado.ejercicio.evita)}</p>`
+            : ""}
           <button class="link" data-accion="detalle-ejercicio">Ver detalle del ejercicio</button>
         </div>
 

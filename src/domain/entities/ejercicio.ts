@@ -44,4 +44,6 @@ export interface Ejercicio {
   porLados?: boolean;
   /** URL de un medio servido por la web (media/…); se sincroniza como texto. */
   urlMedia?: string;
+  /** Id del color de goma preferido para este ejercicio (si usa gomas). */
+  gomaColorId?: string;
 }

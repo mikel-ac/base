@@ -1,7 +1,8 @@
 import { generarSesion } from "../domain/usecases/generar-sesion.js";
-import { sustituirEjercicio } from "../domain/usecases/sustituir-ejercicio.js";
+import { candidatosSustitucion } from "../domain/usecases/sustituir-ejercicio.js";
 import { aviso, esc } from "./comunes.js";
 import { mostrarDetalleEjercicio } from "./detalle-ejercicio.js";
+import { abrirSelectorSustitucion } from "./selector-sustitucion.js";
 /**
  * PANEL DE DETALLE de una sesión generada: listado completo con Regenerar,
  * Empezar y SUSTITUCIÓN por ejercicio. Lo comparten "Ver detalle" (inicio),
@@ -50,7 +51,7 @@ export function mostrarDetallePlan(catalogo, planInicial, titulo, alEmpezar) {
         const actual = lista[i];
         if (!actual)
             return;
-        const sust = sustituirEjercicio(actual.ejercicio, {
+        const todos = candidatosSustitucion(actual.ejercicio, {
             catalogo,
             usados: idsUsados(),
             nivel: plan.cfg.nivel,
@@ -58,17 +59,19 @@ export function mostrarDetallePlan(catalogo, planInicial, titulo, alEmpezar) {
             molestias: plan.cfg.molestias,
             bajoImpacto: plan.cfg.bajoImpacto,
         });
-        if (!sust) {
-            aviso("No hay otro ejercicio equivalente disponible.");
+        if (todos.length === 0) {
+            aviso("No hay ningún ejercicio alternativo disponible.");
             return;
         }
-        lista[i] = { ejercicio: sust.ejercicio, variante: sust.variante };
-        render();
-        const fila = velo.querySelector(`li[data-bloque="${bloque}"][data-i="${i}"]`);
-        if (fila) {
-            fila.classList.add("sust-flash");
-            window.setTimeout(() => fila.classList.remove("sust-flash"), 420);
-        }
+        abrirSelectorSustitucion(actual.ejercicio.nombre, todos, (elegido) => {
+            lista[i] = { ejercicio: elegido.ejercicio, variante: elegido.variante };
+            render();
+            const fila = velo.querySelector(`li[data-bloque="${bloque}"][data-i="${i}"]`);
+            if (fila) {
+                fila.classList.add("sust-flash");
+                window.setTimeout(() => fila.classList.remove("sust-flash"), 420);
+            }
+        });
     }
     velo.addEventListener("click", (ev) => {
         const objetivo = ev.target;

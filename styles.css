@@ -16,6 +16,7 @@
   --ink: #F5F5F0;
   --soft: #8A8A85;
   --line: #333333;
+  --line-soft: #4A4A48;
   --accent: #CCFF00;
   --accent-ink: #CCFF00;
   --accent-soft: #1A2000;
@@ -23,6 +24,7 @@
   --glow: rgba(204, 255, 0, .28);
   --hardshadow: 4px 4px 0 #1C1C1C;
   --hardshadow-red: 4px 4px 0 #FF2E00;
+  --btn-shadow: 4px 4px 0 #5B7000;
   --danger: #FF2E00;
   --danger-ink: #FF6A47;
   --danger-soft: #240A05;
@@ -38,9 +40,9 @@
 /* Oscuro explícito (cuando el usuario lo fija a mano): idéntico al :root. */
 [data-theme="dark"] {
   --bg: #060606; --surface: #0A0A0A; --card: #141414; --card2: #1A1A1A;
-  --ink: #F5F5F0; --soft: #8A8A85; --line: #333333;
+  --ink: #F5F5F0; --soft: #8A8A85; --line: #333333; --line-soft: #4A4A48;
   --accent: #CCFF00; --accent-ink: #CCFF00; --accent-soft: #1A2000; --on-accent: #000000;
-  --glow: rgba(204,255,0,.28); --hardshadow: 4px 4px 0 #1C1C1C; --hardshadow-red: 4px 4px 0 #FF2E00;
+  --glow: rgba(204,255,0,.28); --hardshadow: 4px 4px 0 #1C1C1C; --hardshadow-red: 4px 4px 0 #FF2E00; --btn-shadow: 4px 4px 0 #5B7000;
   --danger: #FF2E00; --danger-ink: #FF6A47; --danger-soft: #240A05;
   --scan: repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px);
 }
@@ -61,6 +63,7 @@
   --glow: rgba(20, 19, 16, .18);
   --hardshadow: 4px 4px 0 #B7B5A8;
   --hardshadow-red: 4px 4px 0 #C4321A;
+  --btn-shadow: 4px 4px 0 #5B7000;
   --danger: #C4321A;
   --danger-ink: #A8291490;
   --danger-soft: #EAD9D2;
@@ -71,10 +74,10 @@
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
     --bg: #CBC9BF; --surface: #DEDDD5; --card: #F2F1EA; --card2: #E7E5DC;
-    --ink: #141310; --soft: #6A685E; --line: #141310;
+    --ink: #141310; --soft: #6A685E; --line: #141310; --line-soft: #B7B5A8;
     --accent: #141310; --accent-ink: #5B7000; --accent-soft: #E4E9C4; --on-accent: #D6E85A;
     --glow: rgba(20,19,16,.18); --hardshadow: 4px 4px 0 #B7B5A8; --hardshadow-red: 4px 4px 0 #C4321A;
-    --danger: #C4321A; --danger-ink: #A82914; --danger-soft: #EAD9D2;
+    --danger: #C4321A; --danger-ink: #A82914; --danger-soft: #EAD9D2; --btn-shadow: 4px 4px 0 #5B7000;
     --scan: repeating-linear-gradient(0deg, rgba(0,0,0,.02) 0 1px, transparent 1px 3px);
   }
 }
@@ -175,7 +178,7 @@ body {
 .btn:active { transform: translate(0, 0); box-shadow: none; }
 .btn.primary {
   background: var(--accent); color: var(--on-accent); border-color: var(--accent);
-  box-shadow: var(--hardshadow-red);
+  box-shadow: var(--btn-shadow);
 }
 .btn.primary:active { box-shadow: none; transform: translate(4px, 4px); }
 .btn.wide { width: 100%; }
@@ -267,29 +270,20 @@ body {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
   width: 100%; max-width: 420px;
   display: flex; justify-content: space-around;
-  border-top: 2px solid var(--line); background: var(--surface);
-  padding: 10px 0 calc(12px + env(safe-area-inset-bottom)); z-index: 5;
+  border-top: 1px solid var(--line); background: var(--surface);
+  padding: 9px 0 calc(11px + env(safe-area-inset-bottom)); z-index: 5;
 }
 .tabs button {
   border: none; background: none; cursor: pointer;
-  font-size: 10px; color: var(--soft); font-family: var(--fb); padding: 6px 12px;
+  font-size: 9px; color: var(--soft); font-family: var(--fb); padding: 4px 12px;
   text-transform: uppercase; letter-spacing: .04em; position: relative; z-index: 1;
-  transition: color .2s, transform .28s var(--curva);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  transition: color .22s;
 }
-.tabs button.on { color: var(--accent-ink); transform: translateY(-2px); }
-.tabs button.on::after {
-  content: ""; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
-  width: 5px; height: 5px; background: var(--accent);
-  filter: drop-shadow(0 0 4px var(--accent));
-  animation: pip .28s var(--curva) both;
-}
-@keyframes pip { from { transform: translateX(-50%) scale(0); } to { transform: translateX(-50%) scale(1); } }
-.tab-ind {
-  position: absolute; top: -2px; height: 3px; background: var(--accent);
-  border-radius: 0; pointer-events: none;
-  box-shadow: 0 0 6px var(--glow);
-  transition: left .32s var(--curva), width .32s var(--curva);
-}
+.tabs button .tab-ic { font-size: 16px; line-height: 1; transition: transform .3s var(--curva); }
+.tabs button.on { color: var(--accent-ink); font-weight: 700; }
+.tabs button.on .tab-ic { transform: translateY(-2px) scale(1.18); }
+/* (sin indicador deslizante ni punto: la marca es el color + el icono elevado) */
 
 /* ---------- Runner (sesión) ---------- */
 .runner { display: flex; flex-direction: column; align-items: stretch; text-align: left; flex: 1; gap: 0; }
@@ -617,3 +611,89 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
 .panel > *:nth-child(3) { animation-delay: .08s; }
 .panel > *:nth-child(4) { animation-delay: .12s; }
 .panel > *:nth-child(5) { animation-delay: .16s; }
+
+/* ============================================================
+   Colores de goma (chips, muestras, línea en sesión, editor)
+   ============================================================ */
+
+/* Chips de color de goma en el Gestor */
+.goma-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--fb); font-size: 11px; padding: 7px 12px;
+  border-radius: var(--rad); border: 2px solid var(--line);
+  background: transparent; color: var(--soft); cursor: pointer;
+  text-transform: uppercase; letter-spacing: .03em; min-height: 36px;
+  transition: transform .14s var(--curva-seco), border-color .14s, color .14s;
+}
+.goma-chip:active { transform: scale(.94); }
+.goma-chip.on { border-color: var(--accent); color: var(--ink); font-weight: 700; }
+.goma-muestra {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.25); flex: none; display: inline-block;
+}
+
+/* Línea destacada de goma en la pantalla de sesión */
+.goma-linea {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 8px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--ink); background: var(--card); border: 1px solid var(--line);
+  padding: 7px 12px; font-weight: 700;
+}
+.goma-linea .goma-muestra { width: 18px; height: 18px; }
+
+/* Aviso "evita" en rojo en la sesión */
+.ex-evita {
+  font-size: 11px; color: var(--danger-ink); margin: 8px 0 0; line-height: 1.5;
+  border-left: 3px solid var(--danger); padding-left: 9px; text-align: left;
+}
+.ex-evita b { color: var(--danger); text-transform: uppercase; letter-spacing: .03em; }
+
+/* Editor de colores de goma (panel) */
+.goma-edit-fila { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.goma-edit-color { width: 40px; height: 40px; border: 2px solid var(--line); background: none; padding: 0; cursor: pointer; flex: none; border-radius: 0; }
+.goma-edit-nombre { flex: 1; min-width: 0; }
+.goma-edit-orden { display: flex; flex-direction: column; gap: 2px; flex: none; }
+.goma-edit-orden button { width: 28px; height: 19px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font-size: 9px; line-height: 1; }
+.goma-edit-orden button:disabled { opacity: .3; cursor: default; }
+.goma-edit-borrar { width: 34px; height: 34px; border: 2px solid var(--danger-soft); background: transparent; color: var(--danger); cursor: pointer; flex: none; font-size: 13px; }
+
+/* Desplegable de copias de seguridad (Gestor) y otros details brutalistas */
+.copias-plegable > summary,
+.cuenta-plegable > summary { list-style: none; }
+.copias-plegable > summary::-webkit-details-marker { display: none; }
+.copias-plegable > summary {
+  cursor: pointer; font-family: var(--fb); font-size: 10px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--soft); padding: 10px 0; display: flex;
+  align-items: center; gap: 7px; border: 2px solid var(--line); justify-content: center;
+}
+.copias-plegable > summary::before { content: "▸"; color: var(--accent-ink); }
+.copias-plegable[open] > summary::before { content: "▾"; }
+
+/* Historial en cajas con píldora de valoración */
+.histrow {
+  border: 1px solid var(--line) !important; background: var(--card);
+  padding: 12px !important; margin-bottom: 9px; gap: 10px;
+  box-shadow: var(--hardshadow);
+}
+.histrow:hover { padding-left: 12px; }
+.hr-val {
+  font-size: 8px; padding: 4px 8px; border: 1px solid var(--line-soft);
+  color: var(--soft); text-transform: uppercase; letter-spacing: .03em; flex: none;
+}
+.hr-val.punto { color: var(--accent-ink); border-color: var(--accent); }
+.hr-val.dura { color: var(--danger-ink); border-color: var(--danger); }
+
+/* Selector de sustitución (3 candidatos) */
+.sust-lista { display: flex; flex-direction: column; gap: 7px; margin-top: 6px; }
+.sust-cand {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  background: var(--card); border: 1px solid var(--line); border-radius: 0;
+  padding: 11px 12px; cursor: pointer; width: 100%;
+  transition: border-color .14s, transform .14s var(--curva-seco);
+}
+.sust-cand:active { transform: scale(.99); }
+@media (hover: hover) { .sust-cand:hover { border-color: var(--accent); } }
+.sust-cand-main { flex: 1; min-width: 0; }
+.sust-cand-n { display: block; font-size: 13px; font-weight: 700; color: var(--ink); }
+.sust-cand-s { display: block; font-size: 10px; color: var(--soft); margin-top: 3px; text-transform: uppercase; letter-spacing: .03em; }
+.sust-cand-add { color: var(--accent-ink); font-size: 20px; flex: none; line-height: 1; }

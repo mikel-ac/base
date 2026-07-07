@@ -10,20 +10,20 @@ import type { Nav } from "./main.js";
 
 export type Pestana = "inicio" | "historial" | "planes" | "progreso";
 
-const PESTANAS: { clave: Pestana; texto: string }[] = [
-  { clave: "inicio", texto: "Inicio" },
-  { clave: "historial", texto: "Historial" },
-  { clave: "planes", texto: "Planes" },
-  { clave: "progreso", texto: "Progreso" },
+const PESTANAS: { clave: Pestana; texto: string; icono: string }[] = [
+  { clave: "inicio", texto: "Inicio", icono: "▲" },
+  { clave: "historial", texto: "Historial", icono: "≡" },
+  { clave: "planes", texto: "Planes", icono: "◫" },
+  { clave: "progreso", texto: "Progreso", icono: "◔" },
 ];
 
 let pestanaAnterior: Pestana | null = null;
 
 export function htmlNav(activa: Pestana): string {
   const botones = PESTANAS.map(
-    (p) => `<button data-nav="${p.clave}" class="${p.clave === activa ? "on" : ""}">${p.texto}</button>`
+    (p) => `<button data-nav="${p.clave}" class="${p.clave === activa ? "on" : ""}"><span class="tab-ic">${p.icono}</span>${p.texto}</button>`
   ).join("");
-  return `<nav class="tabs" aria-label="Navegación principal">${botones}<div class="tab-ind"></div></nav>`;
+  return `<nav class="tabs" aria-label="Navegación principal">${botones}</nav>`;
 }
 
 /** Llamar tras pintar una pantalla con nav: coloca y desliza el indicador. */

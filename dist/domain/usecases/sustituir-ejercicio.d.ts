@@ -34,3 +34,13 @@ export interface Sustituto {
  * pruebas; por defecto usa Math.random.
  */
 export declare function sustituirEjercicio(actual: Ejercicio, ctx: ContextoSustitucion, rng?: () => number): Sustituto | null;
+/**
+ * CANDIDATOS ORDENADOS para sustituir (para la UI de "elige uno de 3").
+ *
+ * Devuelve TODOS los candidatos viables, ordenados por cercanía:
+ *   1º los del mismo patrón de movimiento (equivalencia fuerte),
+ *   2º los del mismo tipo pero distinto patrón (algo más lejanos).
+ * Nunca falla salvo catálogo casi vacío: si no hay equivalentes exactos,
+ * ofrece los "no muy lejanos". Quien llama enseña de 3 en 3 y pagina.
+ */
+export declare function candidatosSustitucion(actual: Ejercicio, ctx: ContextoSustitucion): Sustituto[];

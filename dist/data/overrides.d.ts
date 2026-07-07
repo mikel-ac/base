@@ -17,6 +17,8 @@ export interface OverrideEjercicio {
     claves?: string[];
     /** Material necesario para el ejercicio (banda, tabla…). Filtra por disponibilidad. */
     materiales?: Material[];
+    /** Id del color de goma preferido (si el ejercicio usa gomas). */
+    gomaColorId?: string;
     /**
      * URL de un medio (imagen/vídeo) servido por la propia web, p. ej.
      * "media/sentadilla.mp4". A diferencia de los medios subidos (que viven en
@@ -50,9 +52,11 @@ export declare function exportarTextos(): {
     overrides: unknown;
     anadidos: unknown;
     borrados: unknown;
+    coloresGoma: unknown;
 };
 export declare function importarTextos(d: {
     overrides?: unknown;
     anadidos?: unknown;
     borrados?: unknown;
+    coloresGoma?: unknown;
 }): void;

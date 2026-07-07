@@ -3,7 +3,8 @@ import { zonaTrabajoDe } from "../data/overrides.js";
 import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
 import { ZONA_TRABAJO_ETIQUETA, TODOS_MATERIALES, MATERIAL_ETIQUETA } from "../domain/entities/tipos.js";
 import { uuid } from "../core/util.js";
-import { sustituirEjercicio } from "../domain/usecases/sustituir-ejercicio.js";
+import { candidatosSustitucion } from "../domain/usecases/sustituir-ejercicio.js";
+import { abrirSelectorSustitucion } from "./selector-sustitucion.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
 const LIMITES = { min: 5, max: 120, paso: 5 };
 function nuevaLinea(ejercicioId) {
@@ -439,7 +440,7 @@ export function montarDisenador(ctx, nav, planExistente) {
                 const actual = linea ? porId.get(linea.ejercicioId) : undefined;
                 if (linea && actual) {
                     const usados = [...calentamiento, ...principal].map((l) => l.ejercicioId);
-                    const sust = sustituirEjercicio(actual, {
+                    const cands = candidatosSustitucion(actual, {
                         catalogo,
                         usados,
                         nivel: usuario?.nivel ?? 2,
@@ -447,13 +448,15 @@ export function montarDisenador(ctx, nav, planExistente) {
                         molestias: usuario?.molestiasPermanentes ?? [],
                         bajoImpacto: false,
                     });
-                    if (sust) {
-                        // Conserva el mismo lineaId (sigue siendo "esta línea"), cambia el ejercicio.
-                        linea.ejercicioId = sust.ejercicio.id;
-                        refrescarBloques();
+                    if (cands.length === 0) {
+                        aviso("No hay ningún ejercicio alternativo disponible.");
                     }
                     else {
-                        aviso("No hay otro ejercicio equivalente disponible.");
+                        abrirSelectorSustitucion(actual.nombre, cands, (elegido) => {
+                            // Conserva el mismo lineaId (sigue siendo "esta línea").
+                            linea.ejercicioId = elegido.ejercicio.id;
+                            refrescarBloques();
+                        });
                     }
                 }
             }
