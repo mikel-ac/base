@@ -3,13 +3,10 @@ import { aviso, esc } from "./comunes.js";
 /**
  * EDITOR DE COLORES DE GOMA (desde Ajustes).
  *
- * Lista editable: renombrar, cambiar el color CSS, borrar, añadir y reordenar
- * (subir/bajar). El orden importa: es de menos a más resistente. Los cambios
- * se guardan al pulsar "Guardar" y, si hay sincronización, viajan con el
- * catálogo compartido (los colores viven en la config común).
- *
- * `alGuardar` permite a quien abre el panel refrescar lo que dependa de los
- * colores (por ejemplo, un selector abierto).
+ * Lista editable: renombrar, cambiar el color, borrar, añadir y REORDENAR
+ * arrastrando por el asa (⠿). El orden importa: de menos a más resistente.
+ * Se guarda al pulsar "Guardar" y viaja con el catálogo compartido si hay
+ * sincronización.
  */
 export function mostrarEditorGomas(alGuardar) {
     let lista = leerColoresGoma().map((c) => ({ ...c }));
@@ -18,12 +15,9 @@ export function mostrarEditorGomas(alGuardar) {
     function fila(c, i) {
         return `
       <div class="goma-edit-fila" data-i="${i}">
+        <button class="goma-edit-asa" data-asa aria-label="Arrastrar para reordenar">⠿</button>
         <input type="color" class="goma-edit-color" data-campo="css" value="${esc(c.css)}" aria-label="Color" />
         <input type="text" class="field goma-edit-nombre" data-campo="nombre" value="${esc(c.nombre)}" aria-label="Nombre" />
-        <div class="goma-edit-orden">
-          <button data-mover="-1" ${i === 0 ? "disabled" : ""} aria-label="Subir">▲</button>
-          <button data-mover="1" ${i === lista.length - 1 ? "disabled" : ""} aria-label="Bajar">▼</button>
-        </div>
         <button class="goma-edit-borrar" data-borrar aria-label="Borrar">✕</button>
       </div>`;
     }
@@ -31,7 +25,7 @@ export function mostrarEditorGomas(alGuardar) {
         velo.innerHTML = `
       <div class="panel" role="dialog" aria-label="Colores de goma">
         <h2>Colores de goma</h2>
-        <p class="sub">De menos a más resistente. Arrástralos con las flechas.</p>
+        <p class="sub">De menos a más resistente. Arrastra ⠿ para reordenar.</p>
         <div id="goma-lista">${lista.map(fila).join("")}</div>
         <button class="btn wide" data-accion="anadir" style="margin-top:10px">＋ Añadir color</button>
         <div class="row" style="margin-top:14px">
@@ -54,6 +48,64 @@ export function mostrarEditorGomas(alGuardar) {
             }
         });
     }
+    // ---- Arrastre por Pointer Events ----
+    let arrastrando = -1;
+    let filaEl = null;
+    function alPointerDown(ev) {
+        const asa = ev.target.closest("[data-asa]");
+        if (!asa)
+            return;
+        ev.preventDefault();
+        filaEl = asa.closest(".goma-edit-fila");
+        if (!filaEl)
+            return;
+        arrastrando = Number(filaEl.dataset["i"]);
+        capturar();
+        filaEl.classList.add("arrastrando");
+        asa.setPointerCapture(ev.pointerId);
+    }
+    function alPointerMove(ev) {
+        if (arrastrando < 0 || !filaEl)
+            return;
+        const cont = velo.querySelector("#goma-lista");
+        if (!cont)
+            return;
+        const filas = [...cont.querySelectorAll(".goma-edit-fila")];
+        // Encuentra sobre qué fila está el puntero
+        const y = ev.clientY;
+        let destino = arrastrando;
+        for (let k = 0; k < filas.length; k++) {
+            const r = filas[k].getBoundingClientRect();
+            if (y >= r.top && y <= r.bottom) {
+                destino = k;
+                break;
+            }
+            if (y < r.top) {
+                destino = k;
+                break;
+            }
+            if (y > r.bottom)
+                destino = k;
+        }
+        if (destino !== arrastrando && destino >= 0 && destino < lista.length) {
+            const [m] = lista.splice(arrastrando, 1);
+            lista.splice(destino, 0, m);
+            arrastrando = destino;
+            render();
+            // reengancha la clase de arrastre a la nueva posición
+            filaEl = velo.querySelector(`.goma-edit-fila[data-i="${destino}"]`);
+            filaEl?.classList.add("arrastrando");
+        }
+    }
+    function alPointerUp() {
+        if (filaEl)
+            filaEl.classList.remove("arrastrando");
+        arrastrando = -1;
+        filaEl = null;
+    }
+    velo.addEventListener("pointerdown", alPointerDown);
+    velo.addEventListener("pointermove", alPointerMove);
+    velo.addEventListener("pointerup", alPointerUp);
     velo.addEventListener("click", (ev) => {
         const objetivo = ev.target;
         if (objetivo === velo || objetivo.closest("[data-accion='cancelar']")) {
@@ -66,36 +118,22 @@ export function mostrarEditorGomas(alGuardar) {
             render();
             return;
         }
-        const mover = objetivo.closest("[data-mover]");
-        if (mover) {
-            capturar();
-            const fila = mover.closest(".goma-edit-fila");
-            const i = Number(fila.dataset["i"]);
-            const dir = Number(mover.dataset["mover"]);
-            const j = i + dir;
-            if (j >= 0 && j < lista.length) {
-                [lista[i], lista[j]] = [lista[j], lista[i]];
-                render();
-            }
-            return;
-        }
         const borrar = objetivo.closest("[data-borrar]");
         if (borrar) {
             capturar();
-            const fila = borrar.closest(".goma-edit-fila");
-            const i = Number(fila.dataset["i"]);
-            lista.splice(i, 1);
+            const f = borrar.closest(".goma-edit-fila");
+            lista.splice(Number(f.dataset["i"]), 1);
             render();
             return;
         }
         if (objetivo.closest("[data-accion='guardar']")) {
             capturar();
-            // Asignar ids estables a los nuevos (a partir del nombre), evitando choques.
             const usados = new Set();
             for (const c of lista) {
                 if (!c.id)
                     c.id = idDesdeNombre(c.nombre);
-                let base = c.id, n = 2;
+                const base = c.id;
+                let n = 2;
                 while (usados.has(c.id))
                     c.id = `${base}_${n++}`;
                 usados.add(c.id);

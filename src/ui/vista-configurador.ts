@@ -161,7 +161,7 @@ export function montarConfigurador(ctx: Ctx, nav: Nav): () => void {
       </div>
 
       <button class="btn primary wide" data-accion="generar" style="margin-top:6px;">Generar sesión</button>
-      <button class="btn wide" data-accion="guardar-plan">Guardar como plan</button>
+      <button class="btn wide" data-accion="guardar-plan">Guardar plantilla</button>
     `;
 
     if (!animado) {

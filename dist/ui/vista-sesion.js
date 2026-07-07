@@ -218,31 +218,33 @@ export function montarSesion(ctx, nav, plan, estadoInicial) {
 
         <div class="phase">${FASE_TEXTO[s.fase]}${s.pausado ? " · pausa" : ""}</div>
 
-        <div class="timer">
-          <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="track" cx="60" cy="60" r="54"/>
-            <circle class="fill sin-transicion" cx="60" cy="60" r="54" style="stroke-dashoffset: ${offsetAnillo(s)};"/>
-          </svg>
-          <span class="num" aria-live="polite">${formatearTiempo(s.restanteSec)}</span>
-        </div>
+        <div class="prev-media b-video" id="prev-media"></div>
 
-        <div class="ex">
-          <div class="ex-n">${esDescansoOPrep ? "Siguiente: " : ""}${esc(paso.asignado.ejercicio.nombre)}</div>
-          <div class="ex-v">${esc(paso.asignado.variante.nombre)}</div>
-          <div class="zona-tag">Trabaja: ${ZONA_TEXTO[paso.asignado.ejercicio.patron] ?? "Global"}</div>
-          ${(() => {
+        <div class="b-block">
+          <div class="timer b-ring">
+            <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="track" cx="60" cy="60" r="54"/>
+              <circle class="fill sin-transicion" cx="60" cy="60" r="54" style="stroke-dashoffset: ${offsetAnillo(s)};"/>
+            </svg>
+            <span class="num" aria-live="polite">${formatearTiempo(s.restanteSec)}</span>
+          </div>
+          <div class="ex b-info">
+            <div class="ex-n">${esDescansoOPrep ? "Siguiente: " : ""}${esc(paso.asignado.ejercicio.nombre)}</div>
+            <div class="ex-v">${esc(paso.asignado.variante.nombre)}</div>
+            <div class="zona-tag">Trabaja: ${ZONA_TEXTO[paso.asignado.ejercicio.patron] ?? "Global"}</div>
+            ${(() => {
             const goma = colorGomaPorId(paso.asignado.ejercicio.gomaColorId);
             return goma
                 ? `<div class="goma-linea"><span class="goma-muestra" style="background:${esc(goma.css)}"></span>Goma: ${esc(goma.nombre)}</div>`
                 : "";
         })()}
-          <div class="prev-media" id="prev-media"></div>
-          <p class="ex-c">${esc(paso.asignado.variante.cue)}</p>
-          ${paso.asignado.ejercicio.evita && paso.asignado.ejercicio.evita.trim() !== ""
+          </div>
+        </div>
+
+        ${paso.asignado.ejercicio.evita && paso.asignado.ejercicio.evita.trim() !== ""
             ? `<p class="ex-evita"><b>Evita:</b> ${esc(paso.asignado.ejercicio.evita)}</p>`
             : ""}
-          <button class="link" data-accion="detalle-ejercicio">Ver detalle del ejercicio</button>
-        </div>
+        <button class="link b-detalle" data-accion="detalle-ejercicio">Ver detalle del ejercicio</button>
 
         <div class="ctrls">
           <button class="btn" data-accion="saltar">Saltar</button>

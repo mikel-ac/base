@@ -65,7 +65,7 @@ export function montarPlanes(ctx, nav) {
             ? `<div class="vacio">
              <p>No tienes planes guardados.</p>
              <p class="hint">Crea un entrenamiento a medida con el botón de arriba, o guarda una configuración desde "Montar a medida".</p>
-             <button class="btn" data-accion="ir-configurador" style="margin-top: 12px;">Ir a montar a medida</button>
+             <button class="btn" data-accion="ir-configurador" style="margin-top: 12px;">Diseñar plantilla</button>
            </div>`
             : estado.planes
                 .map((p) => {

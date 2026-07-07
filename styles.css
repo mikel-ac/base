@@ -578,34 +578,20 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
    Microanimaciones extra (solo CSS, coherentes con el estilo seco)
    ============================================================ */
 
-/* El número del cronómetro "sella" al montarse una fase nueva
-   (la vista recrea .num al cambiar de fase/ejercicio). */
-.num { animation: sello .34s var(--curva-seco) both; }
-@keyframes sello { 0% { transform: scale(1.18); opacity: 0; } 60% { transform: scale(.97); } 100% { transform: scale(1); opacity: 1; } }
-
-/* La placa de zona entra deslizando desde su esquina cortada. */
-.zona-tag { animation: placa .3s var(--curva) both; }
-@keyframes placa { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
-
-/* El indicador de fin de barra de progreso (Progreso) crece al montarse. */
-.bar { transform-origin: bottom; animation: crecer .5s var(--curva) both; }
-@keyframes crecer { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-
-/* Chips y segmentos: al activarse, un pulso corto de acento. */
-.chip.on, .seg button.on { animation: pulso .28s var(--curva-seco); }
-@keyframes pulso { 0% { transform: scale(1); } 45% { transform: scale(1.07); } 100% { transform: scale(1); } }
-
-/* La cabecera de día del historial baja al aparecer. */
-.dayh { animation: rise .4s var(--curva) both; }
+/* NOTA: las vistas re-renderizan su innerHTML completo al tocar controles.
+   Por eso NO se animan elementos por su clase de estado (.chip.on, .num,
+   .zona-tag, .bar…): se re-dispararían en cada repintado y darían un efecto
+   nervioso en toda la pantalla. Solo se animan interacciones puntuales
+   (:active) y elementos que se montan una única vez (el panel modal). */
 
 /* El botón primario, al pulsarse, "clava" la sombra (feedback físico). */
 .btn.primary:active { animation: clavar .12s var(--curva-seco); }
 @keyframes clavar { from { transform: translate(0,0); } to { transform: translate(4px,4px); } }
 
-/* El avatar de la cuenta gira un pelín al entrar. */
-.cuenta-fila .avatar { animation: sello .4s var(--curva-seco) both; }
+/* Chips y segmentos: micro-hundimiento SOLO al pulsar (no al repintar). */
+.chip:active, .seg button:active { transform: scale(.94); }
 
-/* Overlay del panel: el contenido escalona sus hijos directos. */
+/* Overlay del panel: el contenido escalona sus hijos directos (se monta una vez). */
 .panel > * { animation: rise .34s var(--curva) both; }
 .panel > *:nth-child(2) { animation-delay: .04s; }
 .panel > *:nth-child(3) { animation-delay: .08s; }
@@ -648,13 +634,13 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
 }
 .ex-evita b { color: var(--danger); text-transform: uppercase; letter-spacing: .03em; }
 
-/* Editor de colores de goma (panel) */
-.goma-edit-fila { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.goma-edit-color { width: 40px; height: 40px; border: 2px solid var(--line); background: none; padding: 0; cursor: pointer; flex: none; border-radius: 0; }
+/* Editor de colores de goma (panel, reordenable arrastrando) */
+.goma-edit-fila { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; background: var(--card); border: 1px solid var(--line); padding: 6px 8px; touch-action: none; }
+.goma-edit-fila.arrastrando { opacity: .5; border-color: var(--accent); }
+.goma-edit-asa { background: none; border: none; cursor: grab; color: var(--soft); font-size: 17px; line-height: 1; padding: 6px 2px; flex: none; letter-spacing: -2px; touch-action: none; }
+.goma-edit-asa:active { cursor: grabbing; }
+.goma-edit-color { width: 38px; height: 38px; border: 2px solid var(--line); background: none; padding: 0; cursor: pointer; flex: none; border-radius: 0; }
 .goma-edit-nombre { flex: 1; min-width: 0; }
-.goma-edit-orden { display: flex; flex-direction: column; gap: 2px; flex: none; }
-.goma-edit-orden button { width: 28px; height: 19px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font-size: 9px; line-height: 1; }
-.goma-edit-orden button:disabled { opacity: .3; cursor: default; }
 .goma-edit-borrar { width: 34px; height: 34px; border: 2px solid var(--danger-soft); background: transparent; color: var(--danger); cursor: pointer; flex: none; font-size: 13px; }
 
 /* Desplegable de copias de seguridad (Gestor) y otros details brutalistas */
@@ -697,3 +683,30 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
 .sust-cand-n { display: block; font-size: 13px; font-weight: 700; color: var(--ink); }
 .sust-cand-s { display: block; font-size: 10px; color: var(--soft); margin-top: 3px; text-transform: uppercase; letter-spacing: .03em; }
 .sust-cand-add { color: var(--accent-ink); font-size: 20px; flex: none; line-height: 1; }
+
+/* ============================================================
+   Sesión · layout OPCIÓN B (vídeo arriba, anillo + info al lado)
+   ============================================================ */
+.runner .b-video {
+  margin: 10px 0 0; width: 100%; aspect-ratio: 16/9;
+  border: 3px solid var(--accent); overflow: hidden; background: #000;
+  position: relative;
+}
+.runner .b-video .prev-img,
+.runner .b-video .prev-galeria { border: none; aspect-ratio: 16/9; }
+
+.b-block { display: flex; align-items: center; gap: 16px; margin: 16px 0 4px; }
+.timer.b-ring {
+  position: relative; width: 104px; height: 104px; max-width: none;
+  flex: none; margin: 0; aspect-ratio: 1/1;
+}
+.timer.b-ring .num {
+  font-size: 34px; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.b-info { flex: 1; min-width: 0; text-align: left; }
+.b-info .ex-n { font-size: 20px; line-height: 1.05; }
+.b-info .ex-v { margin-top: 5px; }
+.b-info .zona-tag { margin-top: 8px; }
+.b-detalle { align-self: flex-start; padding-left: 0; margin-top: 4px; }
+.runner .ex-evita { margin-top: 12px; }
