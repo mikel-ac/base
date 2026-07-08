@@ -194,15 +194,19 @@ export class SyncService {
         }
         // Lo local es más nuevo (o no había remoto): intentamos subir. Solo el
         // dueño tiene permiso; si falla, no pasa nada (quedamos con lo local).
+        // Subimos el sello REAL de la última edición local (no la hora de ahora),
+        // para que "quién es más nuevo" refleje quién editó más tarde, no quién
+        // sincronizó más tarde. Si por lo que sea no hay sello, usamos ahora.
+        const selloSubida = localTs > 0 ? localTs : Date.now();
         try {
             await dbApi.setDoc(ref, {
                 overrides: local.overrides,
                 anadidos: local.anadidos,
                 borrados: local.borrados,
                 coloresGoma: local.coloresGoma ?? null,
-                actualizadoEn: Date.now(),
+                actualizadoEn: selloSubida,
             });
-            this.guardarTsCatalogoLocal(Date.now());
+            this.guardarTsCatalogoLocal(selloSubida);
         }
         catch {
             /* sin permiso de escritura del catálogo: normal si no eres el dueño */

@@ -46,6 +46,7 @@ export function leerColoresGoma(): ColorGoma[] {
 export function guardarColoresGoma(lista: ColorGoma[]): void {
   try {
     localStorage.setItem(CLAVE, JSON.stringify(lista));
+    localStorage.setItem("base.catalogo_ts", String(Date.now()));
   } catch {
     /* almacenamiento no disponible */
   }

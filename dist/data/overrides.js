@@ -1,6 +1,22 @@
 const CLAVE = "base.ejercicios_override";
 const CLAVE_ANADIDOS = "base.ejercicios_anadidos";
 const CLAVE_BORRADOS = "base.ejercicios_borrados";
+/**
+ * Marca el catálogo local como recién modificado, para que la sincronización
+ * sepa que este dispositivo tiene cambios que SUBIR a la nube.
+ *
+ * Sin esto, editar un ejercicio no actualizaba el sello de tiempo del
+ * catálogo, así que al sincronizar el dispositivo creía que su copia no era
+ * más nueva que la nube y BAJABA en vez de SUBIR: el cambio no viajaba nunca
+ * a los demás dispositivos. Se llama desde cada escritura del catálogo, pero
+ * NO desde importarTextos (esa es la bajada desde la nube, no una edición).
+ */
+function marcarCatalogoModificado() {
+    try {
+        localStorage.setItem("base.catalogo_ts", String(Date.now()));
+    }
+    catch { /* nada */ }
+}
 export function leerOverrides() {
     try {
         return JSON.parse(localStorage.getItem(CLAVE) ?? "{}");
@@ -23,6 +39,7 @@ export function guardarOverride(id, ov) {
         todos[id] = combinado;
     try {
         localStorage.setItem(CLAVE, JSON.stringify(todos));
+        marcarCatalogoModificado();
     }
     catch {
         /* almacenamiento no disponible */
@@ -40,6 +57,7 @@ export function leerAnadidos() {
 function guardarAnadidos(lista) {
     try {
         localStorage.setItem(CLAVE_ANADIDOS, JSON.stringify(lista));
+        marcarCatalogoModificado();
     }
     catch { /* nada */ }
 }
@@ -106,6 +124,7 @@ export function eliminarEjercicio(id) {
         b.add(id);
         try {
             localStorage.setItem(CLAVE_BORRADOS, JSON.stringify([...b]));
+            marcarCatalogoModificado();
         }
         catch { /* nada */ }
     }
@@ -114,6 +133,7 @@ export function eliminarEjercicio(id) {
         delete ov[id];
         try {
             localStorage.setItem(CLAVE, JSON.stringify(ov));
+            marcarCatalogoModificado();
         }
         catch { /* nada */ }
     }

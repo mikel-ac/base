@@ -33,6 +33,20 @@ const CLAVE = "base.ejercicios_override";
 const CLAVE_ANADIDOS = "base.ejercicios_anadidos";
 const CLAVE_BORRADOS = "base.ejercicios_borrados";
 
+/**
+ * Marca el catálogo local como recién modificado, para que la sincronización
+ * sepa que este dispositivo tiene cambios que SUBIR a la nube.
+ *
+ * Sin esto, editar un ejercicio no actualizaba el sello de tiempo del
+ * catálogo, así que al sincronizar el dispositivo creía que su copia no era
+ * más nueva que la nube y BAJABA en vez de SUBIR: el cambio no viajaba nunca
+ * a los demás dispositivos. Se llama desde cada escritura del catálogo, pero
+ * NO desde importarTextos (esa es la bajada desde la nube, no una edición).
+ */
+function marcarCatalogoModificado(): void {
+  try { localStorage.setItem("base.catalogo_ts", String(Date.now())); } catch { /* nada */ }
+}
+
 export function leerOverrides(): Record<string, OverrideEjercicio> {
   try {
     return JSON.parse(localStorage.getItem(CLAVE) ?? "{}") as Record<string, OverrideEjercicio>;
@@ -52,6 +66,7 @@ export function guardarOverride(id: string, ov: OverrideEjercicio): void {
   else todos[id] = combinado;
   try {
     localStorage.setItem(CLAVE, JSON.stringify(todos));
+    marcarCatalogoModificado();
   } catch {
     /* almacenamiento no disponible */
   }
@@ -62,7 +77,7 @@ export function leerAnadidos(): Ejercicio[] {
   try { return JSON.parse(localStorage.getItem(CLAVE_ANADIDOS) ?? "[]") as Ejercicio[]; } catch { return []; }
 }
 function guardarAnadidos(lista: Ejercicio[]): void {
-  try { localStorage.setItem(CLAVE_ANADIDOS, JSON.stringify(lista)); } catch { /* nada */ }
+  try { localStorage.setItem(CLAVE_ANADIDOS, JSON.stringify(lista)); marcarCatalogoModificado(); } catch { /* nada */ }
 }
 export function leerBorrados(): string[] {
   try { return JSON.parse(localStorage.getItem(CLAVE_BORRADOS) ?? "[]") as string[]; } catch { return []; }
@@ -115,10 +130,10 @@ export function eliminarEjercicio(id: string): void {
   } else {
     const b = new Set(leerBorrados());
     b.add(id);
-    try { localStorage.setItem(CLAVE_BORRADOS, JSON.stringify([...b])); } catch { /* nada */ }
+    try { localStorage.setItem(CLAVE_BORRADOS, JSON.stringify([...b])); marcarCatalogoModificado(); } catch { /* nada */ }
   }
   const ov = leerOverrides();
-  if (ov[id]) { delete ov[id]; try { localStorage.setItem(CLAVE, JSON.stringify(ov)); } catch { /* nada */ } }
+  if (ov[id]) { delete ov[id]; try { localStorage.setItem(CLAVE, JSON.stringify(ov)); marcarCatalogoModificado(); } catch { /* nada */ } }
 }
 
 export function aplicarOverrides(ejercicios: Ejercicio[]): Ejercicio[] {
