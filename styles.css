@@ -399,26 +399,44 @@ body {
 .chev { color: var(--accent-ink); font-size: 16px; font-weight: 700; }
 .nota-caja { background: var(--card); color: var(--ink); border-left: 4px solid var(--accent); border-radius: 0; padding: 11px 13px; font-size: 13px; margin: 10px 0 0; }
 
-/* ---------- Progreso ---------- */
-.lvlbar { height: 10px; border-radius: 0; background: var(--line); position: relative; margin: 14px 0 6px; }
-.lvlbar .k {
-  position: absolute; top: -4px; width: 18px; height: 18px; border-radius: 0;
-  background: var(--accent); box-shadow: 0 0 8px var(--glow);
-  transform: translateX(-50%); transition: left .5s var(--curva);
-}
-.extremos { display: flex; justify-content: space-between; font-size: 10px; color: var(--soft); text-transform: uppercase; letter-spacing: .03em; }
-.bars { display: flex; align-items: flex-end; gap: 8px; height: 96px; margin-top: 6px; }
-.col-barra { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; }
+/* ---------- Progreso (tarjetas) ---------- */
+.pcard { background: var(--card); border: 1px solid var(--line); padding: 15px; margin-bottom: 12px; box-shadow: var(--hardshadow); }
+.pcard-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.pcard-head .k { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+.pcard-head .v { font-family: var(--fd); font-size: 15px; color: var(--accent-ink); }
+
+/* Nivel: número grande protagonista */
+.nivel-big { display: flex; align-items: baseline; gap: 10px; }
+.nivel-big .n { font-family: var(--fd); font-size: 52px; line-height: .9; }
+.nivel-big .of { font-size: 11px; color: var(--soft); text-transform: uppercase; }
+.nivel-track { height: 6px; background: var(--line-soft); position: relative; margin: 14px 0 0; }
+.nivel-track i { position: absolute; top: -3px; width: 12px; height: 12px; background: var(--accent); transform: translateX(-50%); transition: left .5s var(--curva); }
+.nivel-ext { display: flex; justify-content: space-between; font-size: 9px; color: var(--soft); text-transform: uppercase; margin: 9px 0 12px; letter-spacing: .03em; }
+
+/* Semana: dots gruesos + texto */
+.wk-dots { display: flex; gap: 8px; margin-bottom: 10px; }
+.wk-dots i { flex: 1; max-width: 42px; height: 8px; background: var(--line-soft); }
+.wk-dots i.on { background: var(--accent); }
+.wk-txt { font-size: 11px; color: var(--soft); line-height: 1.5; margin: 0; }
+.wk-big { font-family: var(--fd); font-size: 15px; color: var(--ink); }
+
+/* Volumen: barras, semanas a cero como línea fina */
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 90px; margin-bottom: 12px; }
+.col-barra { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
 .barra-numero { font-size: 9px; color: var(--soft); font-family: var(--fb); }
-.bar { width: 100%; background: var(--accent); border-radius: 0; min-height: 4px; transition: height .5s var(--curva); }
+.barra-numero.cero { opacity: .5; }
+.bar { width: 100%; background: var(--accent); min-height: 3px; transition: height .5s var(--curva); }
 .bar.soft { background: var(--accent-soft); border: 1px solid var(--line); }
-.blabels { display: flex; gap: 8px; margin-top: 6px; }
-.blabels span { flex: 1; text-align: center; font-size: 9px; color: var(--soft); text-transform: uppercase; }
-.stackb { display: flex; height: 18px; border-radius: 0; overflow: hidden; margin-top: 6px; border: 1px solid var(--line); }
-.stackb .facil { background: var(--accent-soft); }
-.stackb .punto { background: var(--accent); }
-.stackb .dura { background: var(--danger); }
-.leyenda { display: flex; justify-content: space-between; font-size: 10px; color: var(--soft); margin-top: 6px; text-transform: uppercase; }
+.bar.vacia { background: var(--line-soft); min-height: 3px; }
+.barra-lb { font-size: 8px; color: var(--soft); text-transform: uppercase; }
+
+/* Sensación: segmentos de color + leyenda cromada */
+.sensb { display: flex; height: 22px; border: 1px solid var(--line); overflow: hidden; }
+.sensb .s-facil { background: #5B7000; } .sensb .s-punto { background: #CCFF00; } .sensb .s-dura { background: var(--danger); }
+.sens-leg { display: flex; justify-content: space-between; margin-top: 10px; gap: 4px; }
+.sens-leg span { font-size: 9px; color: var(--soft); text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+.sens-leg i { width: 9px; height: 9px; display: inline-block; }
+.sens-leg .f i { background: #5B7000; } .sens-leg .p i { background: #CCFF00; } .sens-leg .d i { background: var(--danger); }
 
 /* ---------- Planes ---------- */
 .plan {
@@ -655,19 +673,28 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
 .copias-plegable > summary::before { content: "▸"; color: var(--accent-ink); }
 .copias-plegable[open] > summary::before { content: "▾"; }
 
-/* Historial en cajas con píldora de valoración */
+/* Historial en cajas con franja lateral de color y píldora de valoración */
 .histrow {
   border: 1px solid var(--line) !important; background: var(--card);
-  padding: 12px !important; margin-bottom: 9px; gap: 10px;
-  box-shadow: var(--hardshadow);
+  padding: 0 !important; margin-bottom: 10px; gap: 0;
+  box-shadow: var(--hardshadow); display: flex; align-items: stretch; overflow: hidden;
 }
-.histrow:hover { padding-left: 12px; }
+.histrow:hover { padding: 0 !important; }
+.hr-barra { width: 5px; flex: none; background: #CCFF00; align-self: stretch; }
+.hr-barra.dura { background: var(--danger); }
+.hr-barra.facil { background: #5B7000; }
+.hr-main { flex: 1; min-width: 0; padding: 13px 14px; }
+.hr-f { font-family: var(--fd); font-size: 16px; text-transform: uppercase; letter-spacing: .01em; color: var(--ink); font-weight: 400; }
+.hr-s { display: block; font-size: 11px; color: var(--soft); margin-top: 5px; }
 .hr-val {
-  font-size: 8px; padding: 4px 8px; border: 1px solid var(--line-soft);
-  color: var(--soft); text-transform: uppercase; letter-spacing: .03em; flex: none;
+  align-self: center; font-size: 8px; padding: 4px 8px; border: 1px solid var(--line-soft);
+  color: var(--soft); text-transform: uppercase; letter-spacing: .03em; flex: none; white-space: nowrap;
 }
-.hr-val.punto { color: var(--accent-ink); border-color: var(--accent); }
-.hr-val.dura { color: var(--danger-ink); border-color: var(--danger); }
+/* Píldoras cromadas. El texto SIEMPRE contrasta con su fondo. */
+.hr-val.punto { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.hr-val.facil { background: #5B7000; border-color: #5B7000; color: #FFFFFF; }
+.hr-val.dura  { background: var(--danger); border-color: var(--danger); color: #FFFFFF; }
+.histrow .chev { align-self: center; padding-right: 12px; }
 
 /* Selector de sustitución (3 candidatos) */
 .sust-lista { display: flex; flex-direction: column; gap: 7px; margin-top: 6px; }

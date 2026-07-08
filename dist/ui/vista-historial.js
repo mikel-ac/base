@@ -53,15 +53,17 @@ export function montarHistorial(ctx, nav) {
                         `${s.durMin} min`,
                         ...(s.kcal !== null ? [`${s.kcal} kcal`] : []),
                     ].join(" · ");
-                    const claseVal = s.valoracion === "dura" ? "dura" : s.valoracion === "en_su_punto" ? "punto" : "";
+                    // Color por valoración: en su punto = lima, fácil = oliva, dura = rojo.
+                    const claseVal = s.valoracion === "dura" ? "dura" : s.valoracion === "facil" ? "facil" : s.valoracion === "en_su_punto" ? "punto" : "";
                     const pill = s.valoracion
                         ? `<span class="hr-val ${claseVal}">${esc(VALORACION_TEXTO[s.valoracion] ?? "")}</span>`
                         : "";
                     return `
                     <button class="histrow" data-sesion="${esc(s.id)}">
+                      <span class="hr-barra ${claseVal}"></span>
                       <span class="hr-main">
                         <span class="hr-f">${esc(enfoque.charAt(0).toUpperCase() + enfoque.slice(1))}</span>
-                        <span class="hr-s" style="display:block;">${esc(linea2)}</span>
+                        <span class="hr-s">${esc(linea2)}</span>
                       </span>
                       ${pill}
                       <span class="chev">›</span>
