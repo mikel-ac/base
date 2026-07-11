@@ -124,22 +124,37 @@ const ZONA_TEXTO = {
     empuje: "Tren superior", tiron: "Tren superior", pierna: "Pierna y glúteo",
     core: "Core", cardio: "Cardio · global", movilidad: "Movilidad", calentamiento: "Calentamiento",
 };
-// Mantener la pantalla encendida (y sonando) durante la sesión.
+// Mantener la pantalla encendida durante la sesión.
+// La Wake Lock API libera el bloqueo automáticamente cuando la pestaña deja de
+// ser visible (bloqueo de pantalla, cambio de app, otra pestaña). Por eso hay
+// que: (1) escuchar el evento "release" para saber que se soltó y limpiar la
+// referencia, y (2) volver a pedirlo cada vez que la pestaña vuelve a ser
+// visible. Sin (1), la variable se quedaba no-nula tras una liberación
+// automática y el reintento no volvía a pedir el lock: la pantalla se apagaba.
 let wakeLock = null;
 let sesionViva = false;
 async function pedirWake() {
     try {
         const n = navigator;
-        if (n.wakeLock && !wakeLock)
-            wakeLock = await n.wakeLock.request("screen");
+        if (!n.wakeLock)
+            return; // no soportado: no hay nada que hacer
+        if (wakeLock)
+            return; // ya tenemos uno vivo
+        const sentinel = await n.wakeLock.request("screen");
+        wakeLock = sentinel;
+        // Cuando el sistema lo libere solo, limpiamos la referencia para poder
+        // volver a pedirlo al regresar a la app.
+        sentinel.addEventListener?.("release", () => {
+            wakeLock = null;
+        });
     }
     catch {
-        /* el dispositivo no lo soporta: seguimos igual */
+        /* el dispositivo no lo soporta o lo rechazó: seguimos igual */
     }
 }
 function soltarWake() {
     try {
-        wakeLock?.release();
+        void wakeLock?.release();
     }
     catch { /* nada */ }
     wakeLock = null;
@@ -148,6 +163,42 @@ document.addEventListener("visibilitychange", () => {
     if (sesionViva && document.visibilityState === "visible")
         void pedirWake();
 });
+/**
+ * FALLBACK para mantener la pantalla encendida cuando la Wake Lock API no está
+ * disponible (Safari iOS antiguo, algunos navegadores). Un <video> diminuto,
+ * mudo y en bucle reproduciéndose evita que el sistema apague la pantalla.
+ * Es un truco conocido y fiable. El vídeo va oculto y no molesta.
+ */
+let videoDespierta = null;
+// Vídeo mp4 mínimo (varios frames negros) embebido en base64. Pesa muy poco.
+const MP4_KEEPAWAKE = "data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28ybXA0MQAAAAhmcmVlAAAC721kYXQAAAKuBgX//6rcRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTQyIC0gSDI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29weWxlZnQgMjAwMy0yMDE0IC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9uczogY2FiYWM9MSByZWY9MyBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgzOjB4MTEzIG1lPWhleCBzdWJtZT03IHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTEgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0xIDh4OGRjdD0xIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PS0yIHRocmVhZHM9NiBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTMgYl9weXJhbWlkPTIgYl9hZGFwdD0xIGJfYmlhcz0wIGRpcmVjdD0xIHdlaWdodGI9MSBvcGVuX2dvcD0wIHdlaWdodHA9MiBrZXlpbnQ9MjUwIGtleWludF9taW49MjUgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD00MCByYz1jcmYgbWJ0cmVlPTEgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAAWZYiEAD//8m+P5OXfBeLGOfKE3xQADAAAAwAAAwAABxOgWZ3EAAAAAWgAAAAEA/wAAAAAAAAAAAAAAAAAAAAAA==";
+function activarVideoDespierta() {
+    if (videoDespierta)
+        return;
+    const v = document.createElement("video");
+    v.setAttribute("playsinline", "");
+    v.muted = true;
+    v.loop = true;
+    v.src = MP4_KEEPAWAKE;
+    v.style.cssText = "position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px;";
+    document.body.appendChild(v);
+    void v.play().catch(() => { });
+    videoDespierta = v;
+}
+function pararVideoDespierta() {
+    if (!videoDespierta)
+        return;
+    try {
+        videoDespierta.pause();
+        videoDespierta.remove();
+    }
+    catch { /* nada */ }
+    videoDespierta = null;
+}
+/** ¿El navegador soporta la Wake Lock API? */
+function hayWakeLockNativo() {
+    return "wakeLock" in navigator;
+}
 // ------------------------------------------------------------------- vista
 const CLAVE_SESION = "base.sesion_activa";
 export function leerSesionActiva() {
@@ -332,7 +383,10 @@ export function montarSesion(ctx, nav, plan, estadoInicial) {
     const desuscribir = runner.suscribir(pintar);
     reloj = window.setInterval(() => despachar({ tipo: "TICK" }), 1000);
     sesionViva = true;
-    void pedirWake();
+    if (hayWakeLockNativo())
+        void pedirWake();
+    else
+        activarVideoDespierta();
     return () => {
         window.clearInterval(reloj);
         desuscribir();
@@ -341,6 +395,7 @@ export function montarSesion(ctx, nav, plan, estadoInicial) {
         raiz.classList.remove("sin-nav");
         sesionViva = false;
         soltarWake();
+        pararVideoDespierta();
         for (const velo of document.querySelectorAll(".velo"))
             velo.remove();
     };
