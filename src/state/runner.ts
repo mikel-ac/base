@@ -14,7 +14,7 @@ import { Store } from "./store.js";
  * (el descanso se salta tras el último paso, o si restSec = 0).
  */
 
-export type FaseRunner = "prep" | "prep-principal" | "trabajo" | "descanso" | "fin";
+export type FaseRunner = "prep" | "prep-principal" | "transicion-cal" | "trabajo" | "descanso" | "fin";
 
 export interface PasoRunner {
   bloque: "calentamiento" | "principal";
@@ -31,6 +31,8 @@ export interface RunnerState {
   prepSec: number;
   /** Segundos de preparación al entrar en el bloque principal (tras calentar). */
   prepPrincipalSec: number;
+  /** Segundos de transición entre dos ejercicios de calentamiento. */
+  transCalSec: number;
   workSec: number;
   restSec: number;
 }
@@ -48,6 +50,7 @@ export type EfectoRunner =
   | "AVISO_TRABAJO"   // empieza un intervalo de trabajo
   | "AVISO_DESCANSO"  // empieza un descanso
   | "AVISO_PREP_PRINCIPAL" // arranca la preparación previa al bloque principal
+  | "AVISO_TRANS_CAL" // arranca la transición entre ejercicios de calentamiento
   | "AVISO_FIN";      // fin de la sesión
 
 export interface PasoRunnerResultado {
@@ -56,7 +59,7 @@ export interface PasoRunnerResultado {
 }
 
 /** Crea el estado inicial a partir de un plan generado. */
-export function crearRunner(plan: PlanSesion, prepSec = 10, prepPrincipalSec = 20): RunnerState {
+export function crearRunner(plan: PlanSesion, prepSec = 10, prepPrincipalSec = 15, transCalSec = 5): RunnerState {
   const pasos: PasoRunner[] = [
     ...plan.calentamiento.map((a): PasoRunner => ({ bloque: "calentamiento", asignado: a })),
     ...plan.principal.map((a): PasoRunner => ({ bloque: "principal", asignado: a })),
@@ -69,6 +72,7 @@ export function crearRunner(plan: PlanSesion, prepSec = 10, prepPrincipalSec = 2
     pausado: false,
     prepSec,
     prepPrincipalSec,
+    transCalSec,
     workSec: plan.cfg.workSec,
     restSec: plan.cfg.restSec,
   };
@@ -91,6 +95,16 @@ function aPrepPrincipal(s: RunnerState, indice: number): PasoRunnerResultado {
   };
 }
 
+/** Transición breve (cuenta atrás) entre dos ejercicios de calentamiento. */
+function aTransCal(s: RunnerState, indice: number): PasoRunnerResultado {
+  // Si no hay transición configurada, saltamos directos al siguiente.
+  if (s.transCalSec <= 0) return aTrabajo(s, indice);
+  return {
+    estado: { ...s, indice, fase: "transicion-cal", restanteSec: s.transCalSec },
+    efectos: ["AVISO_TRANS_CAL"],
+  };
+}
+
 /** ¿El paso `indice` inaugura el bloque principal viniendo de calentamiento? */
 function entraEnPrincipal(s: RunnerState, indice: number): boolean {
   const previo = s.pasos[indice - 1];
@@ -110,12 +124,16 @@ function siguienteFase(s: RunnerState): PasoRunnerResultado {
       return aTrabajo(s, 0);
     case "prep-principal":
       return aTrabajo(s, s.indice);
+    case "transicion-cal":
+      return aTrabajo(s, s.indice);
     case "trabajo":
       if (esUltimo) return aFin(s);
-      // Calentamiento seguido: sin descanso entre sus ejercicios, PERO al
-      // cruzar al bloque principal se intercala una preparación (cuenta atrás).
+      // Al cruzar al bloque principal se intercala la preparación larga.
       if (entraEnPrincipal(s, s.indice + 1)) return aPrepPrincipal(s, s.indice + 1);
-      if (s.restSec <= 0 || s.pasos[s.indice]?.bloque === "calentamiento")
+      // Entre dos ejercicios de calentamiento: transición breve (cuenta atrás).
+      if (s.pasos[s.indice]?.bloque === "calentamiento")
+        return aTransCal(s, s.indice + 1);
+      if (s.restSec <= 0)
         return aTrabajo(s, s.indice + 1);
       return {
         estado: { ...s, fase: "descanso", restanteSec: s.restSec, indice: s.indice + 1 },
@@ -140,8 +158,8 @@ export function reducirRunner(s: RunnerState, ev: EventoRunner): PasoRunnerResul
       return aFin(s);
     case "SALTAR": {
       // Desde prep o trabajo: pasa al siguiente ejercicio (o fin).
-      // Desde descanso o prep-principal: entra ya al ejercicio que esperaba.
-      if (s.fase === "descanso" || s.fase === "prep-principal") return aTrabajo(s, s.indice);
+      // Desde descanso, prep-principal o transición: entra ya al que esperaba.
+      if (s.fase === "descanso" || s.fase === "prep-principal" || s.fase === "transicion-cal") return aTrabajo(s, s.indice);
       const esUltimo = s.indice >= s.pasos.length - 1;
       if (s.fase === "trabajo" && esUltimo) return aFin(s);
       const proximo = s.fase === "prep" ? 0 : s.indice + 1;

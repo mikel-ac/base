@@ -87,6 +87,8 @@ function sonarEfectos(efectos) {
             pitido(440);
         if (efecto === "AVISO_PREP_PRINCIPAL")
             pitido(520, 0.18);
+        if (efecto === "AVISO_TRANS_CAL")
+            pitido(440, 0.12);
         if (efecto === "AVISO_FIN") {
             pitido(660, 0.15, 0);
             pitido(660, 0.15, 0.2);
@@ -104,6 +106,8 @@ function duracionDeFase(s) {
         return s.prepSec;
     if (s.fase === "prep-principal")
         return s.prepPrincipalSec;
+    if (s.fase === "transicion-cal")
+        return s.transCalSec;
     if (s.fase === "descanso")
         return s.restSec;
     return s.workSec;
@@ -115,6 +119,7 @@ function offsetAnillo(s) {
 const FASE_TEXTO = {
     prep: "Prepárate",
     "prep-principal": "Empieza el entrenamiento",
+    "transicion-cal": "Siguiente ejercicio",
     trabajo: "Trabajo",
     descanso: "Descanso",
     fin: "Fin",
@@ -209,6 +214,9 @@ export function leerSesionActiva() {
         const d = JSON.parse(raw);
         if (!d || !d.estado || d.estado.fase === "fin")
             return null;
+        // Compatibilidad con sesiones guardadas antes de existir este campo.
+        if (typeof d.estado.transCalSec !== "number")
+            d.estado.transCalSec = 5;
         return d;
     }
     catch {
@@ -258,7 +266,7 @@ export function montarSesion(ctx, nav, plan, estadoInicial) {
             return;
         }
         claveUltimoPintado = clave;
-        const esDescansoOPrep = s.fase === "descanso" || s.fase === "prep" || s.fase === "prep-principal";
+        const esDescansoOPrep = s.fase === "descanso" || s.fase === "prep" || s.fase === "prep-principal" || s.fase === "transicion-cal";
         const bloqueTexto = paso.bloque === "calentamiento" ? "Calentamiento" : "Entrenamiento";
         raiz.innerHTML = `
       <div class="runner">

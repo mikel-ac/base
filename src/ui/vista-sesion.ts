@@ -90,6 +90,7 @@ function sonarEfectos(efectos: EfectoRunner[]): void {
     if (efecto === "AVISO_TRABAJO") pitido(880);
     if (efecto === "AVISO_DESCANSO") pitido(440);
     if (efecto === "AVISO_PREP_PRINCIPAL") pitido(520, 0.18);
+    if (efecto === "AVISO_TRANS_CAL") pitido(440, 0.12);
     if (efecto === "AVISO_FIN") {
       pitido(660, 0.15, 0);
       pitido(660, 0.15, 0.2);
@@ -109,6 +110,7 @@ function formatearTiempo(sec: number): string {
 function duracionDeFase(s: RunnerState): number {
   if (s.fase === "prep") return s.prepSec;
   if (s.fase === "prep-principal") return s.prepPrincipalSec;
+  if (s.fase === "transicion-cal") return s.transCalSec;
   if (s.fase === "descanso") return s.restSec;
   return s.workSec;
 }
@@ -121,6 +123,7 @@ function offsetAnillo(s: RunnerState): number {
 const FASE_TEXTO: Record<string, string> = {
   prep: "Prepárate",
   "prep-principal": "Empieza el entrenamiento",
+  "transicion-cal": "Siguiente ejercicio",
   trabajo: "Trabajo",
   descanso: "Descanso",
   fin: "Fin",
@@ -218,6 +221,8 @@ export function leerSesionActiva(): { plan: PlanSesion; estado: RunnerState } | 
     if (!raw) return null;
     const d = JSON.parse(raw) as { plan: PlanSesion; estado: RunnerState };
     if (!d || !d.estado || d.estado.fase === "fin") return null;
+    // Compatibilidad con sesiones guardadas antes de existir este campo.
+    if (typeof d.estado.transCalSec !== "number") d.estado.transCalSec = 5;
     return d;
   } catch {
     return null;
@@ -262,7 +267,7 @@ export function montarSesion(ctx: Ctx, nav: Nav, plan: PlanSesion, estadoInicial
     }
     claveUltimoPintado = clave;
 
-    const esDescansoOPrep = s.fase === "descanso" || s.fase === "prep" || s.fase === "prep-principal";
+    const esDescansoOPrep = s.fase === "descanso" || s.fase === "prep" || s.fase === "prep-principal" || s.fase === "transicion-cal";
     const bloqueTexto = paso.bloque === "calentamiento" ? "Calentamiento" : "Entrenamiento";
 
     raiz.innerHTML = `
