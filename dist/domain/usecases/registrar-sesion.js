@@ -1,5 +1,4 @@
 import { uuid } from "../../core/util.js";
-import { ajustarNivel } from "./ajustar-nivel.js";
 /** Convierte un plan ejecutado + el registro final en una fila del Historial. */
 export function construirSesion(usuario, plan, registro, ts) {
     const patrones = plan.principal.map((a) => a.ejercicio.patron);
@@ -41,13 +40,14 @@ export class RegistrarSesion {
     async ejecutar(usuario, plan, registro, ts = Date.now()) {
         const sesion = construirSesion(usuario, plan, registro, ts);
         await this.sesiones.guardar(sesion);
-        let nivelNuevo = usuario.nivel;
-        if (registro.valoracion !== null) {
-            nivelNuevo = ajustarNivel(usuario.nivel, registro.valoracion);
-            if (nivelNuevo !== usuario.nivel) {
-                await this.usuarios.guardar({ ...usuario, nivel: nivelNuevo });
-            }
+        // NIVEL CONGELADO a 2.0 (variante "Estándar"): decisión de producto.
+        // La app ya no ajusta la dificultad con las valoraciones; el usuario
+        // controla sus entrenamientos. Si un dispositivo arrastra un nivel
+        // distinto de una versión anterior, se auto-repara aquí a 2.
+        const NIVEL_FIJO = 2;
+        if (usuario.nivel !== NIVEL_FIJO) {
+            await this.usuarios.guardar({ ...usuario, nivel: NIVEL_FIJO });
         }
-        return { sesion, nivelAnterior: usuario.nivel, nivelNuevo };
+        return { sesion, nivelAnterior: usuario.nivel, nivelNuevo: NIVEL_FIJO };
     }
 }

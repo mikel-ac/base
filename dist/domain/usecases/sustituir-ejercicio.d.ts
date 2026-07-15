@@ -30,11 +30,6 @@ export interface Sustituto {
     variante: Variante;
 }
 /**
- * Elige un sustituto. `rng` permite inyectar aleatoriedad determinista en
- * pruebas; por defecto usa Math.random.
- */
-export declare function sustituirEjercicio(actual: Ejercicio, ctx: ContextoSustitucion, rng?: () => number): Sustituto | null;
-/**
  * CANDIDATOS ORDENADOS para sustituir (para la UI de "elige uno de 3").
  *
  * Devuelve TODOS los candidatos viables, ordenados por cercanía:

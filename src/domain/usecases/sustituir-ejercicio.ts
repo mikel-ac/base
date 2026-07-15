@@ -62,25 +62,6 @@ function candidatos(
 }
 
 /**
- * Elige un sustituto. `rng` permite inyectar aleatoriedad determinista en
- * pruebas; por defecto usa Math.random.
- */
-export function sustituirEjercicio(
-  actual: Ejercicio,
-  ctx: ContextoSustitucion,
-  rng: () => number = Math.random
-): Sustituto | null {
-  // 1º intento: mismo patrón (equivalencia fuerte). 2º: mismo tipo (relajado).
-  let opciones = candidatos(actual, ctx, true);
-  if (opciones.length === 0) opciones = candidatos(actual, ctx, false);
-  if (opciones.length === 0) return null;
-
-  const elegido = opciones[Math.floor(rng() * opciones.length)]!;
-  const variante = varianteParaNivel(elegido, ctx.nivel, ctx.bajoImpacto)!;
-  return { ejercicio: elegido, variante };
-}
-
-/**
  * CANDIDATOS ORDENADOS para sustituir (para la UI de "elige uno de 3").
  *
  * Devuelve TODOS los candidatos viables, ordenados por cercanía:

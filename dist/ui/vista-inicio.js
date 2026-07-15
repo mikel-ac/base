@@ -1,7 +1,7 @@
 import { generarSesion } from "../domain/usecases/generar-sesion.js";
 import { ConfiguradorStore } from "../state/configurador-store.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
-import { activarIndicador, htmlNav, manejarNav } from "./nav.js";
+import { htmlNav, manejarNav } from "./nav.js";
 import { leerSesionActiva, borrarSesionActiva } from "./vista-sesion.js";
 import { mostrarDetallePlan } from "./panel-detalle.js";
 /**
@@ -43,7 +43,6 @@ export function montarInicio(ctx, nav) {
             raiz.innerHTML = `<p class="cargando">${esc(estado.error)}</p>`;
             return;
         }
-        const u = estado.usuario;
         const m = estado.metricas;
         const s = estado.sugerencia;
         const ultima = estado.ultimaSesion;
@@ -68,10 +67,6 @@ export function montarInicio(ctx, nav) {
         <div>
           <div class="brand">Base</div>
           <p class="date">${esc(fechaDeHoy())}</p>
-        </div>
-        <div class="hd-derecha">
-          <span class="lvl">Nivel ${u.nivel.toFixed(1)}</span>
-          <button class="link" data-accion="ajustes" aria-label="Ajustes">Ajustes</button>
         </div>
       </header>
 
@@ -109,7 +104,6 @@ export function montarInicio(ctx, nav) {
 
       ${htmlNav("inicio")}
     `;
-        activarIndicador(raiz, "inicio");
         if (!animado) {
             animado = true;
             animarEntrada(raiz);

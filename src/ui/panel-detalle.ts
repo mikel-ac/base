@@ -1,7 +1,7 @@
 import type { PlanSesion, EjercicioAsignado } from "../domain/entities/configuracion.js";
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
 import { generarSesion } from "../domain/usecases/generar-sesion.js";
-import { candidatosSustitucion, type Sustituto } from "../domain/usecases/sustituir-ejercicio.js";
+import { candidatosSustitucion } from "../domain/usecases/sustituir-ejercicio.js";
 import { aviso, esc } from "./comunes.js";
 import { mostrarDetalleEjercicio } from "./detalle-ejercicio.js";
 import { abrirSelectorSustitucion } from "./selector-sustitucion.js";

@@ -4,6 +4,7 @@ import { animarEntrada, aviso, esc } from "./comunes.js";
 import { fijarTema, temaActual } from "./tema.js";
 import { iniciarSesionGoogle, cerrarSesion } from "../data/firebase/firebase-auth.js";
 import { mostrarEditorGomas } from "./editor-gomas.js";
+import { htmlNav, manejarNav } from "./nav.js";
 /**
  * PANTALLA DE AJUSTES / PERFIL (guía §7): nombre, objetivo semanal,
  * molestias permanentes y Apariencia (Sistema / Claro / Oscuro).
@@ -33,7 +34,6 @@ export function montarAjustes(ctx, nav) {
         user = app.sync.obtenerUsuario();
         actualizarBloqueCuenta();
     });
-    raiz.classList.add("sin-nav");
     // ---------- Bloque "Cuenta y sincronización" ----------
     const ESTADO_TEXTO = {
         desconectado: "",
@@ -133,7 +133,6 @@ export function montarAjustes(ctx, nav) {
             .map((t) => `<button data-tema="${t}" class="${tema === t ? "on" : ""}">${t.charAt(0).toUpperCase() + t.slice(1)}</button>`)
             .join("");
         raiz.innerHTML = `
-      <button class="back" data-accion="volver">← Inicio</button>
       <h1 class="scr-title">Ajustes</h1>
 
       <div>
@@ -181,6 +180,7 @@ export function montarAjustes(ctx, nav) {
         <button class="btn wide" data-accion="colores-goma" style="margin-top:10px">Colores de goma</button>
         <p class="hint">Editar la lista de colores que puedes asignar a los ejercicios con gomas.</p>
       </div>
+      ${htmlNav("ajustes")}
     `;
         if (!animado) {
             animado = true;
@@ -194,7 +194,11 @@ export function montarAjustes(ctx, nav) {
     }
     function alPulsar(ev) {
         const boton = ev.target.closest("button");
-        if (!boton || !usuario)
+        if (!boton)
+            return;
+        if (manejarNav(boton, nav, "ajustes"))
+            return;
+        if (!usuario)
             return;
         const u = usuario;
         const d = boton.dataset;
@@ -255,7 +259,6 @@ export function montarAjustes(ctx, nav) {
     void preparar();
     return () => {
         raiz.removeEventListener("click", alPulsar);
-        raiz.classList.remove("sin-nav");
         desuscribirSync();
     };
 }

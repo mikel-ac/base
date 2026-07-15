@@ -5,12 +5,10 @@
  * navegador); prueban todo lo demás, que es donde vive el riesgo.
  */
 import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
-import { ajustarNivel } from "../domain/usecases/ajustar-nivel.js";
 import { calcularMetricas } from "../domain/usecases/calcular-metricas.js";
 import { impactoDeVariante } from "../domain/usecases/filtros.js";
 import { generarSesion, numEjerciciosPara } from "../domain/usecases/generar-sesion.js";
 import { patronDominante, sugerirHoy } from "../domain/usecases/sugerir-hoy.js";
-import { alternativasPara, moverEjercicio, quitarEjercicio, sustituirEjercicio } from "../domain/usecases/editar-plan.js";
 import { crearRngConSemilla } from "../core/util.js";
 import { crearRunner, reducirRunner } from "../state/runner.js";
 let pruebas = 0;
@@ -25,11 +23,6 @@ const catalogo = cargarCatalogo();
 comprobar(catalogo.length === 55, `el catálogo debe tener 55 ejercicios (tiene ${catalogo.length})`);
 comprobar(catalogo.every((e) => e.variantes.length >= 1), "todo ejercicio tiene variantes");
 // ---------- 2. Adaptación de nivel (§7) ----------
-comprobar(ajustarNivel(2.0, "en_su_punto") === 2.0, "en_su_punto no toca el nivel");
-comprobar(ajustarNivel(2.0, "facil") === 2.15, "fácil sube +0.15");
-comprobar(ajustarNivel(2.0, "dura") === 1.6, "dura baja -0.40");
-comprobar(ajustarNivel(2.9, "facil") === 3.0 && ajustarNivel(2.95, "facil") === 3.0, "tope superior 3.0");
-comprobar(ajustarNivel(1.1, "dura") === 1.0, "tope inferior 1.0");
 // ---------- 3. Generación de sesiones (§6) ----------
 const cfgBase = {
     nivel: 2.0,
@@ -144,47 +137,6 @@ comprobar(m.volumenPorSemana.length === 8, "métricas: 8 semanas de volumen");
 const totalVolumen = m.volumenPorSemana.reduce((s, v) => s + v.sesiones, 0);
 comprobar(totalVolumen === 5, `métricas: el volumen suma las 5 sesiones (suma ${totalVolumen})`);
 comprobar(["subiendo", "estable", "bajando"].includes(m.tendenciaSesiones), "métricas: tendencia válida");
-// ---------- 6. Edición de sesión (§4) ----------
-const base = generarSesion(catalogo, cfgBase, crearRngConSemilla(11));
-comprobar(base.ok, "plan base para editar");
-if (base.ok) {
-    const plan = base.valor;
-    const n0 = plan.principal.length;
-    // mover: mismo contenido, orden nuevo, y el plan original queda intacto
-    const movido = moverEjercicio(plan, "principal", 0, n0 - 1);
-    comprobar(movido.ok, "mover funciona");
-    if (movido.ok) {
-        comprobar(movido.valor.principal.length === n0, "mover no cambia el nº de ejercicios");
-        comprobar(movido.valor.principal[n0 - 1].ejercicio.id === plan.principal[0].ejercicio.id, "mover coloca el ejercicio donde toca");
-        comprobar(plan.principal[0].ejercicio.id !== movido.valor.principal[0].ejercicio.id || n0 === 1, "el plan original no se modifica");
-    }
-    comprobar(!moverEjercicio(plan, "principal", 0, 999).ok, "mover fuera de rango → error controlado");
-    // quitar: uno menos; no se puede vaciar el bloque principal
-    const quitado = quitarEjercicio(plan, "principal", 0);
-    comprobar(quitado.ok && quitado.valor.principal.length === n0 - 1, "quitar reduce en 1");
-    let unico = plan;
-    while (unico.principal.length > 1) {
-        const r = quitarEjercicio(unico, "principal", 0);
-        if (!r.ok)
-            break;
-        unico = r.valor;
-    }
-    comprobar(!quitarEjercicio(unico, "principal", 0).ok, "no se puede dejar la sesión sin ejercicios");
-    // sustituir: acepta viables y rechaza los que chocan con molestias
-    const alternativas = alternativasPara(catalogo, plan, "principal", 0);
-    comprobar(alternativas.length > 0, "hay alternativas para sustituir");
-    comprobar(alternativas.every((e) => !plan.principal.some((a) => a.ejercicio.id === e.id)), "las alternativas no repiten ejercicios del plan");
-    const sust = sustituirEjercicio(plan, "principal", 0, alternativas[0]);
-    comprobar(sust.ok && sust.valor.principal[0].ejercicio.id === alternativas[0].id, "sustituir coloca el nuevo ejercicio");
-    const planConMolestia = generarSesion(catalogo, { ...cfgBase, molestias: ["hombro"] }, crearRngConSemilla(12));
-    if (planConMolestia.ok) {
-        const conHombro = catalogo.find((e) => e.joints.includes("hombro") && e.tipo !== "calentamiento");
-        comprobar(conHombro !== undefined, "existe un ejercicio que carga el hombro");
-        if (conHombro) {
-            comprobar(!sustituirEjercicio(planConMolestia.valor, "principal", 0, conHombro).ok, "sustituir rechaza ejercicios que cargan una zona con molestia");
-        }
-    }
-}
 // ---------- 7. Énfasis de la sugerencia en el generador (§9) ----------
 for (const semilla of [21, 22, 23, 24, 25]) {
     const conEnfasis = generarSesion(catalogo, { ...cfgBase, enfasis: "tiron" }, crearRngConSemilla(semilla));

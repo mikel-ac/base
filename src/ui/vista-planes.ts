@@ -8,7 +8,7 @@ import { zonaDesdePatrones } from "../state/configurador-store.js";
 import type { PlanesState } from "../state/planes-store.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
 import type { Ctx, Nav } from "./main.js";
-import { activarIndicador, htmlNav, manejarNav } from "./nav.js";
+import { htmlNav, manejarNav } from "./nav.js";
 import { mostrarDetallePlan } from "./panel-detalle.js";
 
 /**
@@ -108,7 +108,6 @@ export function montarPlanes(ctx: Ctx, nav: Nav): () => void {
       ${estado.planes.length > 0 ? `<p class="hint" style="text-align:center;">Los planes de configuración generan una sesión fresca cada vez; los "a medida" ejecutan los ejercicios que elegiste. Ambos usan tu nivel actual.</p>` : ""}
       ${htmlNav("planes")}
     `;
-    activarIndicador(raiz, "planes");
     if (!animado) {
       animado = true;
       animarEntrada(raiz);

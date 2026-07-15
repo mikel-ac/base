@@ -1,7 +1,7 @@
 import { claveDia } from "../core/fechas.js";
 import { animarEntrada, aviso, esc, VALORACION_TEXTO } from "./comunes.js";
 import { mostrarDetalleEjercicio } from "./detalle-ejercicio.js";
-import { activarIndicador, htmlNav, manejarNav } from "./nav.js";
+import { htmlNav, manejarNav } from "./nav.js";
 /**
  * PANTALLA DE HISTORIAL (§4): sesiones agrupadas por día, de la más
  * reciente a la más antigua, con los totales del día. Tocar una sesión
@@ -83,7 +83,6 @@ export function montarHistorial(ctx, nav) {
       ${cuerpo}
       ${htmlNav("historial")}
     `;
-        activarIndicador(raiz, "historial");
         if (!animado) {
             animado = true;
             animarEntrada(raiz);

@@ -51,7 +51,7 @@ export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => voi
           <button class="chip ${valoracion === "en_su_punto" ? "on" : ""}" data-valoracion="en_su_punto">En su punto</button>
           <button class="chip ${valoracion === "dura" ? "on" : ""}" data-valoracion="dura">Dura</button>
         </div>
-        <p class="hint">Opcional, pero es lo que afina tu nivel: sube despacio, baja rápido.</p>
+        <p class="hint">Opcional: cómo lo has sentido queda en tu historial.</p>
       </div>
 
       <div>
@@ -80,7 +80,7 @@ export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => voi
       const kcal = kcalTexto === "" ? null : Math.max(0, Math.round(Number(kcalTexto)));
 
       const usuario = await app.repos.usuarios.obtenerActivo();
-      const resultado = await app.usecases.registrarSesion.ejecutar(usuario, plan, {
+      await app.usecases.registrarSesion.ejecutar(usuario, plan, {
         valoracion,
         kcal: Number.isFinite(kcal as number) ? kcal : null,
         nota,
@@ -90,13 +90,7 @@ export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => voi
       // Sube el historial recién guardado a la nube si hay sesión iniciada.
       void app.sync.sincronizar();
 
-      if (resultado.nivelNuevo > resultado.nivelAnterior) {
-        aviso(`Guardada. Nivel: ${resultado.nivelAnterior.toFixed(2)} → ${resultado.nivelNuevo.toFixed(2)} (subiendo despacio).`);
-      } else if (resultado.nivelNuevo < resultado.nivelAnterior) {
-        aviso(`Guardada. Nivel: ${resultado.nivelAnterior.toFixed(2)} → ${resultado.nivelNuevo.toFixed(2)} (mañana será más llevadero).`);
-      } else {
-        aviso("Sesión guardada.");
-      }
+      aviso("Sesión guardada.");
       nav.aInicio();
     } catch (e) {
       guardando = false;

@@ -1,3 +1,4 @@
+import { marcarCatalogoModificado } from "./overrides.js";
 /**
  * COLORES DE GOMA configurables.
  *
@@ -46,7 +47,7 @@ export function leerColoresGoma(): ColorGoma[] {
 export function guardarColoresGoma(lista: ColorGoma[]): void {
   try {
     localStorage.setItem(CLAVE, JSON.stringify(lista));
-    localStorage.setItem("base.catalogo_ts", String(Date.now()));
+    marcarCatalogoModificado(); // los colores viajan en el catálogo compartido
   } catch {
     /* almacenamiento no disponible */
   }

@@ -27,6 +27,17 @@ export interface OverrideEjercicio {
      */
     urlMedia?: string;
 }
+/**
+ * Marca el catálogo local como recién modificado, para que la sincronización
+ * sepa que este dispositivo tiene cambios que SUBIR a la nube.
+ *
+ * Sin esto, editar un ejercicio no actualizaba el sello de tiempo del
+ * catálogo, así que al sincronizar el dispositivo creía que su copia no era
+ * más nueva que la nube y BAJABA en vez de SUBIR: el cambio no viajaba nunca
+ * a los demás dispositivos. Se llama desde cada escritura del catálogo, pero
+ * NO desde importarTextos (esa es la bajada desde la nube, no una edición).
+ */
+export declare function marcarCatalogoModificado(): void;
 export declare function leerOverrides(): Record<string, OverrideEjercicio>;
 export declare function guardarOverride(id: string, ov: OverrideEjercicio): void;
 /** Aplica las modificaciones del usuario sobre el catálogo base. */

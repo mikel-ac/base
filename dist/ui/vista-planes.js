@@ -3,7 +3,7 @@ import { generarSesion } from "../domain/usecases/generar-sesion.js";
 import { expandirEntrenamiento } from "../domain/usecases/expandir-entrenamiento.js";
 import { zonaDesdePatrones } from "../state/configurador-store.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
-import { activarIndicador, htmlNav, manejarNav } from "./nav.js";
+import { htmlNav, manejarNav } from "./nav.js";
 import { mostrarDetallePlan } from "./panel-detalle.js";
 /**
  * PANTALLA DE PLANES GUARDADOS (§4). Un plan guarda tu CONFIGURACIÓN
@@ -95,7 +95,6 @@ export function montarPlanes(ctx, nav) {
       ${estado.planes.length > 0 ? `<p class="hint" style="text-align:center;">Los planes de configuración generan una sesión fresca cada vez; los "a medida" ejecutan los ejercicios que elegiste. Ambos usan tu nivel actual.</p>` : ""}
       ${htmlNav("planes")}
     `;
-        activarIndicador(raiz, "planes");
         if (!animado) {
             animado = true;
             animarEntrada(raiz);

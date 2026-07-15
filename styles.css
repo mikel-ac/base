@@ -117,9 +117,7 @@ body {
 .hd { display: flex; justify-content: space-between; align-items: flex-start; }
 .brand { font-family: var(--fd); font-size: 26px; font-weight: 400; line-height: 1; text-transform: uppercase; letter-spacing: .02em; }
 .date { font-size: 11px; color: var(--soft); margin: 5px 0 0; text-transform: uppercase; letter-spacing: .05em; }
-.hd-derecha { display: flex; align-items: center; gap: 8px; }
 /* El indicador de nivel se oculta por decisión de producto (no aporta). */
-.lvl { display: none; }
 .scr-title { font-family: var(--fd); font-size: 26px; font-weight: 400; margin: 2px 0 6px; text-transform: uppercase; letter-spacing: .02em; }
 .back {
   align-self: flex-start; border: none; background: none; color: var(--soft);
@@ -153,7 +151,7 @@ body {
 .card.sug .lbl::before { background: var(--accent); }
 .sug-t { font-family: var(--fd); font-size: 22px; font-weight: 400; color: var(--ink); text-transform: uppercase; line-height: 1.02; }
 .sug-s { font-size: 11px; color: var(--soft); margin: 5px 0 13px; text-transform: uppercase; letter-spacing: .03em; }
-.hint, .pista { font-size: 11px; color: var(--soft); margin: 8px 0 0; line-height: 1.5; }
+.hint { font-size: 11px; color: var(--soft); margin: 8px 0 0; line-height: 1.5; }
 .goal-txt { font-size: 11px; color: var(--soft); margin: 9px 0 0; text-transform: uppercase; letter-spacing: .03em; }
 
 /* Puntitos del objetivo semanal -> cuadrados brutalistas */
@@ -336,7 +334,6 @@ body {
 .ex { margin-top: 4px; }
 .ex-n { font-family: var(--fd); font-size: 22px; font-weight: 400; text-transform: uppercase; line-height: 1.05; }
 .ex-v { font-size: 10px; color: var(--accent-ink); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
-.ex-c { font-size: 11px; color: var(--soft); margin: 10px 0 0; max-width: 100%; line-height: 1.5; }
 .ctrls { display: flex; gap: 8px; width: 100%; margin-top: auto; padding-top: 14px; }
 .ctrls .btn { flex: 1; }
 .runner-extra { width: 100%; padding: 10px 0 2px; display: flex; justify-content: space-between; align-items: center; }
@@ -405,13 +402,6 @@ body {
 .pcard-head .k { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
 .pcard-head .v { font-family: var(--fd); font-size: 15px; color: var(--accent-ink); }
 
-/* Nivel: número grande protagonista */
-.nivel-big { display: flex; align-items: baseline; gap: 10px; }
-.nivel-big .n { font-family: var(--fd); font-size: 52px; line-height: .9; }
-.nivel-big .of { font-size: 11px; color: var(--soft); text-transform: uppercase; }
-.nivel-track { height: 6px; background: var(--line-soft); position: relative; margin: 14px 0 0; }
-.nivel-track i { position: absolute; top: -3px; width: 12px; height: 12px; background: var(--accent); transform: translateX(-50%); transition: left .5s var(--curva); }
-.nivel-ext { display: flex; justify-content: space-between; font-size: 9px; color: var(--soft); text-transform: uppercase; margin: 9px 0 12px; letter-spacing: .03em; }
 
 /* Semana: dots gruesos + texto */
 .wk-dots { display: flex; gap: 8px; margin-bottom: 10px; }
@@ -574,7 +564,6 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
   .timer { max-width: 340px; }
   .num { font-size: 108px; }
   .ex-n { font-size: 28px; }
-  .ex-c { font-size: 13px; }
 }
 @media (min-width: 1024px) {
   #app { max-width: 720px; }

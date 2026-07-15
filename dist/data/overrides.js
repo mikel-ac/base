@@ -11,7 +11,7 @@ const CLAVE_BORRADOS = "base.ejercicios_borrados";
  * a los demás dispositivos. Se llama desde cada escritura del catálogo, pero
  * NO desde importarTextos (esa es la bajada desde la nube, no una edición).
  */
-function marcarCatalogoModificado() {
+export function marcarCatalogoModificado() {
     try {
         localStorage.setItem("base.catalogo_ts", String(Date.now()));
     }

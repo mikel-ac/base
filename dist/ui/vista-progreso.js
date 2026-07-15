@@ -1,6 +1,5 @@
-import { NIVEL_MAX, NIVEL_MIN } from "../domain/entities/tipos.js";
 import { animarEntrada, esc } from "./comunes.js";
-import { activarIndicador, htmlNav, manejarNav } from "./nav.js";
+import { htmlNav, manejarNav } from "./nav.js";
 /**
  * PANTALLA DE PROGRESO (§4): las métricas derivadas, sin editar nada.
  * Todo sale de CalcularMetricas (lógica probada); aquí solo se pinta.
@@ -11,23 +10,13 @@ const TENDENCIA_TEXTO = {
     estable: "→ Estable",
     bajando: "↓ Bajando",
 };
-/** Etiqueta cualitativa del nivel según su valor. */
-function etiquetaNivel(n) {
-    if (n < 1.7)
-        return "Suave";
-    if (n < 2.4)
-        return "Medio";
-    return "Fuerte";
-}
 /** Etiqueta corta de una semana ISO ("2026-W27" → "S27"). */
 function etiquetaSemana(semanaISO) {
     return "S" + semanaISO.split("-W")[1];
 }
 export function montarProgreso(ctx, nav) {
     const { raiz, app } = ctx;
-    function pintar(usuario, m) {
-        // --- nivel: porcentaje para la barra y etiqueta cualitativa ---
-        const porcentajeNivel = ((m.nivelActual - NIVEL_MIN) / (NIVEL_MAX - NIVEL_MIN)) * 100;
+    function pintar(_usuario, m) {
         // --- gráfica de volumen: altura = minutos; semanas a cero = línea fina ---
         const maxMinutos = Math.max(...m.volumenPorSemana.map((v) => v.minutos), 1);
         const hayVolumen = m.volumenPorSemana.some((v) => v.sesiones > 0);
@@ -72,14 +61,6 @@ export function montarProgreso(ctx, nav) {
       <h1 class="scr-title">Progreso</h1>
 
       <div class="pcard">
-        <div class="pcard-head"><span class="k">Tu nivel</span><span class="v">${esc(etiquetaNivel(m.nivelActual))}</span></div>
-        <div class="nivel-big"><span class="n">${m.nivelActual.toFixed(1)}</span><span class="of">/ ${NIVEL_MAX.toFixed(1)}</span></div>
-        <div class="nivel-track"><i style="left: ${porcentajeNivel}%;"></i></div>
-        <div class="nivel-ext"><span>Suave</span><span>Medio</span><span>Fuerte</span></div>
-        <p class="hint" style="margin-bottom:0;">Se ajusta solo con tus valoraciones: sube despacio, baja rápido.</p>
-      </div>
-
-      <div class="pcard">
         <div class="pcard-head"><span class="k">Esta semana</span><span class="v">${TENDENCIA_TEXTO[m.tendenciaSesiones]}</span></div>
         <div class="wk-dots">${dots}</div>
         <p class="wk-txt"><span class="wk-big">${m.sesionesEstaSemana} de ${m.objetivoSemanal}</span> · ${esc(semanasTexto)}</p>
@@ -100,7 +81,6 @@ export function montarProgreso(ctx, nav) {
 
       ${htmlNav("progreso")}
     `;
-        activarIndicador(raiz, "progreso");
         animarEntrada(raiz);
     }
     function alPulsar(ev) {

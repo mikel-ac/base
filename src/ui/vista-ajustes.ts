@@ -8,6 +8,7 @@ import { fijarTema, temaActual, type Tema } from "./tema.js";
 import { iniciarSesionGoogle, cerrarSesion, type User } from "../data/firebase/firebase-auth.js";
 import type { EstadoSync } from "../data/firebase/sync-service.js";
 import { mostrarEditorGomas } from "./editor-gomas.js";
+import { htmlNav, manejarNav } from "./nav.js";
 
 /**
  * PANTALLA DE AJUSTES / PERFIL (guía §7): nombre, objetivo semanal,
@@ -42,7 +43,6 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
     actualizarBloqueCuenta();
   });
 
-  raiz.classList.add("sin-nav");
 
   // ---------- Bloque "Cuenta y sincronización" ----------
   const ESTADO_TEXTO: Record<EstadoSync, string> = {
@@ -146,7 +146,6 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
       .join("");
 
     raiz.innerHTML = `
-      <button class="back" data-accion="volver">← Inicio</button>
       <h1 class="scr-title">Ajustes</h1>
 
       <div>
@@ -194,6 +193,7 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
         <button class="btn wide" data-accion="colores-goma" style="margin-top:10px">Colores de goma</button>
         <p class="hint">Editar la lista de colores que puedes asignar a los ejercicios con gomas.</p>
       </div>
+      ${htmlNav("ajustes")}
     `;
 
     if (!animado) {
@@ -210,7 +210,9 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
 
   function alPulsar(ev: Event): void {
     const boton = (ev.target as HTMLElement).closest<HTMLElement>("button");
-    if (!boton || !usuario) return;
+    if (!boton) return;
+    if (manejarNav(boton, nav, "ajustes")) return;
+    if (!usuario) return;
     const u = usuario;
     const d = boton.dataset;
 
@@ -272,7 +274,6 @@ export function montarAjustes(ctx: Ctx, nav: Nav): () => void {
 
   return () => {
     raiz.removeEventListener("click", alPulsar);
-    raiz.classList.remove("sin-nav");
     desuscribirSync();
   };
 }
