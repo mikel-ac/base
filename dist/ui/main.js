@@ -1,4 +1,5 @@
 import { crearApp } from "../app.js";
+import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
 import { esc } from "./comunes.js";
 import { aplicarTema, temaActual } from "./tema.js";
 import { montarConfigurador } from "./vista-configurador.js";
@@ -24,8 +25,15 @@ async function arrancar() {
     aplicarTema(temaActual()); // por si el guion del index no pudo ejecutarse
     try {
         const app = await crearApp();
-        const catalogo = await app.repos.ejercicios.todos();
-        const ctx = { app, catalogo, raiz };
+        // El catálogo se lee en vivo en cada acceso (ver Ctx): así las vistas ven
+        // siempre los ejercicios propios y los que llegan por sincronización.
+        const ctx = {
+            app,
+            get catalogo() {
+                return cargarCatalogo();
+            },
+            raiz,
+        };
         const nav = {
             aInicio: () => cambiar(() => montarInicio(ctx, nav)),
             aConfigurador: () => cambiar(() => montarConfigurador(ctx, nav)),

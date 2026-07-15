@@ -12,6 +12,15 @@ import type { PlanGuardado } from "../domain/entities/plan-guardado.js";
  */
 export interface Ctx {
     app: App;
+    /**
+     * Catálogo VIVO: se relee en cada acceso (getter), no es una foto del
+     * arranque. Es importante: los ejercicios propios se crean en el Gestor y la
+     * sincronización trae los de otros dispositivos DESPUÉS de arrancar la app.
+     * Con una copia congelada, las vistas no veían esos ejercicios y llegaban a
+     * descartarlos como "eliminados" (p. ej. al usar un entrenamiento a medida).
+     * Cargarlo es barato (objeto embebido + overrides) y cada vista lo lee una
+     * vez al montarse.
+     */
     catalogo: Ejercicio[];
     raiz: HTMLElement;
 }

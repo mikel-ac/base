@@ -58,7 +58,11 @@ export function montarGestor(ctx, nav) {
         }
         let cuerpo = "";
         for (const g of TIPOS) {
-            const delGrupo = lista.filter((e) => e.tipo === g);
+            // Dentro de cada grupo, orden alfabético. Con locale español para que
+            // acentos y eñes ordenen donde toca ("añadir" tras "anillo", no al final).
+            const delGrupo = lista
+                .filter((e) => e.tipo === g)
+                .sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
             if (delGrupo.length === 0)
                 continue;
             cuerpo += `<p class="dayh">${TIPO_ETIQUETA[g]}</p>`;

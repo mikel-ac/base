@@ -630,7 +630,13 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
   transition: transform .14s var(--curva-seco), border-color .14s, color .14s;
 }
 .goma-chip:active { transform: scale(.94); }
-.goma-chip.on { border-color: var(--accent); color: var(--ink); font-weight: 700; }
+/* Seleccionado: se rellena igual que los chips normales. Antes solo cambiaba
+   el borde a --accent, que en modo claro es el MISMO color que --line: no se
+   notaba nada al elegir. */
+.goma-chip.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+/* La muestra de color necesita un filo claro sobre el chip relleno (si el
+   color de la goma es negro, si no se perdería contra el fondo). */
+.goma-chip.on .goma-muestra { border-color: rgba(255,255,255,.65); }
 .goma-muestra {
   width: 16px; height: 16px; border-radius: 50%;
   border: 1px solid rgba(0,0,0,.25); flex: none; display: inline-block;

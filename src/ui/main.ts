@@ -2,6 +2,7 @@ import { crearApp, type App } from "../app.js";
 import type { PlanSesion } from "../domain/entities/configuracion.js";
 import type { RunnerState } from "../state/runner.js";
 import type { Ejercicio } from "../domain/entities/ejercicio.js";
+import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
 import { esc } from "./comunes.js";
 import { aplicarTema, temaActual } from "./tema.js";
 import { montarConfigurador } from "./vista-configurador.js";
@@ -28,6 +29,15 @@ import { leerRegistroPendiente } from "./registro-pendiente.js";
 
 export interface Ctx {
   app: App;
+  /**
+   * Catálogo VIVO: se relee en cada acceso (getter), no es una foto del
+   * arranque. Es importante: los ejercicios propios se crean en el Gestor y la
+   * sincronización trae los de otros dispositivos DESPUÉS de arrancar la app.
+   * Con una copia congelada, las vistas no veían esos ejercicios y llegaban a
+   * descartarlos como "eliminados" (p. ej. al usar un entrenamiento a medida).
+   * Cargarlo es barato (objeto embebido + overrides) y cada vista lo lee una
+   * vez al montarse.
+   */
   catalogo: Ejercicio[];
   raiz: HTMLElement;
 }
@@ -59,8 +69,15 @@ async function arrancar(): Promise<void> {
   aplicarTema(temaActual()); // por si el guion del index no pudo ejecutarse
   try {
     const app = await crearApp();
-    const catalogo = await app.repos.ejercicios.todos();
-    const ctx: Ctx = { app, catalogo, raiz };
+    // El catálogo se lee en vivo en cada acceso (ver Ctx): así las vistas ven
+    // siempre los ejercicios propios y los que llegan por sincronización.
+    const ctx: Ctx = {
+      app,
+      get catalogo(): Ejercicio[] {
+        return cargarCatalogo();
+      },
+      raiz,
+    };
 
     const nav: Nav = {
       aInicio: () => cambiar(() => montarInicio(ctx, nav)),
