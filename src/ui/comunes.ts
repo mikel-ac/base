@@ -40,3 +40,31 @@ export const VALORACION_TEXTO: Record<string, string> = {
   en_su_punto: "en su punto",
   dura: "dura",
 };
+
+/**
+ * Protege un modal de cerrarse por accidente al hacer scroll.
+ *
+ * En móvil, al arrastrar para desplazar el contenido, el dedo puede empezar o
+ * terminar sobre el velo (el fondo alrededor del panel) y el navegador emite
+ * un `click` en él: el modal se cerraba solo. Esta utilidad recuerda dónde
+ * empezó el gesto y expone `fueArrastre` para que quien maneja el click ignore
+ * los desplazamientos.
+ *
+ * Uso:
+ *   const gesto = protegerDeArrastre(velo);
+ *   velo.addEventListener("click", (ev) => {
+ *     if (objetivo === velo) { if (gesto.fueArrastre(ev)) return; cerrar(); }
+ *   });
+ */
+export function protegerDeArrastre(velo: HTMLElement, umbralPx = 10): { fueArrastre: (ev: MouseEvent) => boolean } {
+  let inicio: { x: number; y: number } | null = null;
+  velo.addEventListener("pointerdown", (ev) => {
+    inicio = { x: ev.clientX, y: ev.clientY };
+  });
+  return {
+    fueArrastre(ev: MouseEvent): boolean {
+      if (!inicio) return false;
+      return Math.abs(ev.clientX - inicio.x) > umbralPx || Math.abs(ev.clientY - inicio.y) > umbralPx;
+    },
+  };
+}

@@ -8,7 +8,7 @@
    - MEDIA_CACHE (persistente): los vídeos/imágenes de ./media/. NO se borra
      al actualizar la app: los vídeos no cambian con el código y volver a
      bajar cientos de MB tras cada versión sería un despilfarro. */
-const APP_CACHE = "base-v26";
+const APP_CACHE = "base-v27";
 const MEDIA_CACHE = "base-media";
 const CORE = [
   "./", "./index.html", "./styles.css", "./manifest.webmanifest",

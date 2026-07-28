@@ -1,4 +1,4 @@
-import { esc } from "./comunes.js";
+import { esc, protegerDeArrastre } from "./comunes.js";
 import { mostrarDetalleEjercicio } from "./detalle-ejercicio.js";
 /**
  * LISTA DE LA SESIÓN EN MARCHA: se abre desde el cronómetro para ver todo
@@ -19,6 +19,7 @@ export function mostrarListaSesion(pasos, indiceActual, alCerrar) {
     const htmlCalentamiento = bloque("calentamiento");
     const velo = document.createElement("div");
     velo.className = "velo";
+    const gesto = protegerDeArrastre(velo);
     velo.innerHTML = `
     <div class="panel" role="dialog" aria-label="Sesión completa">
       <h2>Tu sesión</h2>
@@ -36,6 +37,8 @@ export function mostrarListaSesion(pasos, indiceActual, alCerrar) {
     };
     velo.addEventListener("click", (ev) => {
         const objetivo = ev.target;
+        if (objetivo === velo && gesto.fueArrastre(ev))
+            return;
         if (objetivo === velo || objetivo.closest("[data-accion='cerrar-lista']")) {
             cerrar();
             return;

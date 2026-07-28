@@ -1,6 +1,6 @@
 import { ZONA_TRABAJO_ETIQUETA } from "../domain/entities/tipos.js";
 import { zonaTrabajoDe } from "../data/overrides.js";
-import { esc } from "./comunes.js";
+import { esc, protegerDeArrastre } from "./comunes.js";
 /**
  * SELECTOR DE SUSTITUCIÓN.
  *
@@ -17,6 +17,7 @@ export function abrirSelectorSustitucion(nombreActual, candidatos, alElegir) {
     const PORPAGINA = 3;
     const velo = document.createElement("div");
     velo.className = "velo";
+    const gesto = protegerDeArrastre(velo);
     function tarjeta(s, indiceGlobal) {
         const zona = ZONA_TRABAJO_ETIQUETA[zonaTrabajoDe(s.ejercicio)];
         const lados = s.ejercicio.porLados ? " · 2 lados" : "";
@@ -47,6 +48,8 @@ export function abrirSelectorSustitucion(nombreActual, candidatos, alElegir) {
     }
     velo.addEventListener("click", (ev) => {
         const objetivo = ev.target;
+        if (objetivo === velo && gesto.fueArrastre(ev))
+            return;
         if (objetivo === velo || objetivo.closest("[data-accion='cancelar']")) {
             velo.remove();
             return;

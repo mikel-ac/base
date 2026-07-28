@@ -1,6 +1,6 @@
 import { generarSesion } from "../domain/usecases/generar-sesion.js";
 import { candidatosSustitucion } from "../domain/usecases/sustituir-ejercicio.js";
-import { aviso, esc } from "./comunes.js";
+import { aviso, esc, protegerDeArrastre } from "./comunes.js";
 import { mostrarDetalleEjercicio } from "./detalle-ejercicio.js";
 import { abrirSelectorSustitucion } from "./selector-sustitucion.js";
 /**
@@ -30,7 +30,10 @@ export function mostrarDetallePlan(catalogo, planInicial, titulo, alEmpezar) {
     function render() {
         velo.innerHTML = `
       <div class="panel" role="dialog" aria-label="Detalle de la sesión">
-        <h2>${esc(titulo)}</h2>
+        <div class="panel-hd">
+          <h2>${esc(titulo)}</h2>
+          <button class="panel-x" data-accion="cerrar-panel" aria-label="Cerrar">✕</button>
+        </div>
         <p class="sub">${plan.cfg.durMin} min + ${plan.cfg.calentamientoMin} de calentamiento · intervalos de ${plan.cfg.workSec}/${plan.cfg.restSec}s</p>
         <p class="sub">Toca un ejercicio para su detalle, o &#10227; para cambiarlo por otro.</p>
         ${plan.calentamiento.length > 0 ? `<h3>Calentamiento</h3>
@@ -73,10 +76,23 @@ export function mostrarDetallePlan(catalogo, planInicial, titulo, alEmpezar) {
             }
         });
     }
+    // Un toque en el velo (fondo) cierra la previsualización, pero solo si es un
+    // toque de verdad: al hacer scroll el dedo puede acabar sobre el velo y el
+    // navegador lo reportaba como click, cerrando la sesión que revisabas.
+    const gesto = protegerDeArrastre(velo);
+    /** Cierra pidiendo confirmación: se pierde la sesión que estabas revisando. */
+    function pedirCierre() {
+        const ok = window.confirm("¿Descartar esta sesión?\n\nPerderás los cambios que hayas hecho aquí (sustituciones incluidas).");
+        if (ok)
+            velo.remove();
+    }
     velo.addEventListener("click", (ev) => {
         const objetivo = ev.target;
         if (objetivo === velo) {
-            velo.remove();
+            // Si el gesto fue un arrastre (scroll), no cerramos.
+            if (gesto.fueArrastre(ev))
+                return;
+            pedirCierre();
             return;
         }
         const sust = objetivo.closest("[data-sust]");
@@ -86,7 +102,14 @@ export function mostrarDetallePlan(catalogo, planInicial, titulo, alEmpezar) {
             return;
         }
         const accion = objetivo.closest("[data-accion]")?.dataset["accion"];
+        if (accion === "cerrar-panel") {
+            pedirCierre();
+            return;
+        }
         if (accion === "regenerar") {
+            const ok = window.confirm("¿Generar otra sesión distinta?\n\nSe perderán las sustituciones que hayas hecho.");
+            if (!ok)
+                return;
             const res = generarSesion(catalogo, plan.cfg);
             if (res.ok) {
                 plan = { ...res.valor, calentamiento: [...res.valor.calentamiento], principal: [...res.valor.principal] };

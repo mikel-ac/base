@@ -1,7 +1,7 @@
 import type { Sustituto } from "../domain/usecases/sustituir-ejercicio.js";
 import { ZONA_TRABAJO_ETIQUETA } from "../domain/entities/tipos.js";
 import { zonaTrabajoDe } from "../data/overrides.js";
-import { esc } from "./comunes.js";
+import { esc, protegerDeArrastre } from "./comunes.js";
 
 /**
  * SELECTOR DE SUSTITUCIÓN.
@@ -24,6 +24,7 @@ export function abrirSelectorSustitucion(
 
   const velo = document.createElement("div");
   velo.className = "velo";
+  const gesto = protegerDeArrastre(velo);
 
   function tarjeta(s: Sustituto, indiceGlobal: number): string {
     const zona = ZONA_TRABAJO_ETIQUETA[zonaTrabajoDe(s.ejercicio)];
@@ -57,6 +58,7 @@ export function abrirSelectorSustitucion(
 
   velo.addEventListener("click", (ev) => {
     const objetivo = ev.target as HTMLElement;
+    if (objetivo === velo && gesto.fueArrastre(ev)) return;
     if (objetivo === velo || objetivo.closest("[data-accion='cancelar']")) {
       velo.remove();
       return;

@@ -775,3 +775,15 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
   display: flex; align-items: center; gap: 8px; padding: 6px 8px;
 }
 .goma-edit-fila.arrastrando { opacity: .35; }
+
+/* Cabecera del panel modal con botón de cerrar explícito.
+   Importante para la previsualización de sesión: antes la única salida era
+   tocar el fondo, que se disparaba por accidente al hacer scroll. */
+.panel-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.panel-hd h2 { flex: 1; min-width: 0; }
+.panel-x {
+  flex: none; background: transparent; border: 2px solid var(--line); color: var(--ink);
+  width: 34px; height: 34px; font-size: 14px; line-height: 1; cursor: pointer;
+  font-family: var(--fb); display: flex; align-items: center; justify-content: center;
+}
+.panel-x:active { transform: scale(.94); }

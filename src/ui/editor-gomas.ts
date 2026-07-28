@@ -1,6 +1,6 @@
 import type { ColorGoma } from "../data/colores-goma.js";
 import { leerColoresGoma, guardarColoresGoma, idDesdeNombre } from "../data/colores-goma.js";
-import { aviso, esc } from "./comunes.js";
+import { aviso, esc, protegerDeArrastre } from "./comunes.js";
 
 /**
  * EDITOR DE COLORES DE GOMA (desde Ajustes).
@@ -20,6 +20,7 @@ export function mostrarEditorGomas(alGuardar?: () => void): void {
 
   const velo = document.createElement("div");
   velo.className = "velo";
+  const gesto = protegerDeArrastre(velo);
 
   function fila(c: ColorGoma & { _k: string }): string {
     return `
@@ -124,6 +125,7 @@ export function mostrarEditorGomas(alGuardar?: () => void): void {
 
   velo.addEventListener("click", (ev) => {
     const objetivo = ev.target as HTMLElement;
+    if (objetivo === velo && gesto.fueArrastre(ev)) return;
     if (objetivo === velo || objetivo.closest("[data-accion='cancelar']")) {
       velo.remove();
       return;
