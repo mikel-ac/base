@@ -787,3 +787,61 @@ textarea.field, select.field { width: 100%; font-family: var(--fb); font-size: 1
   font-family: var(--fb); display: flex; align-items: center; justify-content: center;
 }
 .panel-x:active { transform: scale(.94); }
+
+/* ============================================================
+   DIÁLOGOS PROPIOS (sustituyen a confirm/prompt del navegador)
+   z-index 80: por encima de cualquier panel, incluidos los
+   fantasmas de arrastre (60) y la pantalla completa (30).
+   ============================================================ */
+.dlg-velo {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(0, 0, 0, .62);
+  display: flex; align-items: center; justify-content: center;
+  padding: 22px 18px;
+  animation: dlg-fondo .16s ease both;
+}
+@keyframes dlg-fondo { from { opacity: 0; } to { opacity: 1; } }
+
+.dlg {
+  width: 100%; max-width: 380px; max-height: 86vh; overflow-y: auto;
+  background: var(--card); border: 3px solid var(--line);
+  box-shadow: var(--btn-shadow);
+  padding: 20px 18px 18px;
+  animation: dlg-entra .2s var(--curva) both;
+}
+@keyframes dlg-entra {
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.dlg-t {
+  font-family: var(--fd); font-weight: 400; font-size: 21px; line-height: 1.1;
+  text-transform: uppercase; margin: 0 0 10px; color: var(--ink);
+}
+.dlg-x { font-size: 12px; line-height: 1.55; color: var(--soft); margin: 0 0 4px; white-space: pre-line; }
+
+/* Filas del repaso previo (material / tipo de entrenamiento…) */
+.dlg-filas { margin: 14px 0 4px; border-top: 1px solid var(--line-soft); }
+.dlg-fila { padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+.dlg-fila-k {
+  display: block; font-size: 9px; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--soft); margin-bottom: 4px;
+}
+.dlg-fila-v { display: block; font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.4; }
+.dlg-fila-v.ojo { color: var(--danger-ink); }
+
+.dlg-campo { width: 100%; margin: 12px 0 4px; }
+
+.dlg-pie { display: flex; gap: 9px; margin-top: 18px; }
+.dlg-btn { flex: 1; min-height: 46px; }
+/* Acción destructiva: se pinta en rojo para que no se confunda con seguir. */
+.btn.primary.dlg-peligro {
+  background: var(--danger); border-color: var(--danger); color: #FFFFFF;
+  box-shadow: 4px 4px 0 var(--danger-ink);
+}
+
+/* En pantallas estrechas, los botones se apilan para que quepan sin apretarse
+   (etiquetas como "Seguir revisando" no caben en media línea). */
+@media (max-width: 360px) {
+  .dlg-pie { flex-direction: column-reverse; }
+}

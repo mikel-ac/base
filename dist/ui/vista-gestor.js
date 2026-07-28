@@ -4,6 +4,7 @@ import { guardarOverride, zonaTrabajoDe, esAnadido, crearEjercicioUsuario, actua
 import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario, exportarMedios, importarMedios } from "../data/media-usuario.js";
 import { leerColoresGoma } from "../data/colores-goma.js";
 import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
+import { confirmar } from "./dialogo.js";
 /**
  * GESTOR DE EJERCICIOS (v2). Buscar/filtrar, editar (nombre, tipo, explicación,
  * claves, notas, zona, unilateral, imagen/vídeo) y crear/eliminar ejercicios.
@@ -290,6 +291,18 @@ export function montarGestor(ctx, nav) {
         const e = items.find((x) => x.id === editandoId);
         if (!e)
             return;
+        void confirmar({
+            titulo: "¿Borrar este ejercicio?",
+            texto: `"${e.nombre}" se quitará de tu catálogo, junto con el vídeo que tenga subido. No se puede deshacer.`,
+            aceptar: "Borrar",
+            cancelar: "Conservar",
+            peligro: true,
+        }).then((ok) => {
+            if (ok)
+                eliminarConfirmado(e);
+        });
+    }
+    function eliminarConfirmado(e) {
         eliminarEjercicio(e.id);
         void borrarMediaUsuario(e.id);
         const i = items.indexOf(e);
@@ -450,8 +463,18 @@ export function montarGestor(ctx, nav) {
         if (d["accion"] === "quitar-media") {
             if (editandoId) {
                 const id = editandoId;
-                void borrarMediaUsuario(id).then(() => pintarMediaPrev());
-                aviso("Medio propio quitado");
+                void confirmar({
+                    titulo: "¿Quitar el vídeo?",
+                    texto: "Se borrará de este dispositivo. Si lo tienes enlazado por URL, esa seguirá funcionando.",
+                    aceptar: "Quitar",
+                    cancelar: "Conservar",
+                    peligro: true,
+                }).then((ok) => {
+                    if (!ok)
+                        return;
+                    void borrarMediaUsuario(id).then(() => pintarMediaPrev());
+                    aviso("Vídeo quitado");
+                });
             }
             return;
         }

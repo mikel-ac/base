@@ -1,6 +1,7 @@
 import type { PlanSesion } from "../domain/entities/configuracion.js";
 import type { Valoracion } from "../domain/entities/tipos.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
+import { confirmar } from "./dialogo.js";
 import {
   borrarRegistroPendiente,
   guardarRegistroPendiente,
@@ -113,10 +114,17 @@ export function montarRegistrar(ctx: Ctx, nav: Nav, plan: PlanSesion): () => voi
 
     if (boton.dataset["accion"] === "guardar") void guardar();
     if (boton.dataset["accion"] === "descartar") {
-      if (window.confirm("¿Salir sin guardar esta sesión?")) {
+      void confirmar({
+        titulo: "¿Salir sin guardar?",
+        texto: "Esta sesión no quedará registrada en tu historial.",
+        aceptar: "Salir sin guardar",
+        cancelar: "Seguir aquí",
+        peligro: true,
+      }).then((ok) => {
+        if (!ok) return;
         borrarRegistroPendiente();
         nav.aInicio();
-      }
+      });
     }
   }
 

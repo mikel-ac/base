@@ -3,6 +3,13 @@ import { numEjerciciosPara } from "../domain/usecases/generar-sesion.js";
 import { clamp, redondear2 } from "../core/util.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
 import { mostrarDetallePlan } from "./panel-detalle.js";
+import { confirmarResumen, pedirTexto } from "./dialogo.js";
+/** Etiquetas legibles del tipo de entrenamiento (para el repaso previo). */
+const FOCUS_ETIQUETA = {
+    fuerza: "Fuerza",
+    cardio: "Cardio",
+    movilidad: "Movilidad",
+};
 /**
  * PANTALLA "MONTAR A MEDIDA" con la capa visual Bloques: chips píldora,
  * segmentado de nivel, toggle, disclosure "Hoy me molesta algo" (plegado)
@@ -201,21 +208,59 @@ export function montarConfigurador(ctx, nav) {
                 pintar(configurador.obtener());
                 break;
             case "generar": {
-                const res = configurador.generar(catalogo, u);
-                if (res.ok)
-                    mostrarDetallePlan(catalogo, res.valor, "Tu sesión a medida", (p) => nav.aSesion(p));
-                else
-                    aviso(res.error);
+                // Repaso previo: material y tipo de entrenamiento son los campos que
+                // más se pasan por alto (p. ej. tener gomas y no marcarlas).
+                const s = configurador.obtener();
+                const sinMaterial = s.material.length === 0;
+                void confirmarResumen({
+                    titulo: "Antes de generar",
+                    texto: "Repasa lo que vas a usar. Si algo no cuadra, edítalo.",
+                    filas: [
+                        {
+                            etiqueta: "Material disponible",
+                            valor: sinMaterial
+                                ? "Ninguno (solo peso corporal)"
+                                : s.material.map((m) => MATERIAL_ETIQUETA[m]).join(", "),
+                            ojo: sinMaterial,
+                        },
+                        {
+                            etiqueta: "Tipo de entrenamiento",
+                            valor: s.focus.length > 0 ? s.focus.map((f) => FOCUS_ETIQUETA[f] ?? f).join(" + ") : "Sin definir",
+                            ojo: s.focus.length === 0,
+                        },
+                    ],
+                    aceptar: "Generar",
+                    cancelar: "Editar",
+                }).then((seguir) => {
+                    if (!seguir)
+                        return;
+                    const res = configurador.generar(catalogo, u);
+                    if (res.ok)
+                        mostrarDetallePlan(catalogo, res.valor, "Tu sesión a medida", (p) => nav.aSesion(p));
+                    else
+                        aviso(res.error);
+                });
                 break;
             }
             case "guardar-plan": {
-                const nombre = window.prompt("Nombre del plan (por ejemplo: Mañanas suaves):");
-                if (nombre === null)
-                    return;
-                void app.stores.planes
-                    .guardar(u.id, nombre, configurador.configPara(u))
-                    .then(() => aviso("Plan guardado. Lo verás en la pestaña Planes."))
-                    .catch(() => aviso("No se pudo guardar el plan."));
+                void pedirTexto({
+                    titulo: "Guardar plantilla",
+                    texto: "Ponle un nombre para reconocerla en la pestaña Planes.",
+                    placeholder: "Por ejemplo: Mañanas suaves",
+                    aceptar: "Guardar",
+                }).then((nombre) => {
+                    // null = cancelado. Cadena vacía = nombre en blanco: no guardamos.
+                    if (nombre === null)
+                        return;
+                    if (nombre.trim() === "") {
+                        aviso("Ponle un nombre a la plantilla.");
+                        return;
+                    }
+                    void app.stores.planes
+                        .guardar(u.id, nombre.trim(), configurador.configPara(u))
+                        .then(() => aviso("Plantilla guardada. La verás en la pestaña Planes."))
+                        .catch(() => aviso("No se pudo guardar la plantilla."));
+                });
                 break;
             }
         }

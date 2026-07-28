@@ -3,6 +3,7 @@ import type { Ejercicio } from "../domain/entities/ejercicio.js";
 import { generarSesion } from "../domain/usecases/generar-sesion.js";
 import { candidatosSustitucion } from "../domain/usecases/sustituir-ejercicio.js";
 import { aviso, esc, protegerDeArrastre } from "./comunes.js";
+import { confirmar } from "./dialogo.js";
 import { mostrarDetalleEjercicio } from "./detalle-ejercicio.js";
 import { abrirSelectorSustitucion } from "./selector-sustitucion.js";
 
@@ -96,10 +97,15 @@ export function mostrarDetallePlan(
 
   /** Cierra pidiendo confirmación: se pierde la sesión que estabas revisando. */
   function pedirCierre(): void {
-    const ok = window.confirm(
-      "¿Descartar esta sesión?\n\nPerderás los cambios que hayas hecho aquí (sustituciones incluidas)."
-    );
-    if (ok) velo.remove();
+    void confirmar({
+      titulo: "¿Descartar esta sesión?",
+      texto: "Perderás los cambios que hayas hecho aquí, incluidas las sustituciones.",
+      aceptar: "Descartar",
+      cancelar: "Seguir revisando",
+      peligro: true,
+    }).then((ok) => {
+      if (ok) velo.remove();
+    });
   }
 
   velo.addEventListener("click", (ev) => {
@@ -122,15 +128,21 @@ export function mostrarDetallePlan(
       return;
     }
     if (accion === "regenerar") {
-      const ok = window.confirm("¿Generar otra sesión distinta?\n\nSe perderán las sustituciones que hayas hecho.");
-      if (!ok) return;
-      const res = generarSesion(catalogo, plan.cfg);
-      if (res.ok) {
-        plan = { ...res.valor, calentamiento: [...res.valor.calentamiento], principal: [...res.valor.principal] };
-        render();
-      } else {
-        aviso(res.error);
-      }
+      void confirmar({
+        titulo: "¿Generar otra sesión?",
+        texto: "Se creará una sesión distinta y se perderán las sustituciones que hayas hecho.",
+        aceptar: "Generar otra",
+        cancelar: "Conservar esta",
+      }).then((ok) => {
+        if (!ok) return;
+        const res = generarSesion(catalogo, plan.cfg);
+        if (res.ok) {
+          plan = { ...res.valor, calentamiento: [...res.valor.calentamiento], principal: [...res.valor.principal] };
+          render();
+        } else {
+          aviso(res.error);
+        }
+      });
       return;
     }
     if (accion === "empezar") {

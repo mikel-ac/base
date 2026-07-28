@@ -8,6 +8,7 @@ import type { Ejercicio } from "../domain/entities/ejercicio.js";
 import { mostrarListaSesion } from "./lista-sesion.js";
 import { guardarRegistroPendiente } from "./registro-pendiente.js";
 import { colorGomaPorId } from "../data/colores-goma.js";
+import { confirmar } from "./dialogo.js";
 import type { Ctx, Nav } from "./main.js";
 
 /** Previsualización del siguiente ejercicio durante el descanso/prepárate:
@@ -376,7 +377,21 @@ export function montarSesion(ctx: Ctx, nav: Nav, plan: PlanSesion, estadoInicial
         despachar({ tipo: "SALTAR" });
         break;
       case "terminar":
-        if (window.confirm("¿Terminar la sesión aquí?")) despachar({ tipo: "TERMINAR" });
+        // El diálogo propio NO congela el hilo como hacía window.confirm, así
+        // que el cronómetro seguiría corriendo mientras decides. Pausamos el
+        // runner mientras está abierto y reanudamos si el usuario sigue.
+        abrirConPausa((alCerrar) => {
+          void confirmar({
+            titulo: "¿Terminar la sesión aquí?",
+            texto: "El entrenamiento está en pausa mientras decides. Si terminas, podrás registrar lo que has hecho.",
+            aceptar: "Terminar",
+            cancelar: "Seguir entrenando",
+            peligro: true,
+          }).then((ok) => {
+            if (ok) despachar({ tipo: "TERMINAR" });
+            else alCerrar();
+          });
+        });
         break;
     }
   }

@@ -1,4 +1,5 @@
 import { animarEntrada, aviso, esc } from "./comunes.js";
+import { confirmar } from "./dialogo.js";
 import { borrarRegistroPendiente, guardarRegistroPendiente, leerRegistroPendiente, } from "./registro-pendiente.js";
 /**
  * PANTALLA DE REGISTRO al terminar (capa Bloques): las tres opciones como
@@ -98,10 +99,18 @@ export function montarRegistrar(ctx, nav, plan) {
         if (boton.dataset["accion"] === "guardar")
             void guardar();
         if (boton.dataset["accion"] === "descartar") {
-            if (window.confirm("¿Salir sin guardar esta sesión?")) {
+            void confirmar({
+                titulo: "¿Salir sin guardar?",
+                texto: "Esta sesión no quedará registrada en tu historial.",
+                aceptar: "Salir sin guardar",
+                cancelar: "Seguir aquí",
+                peligro: true,
+            }).then((ok) => {
+                if (!ok)
+                    return;
                 borrarRegistroPendiente();
                 nav.aInicio();
-            }
+            });
         }
     }
     function alEscribir() {

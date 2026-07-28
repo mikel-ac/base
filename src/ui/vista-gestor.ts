@@ -16,6 +16,7 @@ import {
 import { urlMediaUsuario, guardarMediaUsuario, borrarMediaUsuario, exportarMedios, importarMedios } from "../data/media-usuario.js";
 import { leerColoresGoma } from "../data/colores-goma.js";
 import { cargarCatalogo } from "../data/seed/cargar-catalogo.js";
+import { confirmar } from "./dialogo.js";
 import type { Ctx, Nav } from "./main.js";
 
 /**
@@ -316,6 +317,18 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
   function eliminar(): void {
     const e = items.find((x) => x.id === editandoId);
     if (!e) return;
+    void confirmar({
+      titulo: "¿Borrar este ejercicio?",
+      texto: `"${e.nombre}" se quitará de tu catálogo, junto con el vídeo que tenga subido. No se puede deshacer.`,
+      aceptar: "Borrar",
+      cancelar: "Conservar",
+      peligro: true,
+    }).then((ok) => {
+      if (ok) eliminarConfirmado(e);
+    });
+  }
+
+  function eliminarConfirmado(e: Ejercicio): void {
     eliminarEjercicio(e.id);
     void borrarMediaUsuario(e.id);
     const i = items.indexOf(e);
@@ -458,8 +471,17 @@ export function montarGestor(ctx: Ctx, nav: Nav): () => void {
     if (d["accion"] === "quitar-media") {
       if (editandoId) {
         const id = editandoId;
-        void borrarMediaUsuario(id).then(() => pintarMediaPrev());
-        aviso("Medio propio quitado");
+        void confirmar({
+          titulo: "¿Quitar el vídeo?",
+          texto: "Se borrará de este dispositivo. Si lo tienes enlazado por URL, esa seguirá funcionando.",
+          aceptar: "Quitar",
+          cancelar: "Conservar",
+          peligro: true,
+        }).then((ok) => {
+          if (!ok) return;
+          void borrarMediaUsuario(id).then(() => pintarMediaPrev());
+          aviso("Vídeo quitado");
+        });
       }
       return;
     }

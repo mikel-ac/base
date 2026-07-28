@@ -3,6 +3,7 @@ import { generarSesion } from "../domain/usecases/generar-sesion.js";
 import { expandirEntrenamiento } from "../domain/usecases/expandir-entrenamiento.js";
 import { zonaDesdePatrones } from "../state/configurador-store.js";
 import { animarEntrada, aviso, esc } from "./comunes.js";
+import { confirmar } from "./dialogo.js";
 import { htmlNav, manejarNav } from "./nav.js";
 import { mostrarDetallePlan } from "./panel-detalle.js";
 /**
@@ -155,9 +156,18 @@ export function montarPlanes(ctx, nav) {
             case "borrar": {
                 if (!plan)
                     return;
-                if (window.confirm(`¿Borrar el plan "${plan.nombre}"?`)) {
-                    void app.stores.planes.eliminar(u.id, plan.id).catch(() => aviso("No se pudo borrar el plan."));
-                }
+                const p = plan;
+                void confirmar({
+                    titulo: "¿Borrar esta plantilla?",
+                    texto: `"${p.nombre}" se eliminará. No se puede deshacer.`,
+                    aceptar: "Borrar",
+                    cancelar: "Conservar",
+                    peligro: true,
+                }).then((ok) => {
+                    if (!ok)
+                        return;
+                    void app.stores.planes.eliminar(u.id, p.id).catch(() => aviso("No se pudo borrar el plan."));
+                });
                 break;
             }
         }
